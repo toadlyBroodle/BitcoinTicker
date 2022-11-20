@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="80dp"
+    android:minHeight="40dp"
+    android:updatePeriodMillis="1800000"
+    android:previewImage="@drawable/example_appwidget_preview"
+    android:initialLayout="@layout/app_widget"
+    android:description="@string/widget_description"
+    android:configure="org.bitanon.bitcointicker.AppWidgetConfigureActivity"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen|keyguard"
+    android:previewLayout="@layout/app_widget"
+    android:targetCellHeight="1"
+    android:targetCellWidth="2"
+    android:initialKeyguardLayout="@layout/app_widget"
+/>

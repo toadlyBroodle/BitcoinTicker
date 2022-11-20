@@ -1,0 +1,28 @@
+<resources>
+    <!-- Currency Preference -->
+    <string-array name="currency_codes">
+        <item>AUD</item>
+        <item>CAD</item>
+        <item>CHF</item>
+        <item>CNH</item>
+        <item>EUR</item>
+        <item>GBP</item>
+        <item>HKD</item>
+        <item>JPY</item>
+        <item>NZD</item>
+        <item>USD</item>
+    </string-array>
+
+    <string-array name="update_freq">
+        <item>30m</item>
+        <item>60m</item>
+        <item>120m</item>
+    </string-array>
+
+    <string-array name="update_freq_values">
+        <item>1800000</item>
+        <item>3600000</item>
+        <item>7200000</item>
+    </string-array>
+
+</resources>
