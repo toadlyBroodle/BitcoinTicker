@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var sharedPrefs: SharedPreferences
     private lateinit var prefCurrency: String
-    var lastRealBtcPrice: Int? = null
+    var lastRealBtcPrice: String? = null
 
     private lateinit var btcPriceUnitsTextView: TextView
     private lateinit var btcPriceTextView: TextView
@@ -43,16 +43,16 @@ class MainActivity : AppCompatActivity() {
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         prefCurrency = sharedPrefs.getString(getString(R.string.pref_list_currency), "USD").toString()
-        lastRealBtcPrice = sharedPrefs.getInt(
-            R.string.last_real_btc_price.toString(), -1)
+        lastRealBtcPrice = sharedPrefs.getString(
+            R.string.last_real_btc_price.toString(), null)
         println("loaded sharedPrefs: ${sharedPrefs.all}")
 
-        apiClient = APIClient().init(this)
+        apiClient = APIClient().init(this, null)
 
         btcPriceUnitsTextView = findViewById(R.id.textview_btcprice_units)
         btcPriceUnitsTextView.text = "$prefCurrency/BTC"
         btcPriceTextView = findViewById(R.id.textview_btcprice)
-        btcPriceTextView.text = intToCurrency(lastRealBtcPrice!!, prefCurrency)
+        btcPriceTextView.text = lastRealBtcPrice?.let { numberToCurrency(it.toInt(), prefCurrency) }
 
         apiClient.pingCoinGeckoCom(prefCurrency)
         //apiClient.getBitcoinPrice(prefCurrency!!)

@@ -9,8 +9,12 @@ import android.os.Bundle
 import android.view.View
 import org.bitanon.bitcointicker.databinding.AppWidgetConfigureBinding
 
-//private var pref_currency: String? = null
-//private var pref_update_freq: Int? = null
+const val PREF_PREFIX = "org_bitanon_bitcointicker_"
+const val PREF_CURRENCY = "pref_currency"
+const val PREF_UPDATE_FREQ = "pref_update_freq"
+const val WORK_MANAGER_NAME = "work_manager_name"
+
+lateinit var apiClient: APIClient
 
 class AppWidgetConfigureActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
@@ -19,6 +23,8 @@ class AppWidgetConfigureActivity : Activity() {
 
     public override fun onCreate(icicle: Bundle?) {
         super.onCreate(icicle)
+
+        apiClient = APIClient().init(null, this)
 
         // Set the result to CANCELED.  This will cause the widget host to cancel
         // out of the widget placement if the user presses the back button.

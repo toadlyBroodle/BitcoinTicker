@@ -9,10 +9,6 @@ import android.widget.RemoteViews
 import androidx.work.*
 import java.util.concurrent.TimeUnit
 
-const val PREF_PREFIX = "org_bitanon_bitcointicker_"
-const val PREF_CURRENCY = "pref_currency"
-const val PREF_UPDATE_FREQ = "pref_update_freq"
-const val WORK_MANAGER_NAME = "work_manager_name"
 
 lateinit var widgetIds: IntArray
 
@@ -76,7 +72,7 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
     val widgetPrefs = loadWidgetConfigPrefs(context, appWidgetId)
     val prefCurr = widgetPrefs!!.getString(PREF_CURRENCY, "USD")
 
-    // Attach an on-click listener to the widget and set currency units from prefs and get price
+    // Attach an on-click listener to the widget and set currency units from prefs
     views.apply {
         setOnClickPendingIntent(R.id.widget_linear_layout, pendingIntent)
         setTextViewText(R.id.widget_textview_btcprice_units, "$prefCurr/BTC")
