@@ -15,9 +15,6 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.preference.PreferenceManager
 import org.bitanon.bitcointicker.databinding.ActivityMainBinding
-import org.w3c.dom.Text
-import java.text.NumberFormat
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,10 +23,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var apiClient: APIClient
 
     var sharedPrefs: SharedPreferences? = null
-    var prefCurrency: String? = null
+    private var prefCurrency: String? = null
+    var lastRealBtcPrice: Int? = null
 
-    var btcPriceUnitsTextView: TextView? = null
-    var btcPriceTextView: TextView? = null
+    private var btcPriceUnitsTextView: TextView? = null
+    private var btcPriceTextView: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,22 +43,19 @@ class MainActivity : AppCompatActivity() {
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         prefCurrency = sharedPrefs!!.getString(getString(R.string.pref_list_currency), "USD")
-        println("prefCurrency=$prefCurrency")
+        lastRealBtcPrice = sharedPrefs!!.getInt(
+            R.string.last_real_btc_price.toString(), -1)
+        println("loaded sharedPrefs: ${sharedPrefs!!.all}")
 
-        apiClient = APIClient().init(this, sharedPrefs!!)
+        apiClient = APIClient().init(this)
 
         btcPriceUnitsTextView = findViewById(R.id.textview_btcprice_units)
         btcPriceUnitsTextView?.text = "$prefCurrency/BTC"
         btcPriceTextView = findViewById(R.id.textview_btcprice)
+        btcPriceTextView?.text = intToCurrency(lastRealBtcPrice!!, prefCurrency!!)
 
-        apiClient.pingCoinGeckoCom()
-        apiClient.getBitcoinPrice(prefCurrency!!)
-
-        //save last real btc price to preferences to avoid null pointer exception
-        //if server cannot be reached on next server request
-        sharedPrefs!!.edit().putString(getString(
-            org.bitanon.bitcointicker.R.string.last_real_btc_price),
-            apiClient.lastRealBtcPrice!!).apply()
+        apiClient.pingCoinGeckoCom(prefCurrency!!)
+        //apiClient.getBitcoinPrice(prefCurrency!!)
      }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

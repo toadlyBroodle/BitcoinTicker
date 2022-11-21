@@ -15,7 +15,7 @@ import org.bitanon.bitcointicker.databinding.AppWidgetConfigureBinding
 class AppWidgetConfigureActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
 
-    lateinit var binding: AppWidgetConfigureBinding
+    private lateinit var binding: AppWidgetConfigureBinding
 
     public override fun onCreate(icicle: Bundle?) {
         super.onCreate(icicle)

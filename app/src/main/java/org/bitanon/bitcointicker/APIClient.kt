@@ -1,31 +1,26 @@
 package org.bitanon.bitcointicker
 
-import android.content.SharedPreferences
 import okhttp3.*
+import org.json.JSONObject
 import java.io.IOException
 import java.text.NumberFormat
 import java.util.*
 
 private const val urlCGReqPing = "https://api.coingecko.com/api/v3/ping"
-private const val urlCGReqBtcPrice = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=true&include_last_updated_at=true"
+private const val urlCGReqBtcPrice = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true&precision=0"
 
 class APIClient {
 
 	private lateinit var mainActivity: MainActivity
 	private val client = OkHttpClient()
-	var lastRealBtcPrice: String? = null
 	private var lastReqTime: Long? = 0
 
-	fun init(activity: MainActivity, sharedPrefs: SharedPreferences): APIClient {
+	fun init(activity: MainActivity): APIClient {
 		mainActivity = activity
-		lastRealBtcPrice = sharedPrefs.getString(
-			R.string.last_real_btc_price.toString(), (-1f).toString()
-		)
-		println("prefLastRealBtcPrice=$lastRealBtcPrice")
 		return this
 	}
 
-	fun pingCoinGeckoCom() {
+	fun pingCoinGeckoCom(prefCurrency: String) {
 		val request = Request.Builder()
 			.url(urlCGReqPing)
 			.build()
@@ -36,8 +31,10 @@ class APIClient {
 				mainActivity.showToast(R.string.fail_contact_server)
 			}
 			override fun onResponse(call: Call, response: Response) {
-				if (response.body()?.string()?.contains("(V3) To the Moon!") == true)
+				if (response.body()?.string()?.contains("(V3) To the Moon!") == true) {
 					println("coingecko.com echoed ping")
+					getBitcoinPrice(prefCurrency)
+				}
 				else println("coingecko.com did NOT echo ping")
 			}
 		})
@@ -52,10 +49,11 @@ class APIClient {
 
 		//if last one was less than 2m ago, update last real price with random price jitter
 		if (System.currentTimeMillis() - lastReqTime!! <= 120000) {
-			val rand = (-999..999).random() / 100.00f
-			val jitter = lastRealBtcPrice!!.toFloat() + rand
-			println("price jitter: $jitter")
-			mainActivity.updateUI(price + jitter)
+			val rand = (-9..9).random()
+			val jitteredPrice = mainActivity.lastRealBtcPrice?.plus(rand)
+			println("jittered price: $jitteredPrice")
+			mainActivity.updateUI(intToCurrency(jitteredPrice!!, prefCurrency))
+			return
 		}
 
 		val request = Request.Builder()
@@ -68,16 +66,19 @@ class APIClient {
 				price = null
 			}
 			override fun onResponse(call: Call, response: Response) {
-				val parsedResponse = response.body()?.string()?.substringAfter("$cur\":","")?.substringBefore(",","")
-				// return if string is empty
-				if (parsedResponse?.isEmpty() == true) {
-					price = null
-					println("coingecko.com bitcoin price request return empty string")
-					return
-				}
+				//OLD val parsedResponse = response.body()?.string()?.substringAfter("$cur\":","")?.substringBefore(",","")
+				val jsonObj = parseJson(response.body()!!.string())
 
-				price = floatToCurrency(parsedResponse, prefCurrency)
-				println("updated real price to $price")
+				price = intToCurrency(jsonObj.getInt(prefCurrency.lowercase()), prefCurrency)
+
+				//save last real btc price to preferences to avoid null pointer exception
+				//if server cannot be reached on next server request
+				val priceInt = currencyToInt(price!!)
+				mainActivity.sharedPrefs!!.edit().putInt(mainActivity.getString(
+					R.string.last_real_btc_price), priceInt
+				).apply()
+				mainActivity.lastRealBtcPrice = priceInt
+				println("saved last real price pref:$priceInt")
 
 				mainActivity.updateUI(price)
 			}
@@ -86,14 +87,22 @@ class APIClient {
 	}
 }
 
-fun floatToCurrency(float: String?, prefCurrency: String): String {
+fun intToCurrency(int: Int, prefCurrency: String): String {
 	val format: NumberFormat = NumberFormat.getCurrencyInstance()
-	format.maximumFractionDigits = 2
+	format.maximumFractionDigits = 0
 	format.currency = Currency.getInstance(prefCurrency)
-	return format.format(float)
+	return format.format(int)
 }
 
-fun currencyToFloat (currency: String): Float {
+fun currencyToInt (currency: String): Int {
 	val digits = currency.filter { it.isDigit() }
-	return digits.toFloat()
+	//println("converted $currency to $digits")
+	return digits.toInt()
+}
+
+fun parseJson (jsonString: String): JSONObject {
+	// get JSONObject from JSON file
+	val obj = JSONObject(jsonString)
+	val bitcoin: JSONObject = obj.getJSONObject("bitcoin")
+	return bitcoin
 }
