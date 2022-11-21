@@ -22,12 +22,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var apiClient: APIClient
 
-    var sharedPrefs: SharedPreferences? = null
-    private var prefCurrency: String? = null
+    lateinit var sharedPrefs: SharedPreferences
+    private lateinit var prefCurrency: String
     var lastRealBtcPrice: Int? = null
 
-    private var btcPriceUnitsTextView: TextView? = null
-    private var btcPriceTextView: TextView? = null
+    private lateinit var btcPriceUnitsTextView: TextView
+    private lateinit var btcPriceTextView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,19 +42,19 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        prefCurrency = sharedPrefs!!.getString(getString(R.string.pref_list_currency), "USD")
-        lastRealBtcPrice = sharedPrefs!!.getInt(
+        prefCurrency = sharedPrefs.getString(getString(R.string.pref_list_currency), "USD").toString()
+        lastRealBtcPrice = sharedPrefs.getInt(
             R.string.last_real_btc_price.toString(), -1)
-        println("loaded sharedPrefs: ${sharedPrefs!!.all}")
+        println("loaded sharedPrefs: ${sharedPrefs.all}")
 
         apiClient = APIClient().init(this)
 
         btcPriceUnitsTextView = findViewById(R.id.textview_btcprice_units)
-        btcPriceUnitsTextView?.text = "$prefCurrency/BTC"
+        btcPriceUnitsTextView.text = "$prefCurrency/BTC"
         btcPriceTextView = findViewById(R.id.textview_btcprice)
-        btcPriceTextView?.text = intToCurrency(lastRealBtcPrice!!, prefCurrency!!)
+        btcPriceTextView.text = intToCurrency(lastRealBtcPrice!!, prefCurrency)
 
-        apiClient.pingCoinGeckoCom(prefCurrency!!)
+        apiClient.pingCoinGeckoCom(prefCurrency)
         //apiClient.getBitcoinPrice(prefCurrency!!)
      }
 
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_UP) {
-            apiClient.getBitcoinPrice(prefCurrency!!)
+            apiClient.getBitcoinPrice(prefCurrency)
         }
 
         return true
@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
 
     fun updateUI(price: String?) {
         runOnUiThread {
-            btcPriceTextView?.text = price
+            btcPriceTextView.text = price
         }
     }
 

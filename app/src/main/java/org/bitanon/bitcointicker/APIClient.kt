@@ -13,7 +13,7 @@ class APIClient {
 
 	private lateinit var mainActivity: MainActivity
 	private val client = OkHttpClient()
-	private var lastReqTime: Long? = 0
+	private var lastReqTime: Long = 0
 
 	fun init(activity: MainActivity): APIClient {
 		mainActivity = activity
@@ -41,14 +41,14 @@ class APIClient {
 	}
 
 	fun getBitcoinPrice(prefCurrency: String) {
-		var price: String? = null
+		var price: String
 		//build correct url based on currency preference
 		val cur = prefCurrency.lowercase()
 		val url = urlCGReqBtcPrice.replace("vs_currencies=usd","vs_currencies=$cur")
 		//println("url=$url")
 
 		//if last one was less than 2m ago, update last real price with random price jitter
-		if (System.currentTimeMillis() - lastReqTime!! <= 120000) {
+		if (System.currentTimeMillis() - lastReqTime <= 120000) {
 			val rand = (-9..9).random()
 			val jitteredPrice = mainActivity.lastRealBtcPrice?.plus(rand)
 			println("jittered price: $jitteredPrice")
@@ -63,7 +63,6 @@ class APIClient {
 		client.newCall(request).enqueue(object : Callback {
 			override fun onFailure(call: Call, e: IOException) {
 				println("coingecko.com bitcoin price request failed")
-				price = null
 			}
 			override fun onResponse(call: Call, response: Response) {
 				//OLD val parsedResponse = response.body()?.string()?.substringAfter("$cur\":","")?.substringBefore(",","")
@@ -73,8 +72,8 @@ class APIClient {
 
 				//save last real btc price to preferences to avoid null pointer exception
 				//if server cannot be reached on next server request
-				val priceInt = currencyToInt(price!!)
-				mainActivity.sharedPrefs!!.edit().putInt(mainActivity.getString(
+				val priceInt = currencyToInt(price)
+				mainActivity.sharedPrefs.edit().putInt(mainActivity.getString(
 					R.string.last_real_btc_price), priceInt
 				).apply()
 				mainActivity.lastRealBtcPrice = priceInt
