@@ -2,11 +2,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ListPreference
+        android:key="pref_list_currency"
         android:defaultValue="USD"
         android:entries="@array/currency_codes"
         android:entryValues="@array/currency_codes"
-        android:key="@string/pref_list_currency"
         android:title="@string/currency"
+        android:summary="%s"/>
+
+    <SwitchPreferenceCompat
+        app:key="pref_show_day_change"
+        app:title="@string/show_day_change"/>
+
+
+    <ListPreference
+        android:key="pref_update_frequency"
+        android:defaultValue="1800000"
+        android:entries="@array/update_freq"
+        android:entryValues="@array/update_freq_values"
+        android:title="@string/update_frequency"
         android:summary="%s"/>
 
 </PreferenceScreen>

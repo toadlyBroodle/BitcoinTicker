@@ -16,6 +16,9 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.preference.PreferenceManager
 import org.bitanon.bitcointicker.databinding.ActivityMainBinding
 
+const val PREF_LIST_CURRENCY = "pref_list_currency"
+const val PREF_LAST_REAL_BTC_PRICE = "pref_last_real_btc_price"
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -24,7 +27,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var sharedPrefs: SharedPreferences
     private lateinit var prefCurrency: String
-    var lastRealBtcPrice: String? = null
+    lateinit var lastRealBtcPrice: String
 
     private lateinit var btcPriceUnitsTextView: TextView
     private lateinit var btcPriceTextView: TextView
@@ -42,9 +45,8 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        prefCurrency = sharedPrefs.getString(getString(R.string.pref_list_currency), "USD").toString()
-        lastRealBtcPrice = sharedPrefs.getString(
-            R.string.last_real_btc_price.toString(), null)
+        prefCurrency = sharedPrefs.getString(PREF_LIST_CURRENCY, "USD").toString()
+        lastRealBtcPrice = sharedPrefs.getInt(PREF_LAST_REAL_BTC_PRICE, -1).toString()
         println("loaded sharedPrefs: ${sharedPrefs.all}")
 
         apiClient = APIClient().init(this, null)
@@ -52,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         btcPriceUnitsTextView = findViewById(R.id.textview_btcprice_units)
         btcPriceUnitsTextView.text = "$prefCurrency/BTC"
         btcPriceTextView = findViewById(R.id.textview_btcprice)
-        btcPriceTextView.text = lastRealBtcPrice?.let { numberToCurrency(it, prefCurrency) }
+        btcPriceTextView.text = lastRealBtcPrice.let { numberToCurrency(it, prefCurrency) }
 
         apiClient.pingCoinGeckoCom(prefCurrency)
         //apiClient.getBitcoinPrice(prefCurrency!!)

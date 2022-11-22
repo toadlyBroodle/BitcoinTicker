@@ -76,8 +76,7 @@ class APIClient {
 					//save last real btc price to preferences to avoid null pointer exception
 					//if server cannot be reached on next server request
 					val priceInt = stringToInt(price)
-					mainActivity?.sharedPrefs?.edit()?.putInt(mainActivity?.getString(
-						R.string.last_real_btc_price), priceInt
+					mainActivity?.sharedPrefs?.edit()?.putInt(PREF_LAST_REAL_BTC_PRICE, priceInt
 					)?.apply()
 					mainActivity?.lastRealBtcPrice = priceInt.toString()
 					println("saved last real price pref:$priceInt")
@@ -108,6 +107,10 @@ fun stringToInt (str: String?): Int {
 	if (digits.isNullOrBlank()) return -1
 	return digits.toInt()
 }
+
+/*fun intToString (int: Int?): String {
+
+}*/
 
 fun parseJson (jsonString: String): JSONObject {
 	// get JSONObject from JSON file

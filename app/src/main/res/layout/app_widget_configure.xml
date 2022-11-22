@@ -22,16 +22,16 @@
         android:text="@string/currency" />
 
     <Spinner
+        android:key="widget_list_currency"
         android:id="@+id/widget_currencies_list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:defaultValue="USD"
         android:entries="@array/currency_codes"
         android:entryValues="@array/currency_codes"
-        android:key="@string/widget_list_currency"
         android:minHeight="48dp"
         android:summary="%s"
-        android:title="@string/widget_list_currency" />
+        android:title="@string/currency" />
 
     <TextView
         android:layout_width="match_parent"
@@ -42,16 +42,16 @@
         android:text="@string/update_frequency" />
 
     <Spinner
+        android:key="widget_list_update_freq"
         android:id="@+id/widget_update_frequency_list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:defaultValue="2m"
         android:entries="@array/update_freq"
         android:entryValues="@array/update_freq_values"
-        android:key="@string/widget_list_update_times"
         android:minHeight="48dp"
         android:summary="%s"
-        android:title="@string/widget_list_update_times" />
+        android:title="@string/update_frequency" />
 
     <Button
         android:id="@+id/add_widget_button"

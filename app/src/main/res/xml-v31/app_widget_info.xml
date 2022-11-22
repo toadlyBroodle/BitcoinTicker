@@ -9,5 +9,8 @@
     android:configure="org.bitanon.bitcointicker.AppWidgetConfigureActivity"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen|keyguard"
+    android:previewLayout="@layout/app_widget"
+    android:targetCellHeight="1"
+    android:targetCellWidth="2"
     android:initialKeyguardLayout="@layout/app_widget"
 />

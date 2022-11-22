@@ -1,28 +1,33 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Widget.BitcoinTicker.AppWidget.Container"
-    android:theme="@style/Theme.BitcoinTicker.AppWidgetContainer"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/widget_linear_layout"
     android:background="@color/black">
 
-    <TextView
-        android:id="@+id/widget_textview_btcprice_units"
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|center_vertical"
-        android:contentDescription="@string/usd_btc"
-        android:text="@string/usd_btc"
-        android:textAlignment="center"
-        android:textColor="@color/orange" />
+        android:layout_centerInParent="true">
+        <TextView
+            android:id="@+id/widget_textview_btcprice_units"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:contentDescription="@string/usd_btc"
+            android:text="@string/usd_btc"
+            android:textSize="16sp"
+            android:textColor="@color/orange" />
 
-    <TextView
-        android:id="@+id/widget_textview_btcprice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:contentDescription="@string/usd_btc"
-        android:text="@string/loading"
-        android:textColor="@color/orange" />
+        <TextView
+            android:id="@+id/widget_textview_btcprice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/widget_textview_btcprice_units"
+            android:layout_centerHorizontal="true"
+            android:contentDescription="@string/usd_btc"
+            android:text="@string/loading"
+            android:textSize="16sp"
+            android:textColor="@color/orange" />
 
-</LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>
