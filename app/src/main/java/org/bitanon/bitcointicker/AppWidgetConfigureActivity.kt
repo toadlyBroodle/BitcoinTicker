@@ -11,12 +11,14 @@ import org.bitanon.bitcointicker.databinding.AppWidgetConfigureBinding
 
 const val PREF_PREFIX = "org_bitanon_bitcointicker_"
 const val PREF_CURRENCY = "pref_currency"
+const val PREF_PRICE = "pref_price"
 const val PREF_UPDATE_FREQ = "pref_update_freq"
 const val WORK_MANAGER_NAME = "work_manager_name"
 
 lateinit var apiClient: APIClient
 
 class AppWidgetConfigureActivity : Activity() {
+    private var context = this@AppWidgetConfigureActivity
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
 
     private lateinit var binding: AppWidgetConfigureBinding
@@ -48,17 +50,23 @@ class AppWidgetConfigureActivity : Activity() {
             finish()
             return
         }
-
-        // load preferences from shared preferences
-        loadWidgetConfigPrefs(this, appWidgetId)
     }
 
     private var onClickListener = View.OnClickListener {
-        val context = this@AppWidgetConfigureActivity
 
         // save config prefs before updating widget
-        saveWidgetConfigPrefs(this, appWidgetId, binding)
+        saveWidgetConfigPrefs(context, appWidgetId, binding)
+        callForUpdate()
 
+        // load prefCurrency and send query for price
+        val prefs = loadWidgetPrefs(context, appWidgetId)
+        val prefCurr = prefs.getString(PREF_CURRENCY, context.getString(R.string.usd))
+        if (prefCurr != null) {
+            apiClient.pingCoinGeckoCom(prefCurr)
+        }
+    }
+
+    fun callForUpdate() {
         // It is the responsibility of the configuration activity to update the app widget
         val appWidgetManager = AppWidgetManager.getInstance(context)
         updateAppWidget(context, appWidgetManager, appWidgetId)
@@ -69,6 +77,16 @@ class AppWidgetConfigureActivity : Activity() {
         setResult(RESULT_OK, resultValue)
         finish()
 
+    }
+
+    fun savePrefPriceUpdate(price: String) {
+        val prefsKey = getPrefsName(appWidgetId)
+        val prefs = context.getSharedPreferences(prefsKey, 0)
+        val prefsEditor = prefs.edit()
+        prefsEditor.putString(PREF_PRICE, price)
+        prefsEditor.commit()
+        println("saved $prefsKey :${prefs.all}")
+        callForUpdate()
     }
 }
 
@@ -84,7 +102,7 @@ internal fun saveWidgetConfigPrefs(context: Context, appWidgetId: Int, binding: 
 }
 
 // Read the prefixed SharedPreferences object for this widget
-internal fun loadWidgetConfigPrefs(context: Context, appWidgetId: Int): SharedPreferences? {
+internal fun loadWidgetPrefs(context: Context, appWidgetId: Int): SharedPreferences {
     val prefsKey = getPrefsName(appWidgetId)
     val prefs = context.getSharedPreferences(prefsKey, 0)
     println("loaded $prefsKey :${prefs.all}")

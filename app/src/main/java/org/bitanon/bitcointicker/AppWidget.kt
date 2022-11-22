@@ -69,14 +69,15 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
         /* flags = */ PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
-    val widgetPrefs = loadWidgetConfigPrefs(context, appWidgetId)
-    val prefCurr = widgetPrefs!!.getString(PREF_CURRENCY, "USD")
-
+    val prefs = loadWidgetPrefs(context, appWidgetId)
+    val prefCurr = prefs.getString(PREF_CURRENCY, context.getString(R.string.usd))
+    val prefPrice = prefs.getString(PREF_PRICE, context.getString(R.string.loading))
     // Attach an on-click listener to the widget and set currency units from prefs
     views.apply {
         setOnClickPendingIntent(R.id.widget_linear_layout, pendingIntent)
         setTextViewText(R.id.widget_textview_btcprice_units, "$prefCurr/BTC")
-        //TODO setTextViewText(R.id.widget_textview_btcprice, "")
+        if (prefCurr != null)
+            setTextViewText(R.id.widget_textview_btcprice, numberToCurrency(prefPrice, prefCurr))
     }
 
     // Instruct the widget manager to update the widget

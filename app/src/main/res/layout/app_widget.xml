@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:contentDescription="@string/usd_btc"
-        android:text="@string/textview_btcprice_loading"
+        android:text="@string/loading"
         android:textColor="@color/orange" />
 
 </LinearLayout>

@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         btcPriceUnitsTextView = findViewById(R.id.textview_btcprice_units)
         btcPriceUnitsTextView.text = "$prefCurrency/BTC"
         btcPriceTextView = findViewById(R.id.textview_btcprice)
-        btcPriceTextView.text = lastRealBtcPrice?.let { numberToCurrency(it.toInt(), prefCurrency) }
+        btcPriceTextView.text = lastRealBtcPrice?.let { numberToCurrency(it, prefCurrency) }
 
         apiClient.pingCoinGeckoCom(prefCurrency)
         //apiClient.getBitcoinPrice(prefCurrency!!)

@@ -9,7 +9,7 @@
     <string name="fail_contact_server">problem contacting server...</string>
     <string name="touch_event">touch event</string>
     <string name="last_real_btc_price">last_real_btc_price</string>
-    <string name="textview_btcprice_loading">…</string>
+    <string name="loading">…</string>
 
     <!-- Preferences -->
     <string name="pref_list_currency">pref_list_currency</string>

@@ -52,7 +52,7 @@ class APIClient {
 		//if last one was less than 2m ago, update last real price with random price jitter
 		if (System.currentTimeMillis() - lastReqTime <= 120000) {
 			val rand = (-9..9).random()
-			val jitteredPrice = mainActivity?.lastRealBtcPrice?.toInt()?.plus(rand)
+			val jitteredPrice = mainActivity?.lastRealBtcPrice?.toInt()?.plus(rand).toString()
 			println("jittered price: $jitteredPrice")
 			mainActivity?.updateUI(numberToCurrency(jitteredPrice, prefCurrency))
 			return
@@ -70,34 +70,42 @@ class APIClient {
 				//OLD val parsedResponse = response.body()?.string()?.substringAfter("$cur\":","")?.substringBefore(",","")
 				val jsonObj = parseJson(response.body()!!.string())
 
-				price = numberToCurrency(jsonObj.getInt(prefCurrency.lowercase()), prefCurrency)
+				price = numberToCurrency(jsonObj.getString(prefCurrency.lowercase()), prefCurrency)
 
-				//save last real btc price to preferences to avoid null pointer exception
-				//if server cannot be reached on next server request
-				val priceInt = currencyToInt(price)
-				mainActivity?.sharedPrefs?.edit()?.putInt(mainActivity?.getString(
-					R.string.last_real_btc_price), priceInt
-				)?.apply()
-				mainActivity?.lastRealBtcPrice = priceInt.toString()
-				println("saved last real price pref:$priceInt")
+				if (mainActivity != null) {
+					//save last real btc price to preferences to avoid null pointer exception
+					//if server cannot be reached on next server request
+					val priceInt = stringToInt(price)
+					mainActivity?.sharedPrefs?.edit()?.putInt(mainActivity?.getString(
+						R.string.last_real_btc_price), priceInt
+					)?.apply()
+					mainActivity?.lastRealBtcPrice = priceInt.toString()
+					println("saved last real price pref:$priceInt")
 
-				mainActivity?.updateUI(price)
+					mainActivity?.updateUI(price)
+				}
+				if (widgetActivity != null) {
+					//save price to widget preferences
+					widgetActivity?.savePrefPriceUpdate(price)
+				}
 			}
 		})
 		lastReqTime = System.currentTimeMillis()
 	}
 }
 
-fun numberToCurrency(number: Int?, prefCurrency: String): String {
+fun numberToCurrency(number: String?, prefCurrency: String): String {
+	val int = stringToInt(number)
 	val format: NumberFormat = NumberFormat.getCurrencyInstance()
 	format.maximumFractionDigits = 0
 	format.currency = Currency.getInstance(prefCurrency)
-	return format.format(number)
+	return format.format(int)
 }
 
-fun currencyToInt (currency: String): Int {
-	val digits = currency.filter { it.isDigit() }
+fun stringToInt (str: String?): Int {
+	val digits = str?.filter { it.isDigit() }
 	//println("converted $currency to $digits")
+	if (digits.isNullOrBlank()) return -1
 	return digits.toInt()
 }
 
