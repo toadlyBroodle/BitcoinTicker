@@ -3,18 +3,19 @@ package org.bitanon.bitcointicker
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.widget.RemoteViews
-import androidx.work.*
-import java.util.concurrent.TimeUnit
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.work.WorkManager
 
+const val PREF_PREFIX = "org.bitanon.bitcointicker."
+const val PREF_CURRENCY = "PREF_CURRENCY"
+const val PREF_PRICE = "PREF_PRICE"
+const val PREF_UPDATE_FREQ = "PREF_UPDATE_FREQUENCY"
 
-lateinit var widgetIds: IntArray
+fun getPrefsName(id: Int): String { return PREF_PREFIX + id }
 
-fun getPrefsName(id: Int): String {
-    return PREF_PREFIX + id
-}
+var widgetIds: IntArray? = null
 
 class AppWidget : AppWidgetProvider() {
 
@@ -25,6 +26,7 @@ class AppWidget : AppWidgetProvider() {
         for (appWidgetId in appWidgetIds) {
 
             updateAppWidget(context, appWidgetManager, appWidgetId)
+
         }
     }
 
@@ -32,27 +34,50 @@ class AppWidget : AppWidgetProvider() {
         // When the user deletes the widget, delete the preference associated with it.
         for (appWidgetId in appWidgetIds) {
             deleteWidgetPrefs(context, appWidgetId)
+            // and remove workmanager updater
+            WorkManager.getInstance(context).cancelUniqueWork(getWorkerName(appWidgetId))
         }
-        // and remove workmanager updater
-
-
     }
     override fun onEnabled(context: Context) {
-        // Enter relevant functionality for when the first widget is created
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            WORK_MANAGER_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
-            PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
-                30, TimeUnit.MINUTES
-            ).build()
-        )
-        println("$WORK_MANAGER_NAME enabled")
+        // register price update receiver
+        val filterPrice = IntentFilter(BROADCAST_PRICE_UPDATED)
+        LocalBroadcastManager.getInstance(context).registerReceiver(br, filterPrice)
+
     }
 
     override fun onDisabled(context: Context) {
-        // Enter relevant functionality for when the last widget is disabled
-        WorkManager.getInstance(context).cancelUniqueWork(WORK_MANAGER_NAME)
-        println("$WORK_MANAGER_NAME canceled")
+        // unregister price update receiver
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(br)
+    }
+
+    private val br = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            // ignore widget price updates
+            val widgetId = intent?.getIntExtra("widget_id", 0)
+            if ( widgetId == -1) return
+
+            when (intent?.action) {
+                BROADCAST_PRICE_UPDATED -> {
+                    val price = intent.getStringExtra("price")
+
+                    // otherwise save widget prefs price
+                    val prefsKey = widgetId?.let { getPrefsName(it) }
+                    val prefs = context?.getSharedPreferences(prefsKey, 0)
+                    val prefsEditor = prefs?.edit()
+                    if (prefsEditor != null) {
+                        prefsEditor.putString(PREF_PRICE, price)
+                        prefsEditor.commit()
+                    }
+                    println("saved $prefsKey :${prefs?.all}")
+
+                    // and update widgets
+                    val appWidgetManager = AppWidgetManager.getInstance(context)
+                    if (context != null && widgetId != null) {
+                        updateAppWidget(context, appWidgetManager, widgetId)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -61,7 +86,7 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.app_widget)
 
-    // Create an Intent to launch MainActivity.
+    // Create an Intent to launch MainActivity when widget touched
     val pendingIntent: PendingIntent = PendingIntent.getActivity(
         /* context = */ context,
         /* requestCode = */  0,
@@ -84,19 +109,18 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
     appWidgetManager.updateAppWidget(appWidgetId, views)
 }
 
+// Read the prefixed SharedPreferences object for this widget
+internal fun loadWidgetPrefs(context: Context, appWidgetId: Int): SharedPreferences {
+    val prefsKey = getPrefsName(appWidgetId)
+    val prefs = context.getSharedPreferences(prefsKey, 0)
+    println("loaded $prefsKey :${prefs.all}")
+    return prefs
+}
 
-class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerParameters)
-    : Worker(appContext, workerParams) {
-
-    override fun doWork(): Result {
-
-        val intent = Intent(
-            AppWidgetManager.ACTION_APPWIDGET_UPDATE, null, appContext,
-            AppWidget::class.java
-        )
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
-        appContext.sendBroadcast(intent)
-
-        return Result.success()
-    }
+internal fun deleteWidgetPrefs(context: Context, appWidgetId: Int) {
+    val prefsKey = getPrefsName(appWidgetId)
+    val prefsEditor = context.getSharedPreferences(prefsKey, 0).edit()
+    prefsEditor.remove(prefsKey)
+    prefsEditor.apply()
+    println("deleted $prefsKey")
 }

@@ -4,29 +4,26 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
+import androidx.work.Data
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import org.bitanon.bitcointicker.databinding.AppWidgetConfigureBinding
+import java.util.concurrent.TimeUnit
 
-const val PREF_PREFIX = "org_bitanon_bitcointicker_"
-const val PREF_CURRENCY = "pref_currency"
-const val PREF_PRICE = "pref_price"
-const val PREF_UPDATE_FREQ = "pref_update_freq"
-const val WORK_MANAGER_NAME = "work_manager_name"
-
-lateinit var apiClient: APIClient
+fun getWorkerName(id: Int): String { return "worker$id"}
 
 class AppWidgetConfigureActivity : Activity() {
     private var context = this@AppWidgetConfigureActivity
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
 
     private lateinit var binding: AppWidgetConfigureBinding
+    //private val receiver: br = br()
 
     public override fun onCreate(icicle: Bundle?) {
         super.onCreate(icicle)
-
-        apiClient = APIClient().init(null, this)
 
         // Set the result to CANCELED.  This will cause the widget host to cancel
         // out of the widget placement if the user presses the back button.
@@ -42,7 +39,8 @@ class AppWidgetConfigureActivity : Activity() {
         val extras = intent.extras
         if (extras != null) {
             appWidgetId = extras.getInt(
-                    AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+                AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID
+            )
         }
 
         // If this activity was started with an intent without an app widget ID, finish with an error.
@@ -52,22 +50,16 @@ class AppWidgetConfigureActivity : Activity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
     private var onClickListener = View.OnClickListener {
 
         // save config prefs before updating widget
         saveWidgetConfigPrefs(context, appWidgetId, binding)
-        callForUpdate()
 
-        // load prefCurrency and send query for price
-        val prefs = loadWidgetPrefs(context, appWidgetId)
-        val prefCurr = prefs.getString(PREF_CURRENCY, context.getString(R.string.usd))
-        if (prefCurr != null) {
-            apiClient.pingCoinGeckoCom(prefCurr)
-        }
-    }
-
-    fun callForUpdate() {
-        // It is the responsibility of the configuration activity to update the app widget
+        // It is the responsibility of the widget manager to update the app widget
         val appWidgetManager = AppWidgetManager.getInstance(context)
         updateAppWidget(context, appWidgetManager, appWidgetId)
 
@@ -77,16 +69,26 @@ class AppWidgetConfigureActivity : Activity() {
         setResult(RESULT_OK, resultValue)
         finish()
 
-    }
+        // load prefCurrency
+        val prefs = loadWidgetPrefs(context, appWidgetId)
+        val prefCurr = prefs.getString(PREF_CURRENCY, context.getString(R.string.usd))
 
-    fun savePrefPriceUpdate(price: String) {
-        val prefsKey = getPrefsName(appWidgetId)
-        val prefs = context.getSharedPreferences(prefsKey, 0)
-        val prefsEditor = prefs.edit()
-        prefsEditor.putString(PREF_PRICE, price)
-        prefsEditor.commit()
-        println("saved $prefsKey :${prefs.all}")
-        callForUpdate()
+        // construct recurring price query
+        val queryPriceWork = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
+            30, TimeUnit.MINUTES
+        )
+        //Add parameter in Data class. just like bundle. You can also add Boolean and Number in parameter.
+        val data = Data.Builder()
+        data.putString("pref_curr", prefCurr)
+        data.putInt("widget_id", appWidgetId)
+        queryPriceWork.setInputData(data.build())
+
+        // add recurring price query worker
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            getWorkerName(appWidgetId),
+            ExistingPeriodicWorkPolicy.REPLACE,
+            queryPriceWork.build()
+        )
     }
 }
 
@@ -99,20 +101,4 @@ internal fun saveWidgetConfigPrefs(context: Context, appWidgetId: Int, binding: 
     prefsEditor.putString(PREF_UPDATE_FREQ, binding.widgetUpdateFrequencyList.selectedItem.toString())
     prefsEditor.commit()
     println("saved $prefsKey :${prefs.all}")
-}
-
-// Read the prefixed SharedPreferences object for this widget
-internal fun loadWidgetPrefs(context: Context, appWidgetId: Int): SharedPreferences {
-    val prefsKey = getPrefsName(appWidgetId)
-    val prefs = context.getSharedPreferences(prefsKey, 0)
-    println("loaded $prefsKey :${prefs.all}")
-    return prefs
-}
-
-internal fun deleteWidgetPrefs(context: Context, appWidgetId: Int) {
-    val prefsKey = getPrefsName(appWidgetId)
-    val prefsEditor = context.getSharedPreferences(prefsKey, 0).edit()
-    prefsEditor.remove(prefsKey)
-    prefsEditor.apply()
-    println("deleted $prefsKey")
 }

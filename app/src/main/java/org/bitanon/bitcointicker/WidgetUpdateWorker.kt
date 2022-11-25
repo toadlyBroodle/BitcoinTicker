@@ -1,5 +1,10 @@
 package org.bitanon.bitcointicker
 
+import android.content.Context
+import android.content.Intent
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.work.Worker
+import androidx.work.WorkerParameters
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -9,17 +14,24 @@ import java.util.*
 private const val urlCGReqPing = "https://api.coingecko.com/api/v3/ping"
 private const val urlCGReqBtcPrice = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true&precision=0"
 
-class APIClient {
+class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerParameters)
+	: Worker(appContext, workerParams) {
 
-	private var mainActivity: MainActivity? = null
-	private var widgetActivity: AppWidgetConfigureActivity? = null
+	private var widgetId: Int = -1
+
 	private val client = OkHttpClient()
-	private var lastReqTime: Long = 0
 
-	fun init(mainActiv: MainActivity?, widgetActiv: AppWidgetConfigureActivity?): APIClient {
-		mainActivity = mainActiv
-		widgetActivity = widgetActiv
-		return this
+	override fun doWork(): Result {
+
+		//get Input Data back using "inputData" variable
+		val prefCurr =  inputData.getString("pref_curr")
+		widgetId = inputData.getInt("widget_id", -1)
+
+		if (prefCurr != null) {
+			pingCoinGeckoCom(prefCurr)
+		}
+
+		return Result.success()
 	}
 
 	fun pingCoinGeckoCom(prefCurrency: String) {
@@ -29,15 +41,15 @@ class APIClient {
 
 		client.newCall(request).enqueue(object : Callback {
 			override fun onFailure(call: Call, e: IOException) {
-				println("coingecko.com ping failed")
-				mainActivity?.showToast(R.string.fail_contact_server)
+				println("ping failed: ${e.message}")
+				sendMainToast(appContext.getString(R.string.fail_contact_server))
 			}
 			override fun onResponse(call: Call, response: Response) {
 				if (response.body()?.string()?.contains("(V3) To the Moon!") == true) {
-					println("coingecko.com echoed ping")
+					println("ping echoed")
 					getBitcoinPrice(prefCurrency)
 				}
-				else println("coingecko.com did NOT echo ping")
+				else sendMainToast(appContext.getString(R.string.bad_server_response))
 			}
 		})
 	}
@@ -47,16 +59,6 @@ class APIClient {
 		//build correct url based on currency preference
 		val cur = prefCurrency.lowercase()
 		val url = urlCGReqBtcPrice.replace("vs_currencies=usd","vs_currencies=$cur")
-		//println("url=$url")
-
-		//if last one was less than 2m ago, update last real price with random price jitter
-		if (System.currentTimeMillis() - lastReqTime <= 120000) {
-			val rand = (-9..9).random()
-			val jitteredPrice = mainActivity?.lastRealBtcPrice?.toInt()?.plus(rand).toString()
-			println("jittered price: $jitteredPrice")
-			mainActivity?.updateUI(numberToCurrency(jitteredPrice, prefCurrency))
-			return
-		}
 
 		val request = Request.Builder()
 			.url(url)
@@ -64,7 +66,7 @@ class APIClient {
 
 		client.newCall(request).enqueue(object : Callback {
 			override fun onFailure(call: Call, e: IOException) {
-				println("coingecko.com bitcoin price request failed")
+				println("coingecko.com bitcoin price request failed: ${e.message}")
 			}
 			override fun onResponse(call: Call, response: Response) {
 				//OLD val parsedResponse = response.body()?.string()?.substringAfter("$cur\":","")?.substringBefore(",","")
@@ -72,25 +74,33 @@ class APIClient {
 
 				price = numberToCurrency(jsonObj.getString(prefCurrency.lowercase()), prefCurrency)
 
-				if (mainActivity != null) {
-					//save last real btc price to preferences to avoid null pointer exception
-					//if server cannot be reached on next server request
-					val priceInt = stringToInt(price)
-					mainActivity?.sharedPrefs?.edit()?.putInt(PREF_LAST_REAL_BTC_PRICE, priceInt
-					)?.apply()
-					mainActivity?.lastRealBtcPrice = priceInt.toString()
-					println("saved last real price pref:$priceInt")
+				Intent().also { intent ->
+					intent.action = BROADCAST_PRICE_UPDATED
+					intent.putExtra("price", price)
+					intent.putExtra("widget_id", widgetId)
+					LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
+				}
 
-					mainActivity?.updateUI(price)
-				}
-				if (widgetActivity != null) {
-					//save price to widget preferences
-					widgetActivity?.savePrefPriceUpdate(price)
-				}
+				// close response body once done with it
+				response.body()!!.close()
 			}
 		})
-		lastReqTime = System.currentTimeMillis()
 	}
+
+	private fun sendMainToast(message: String) {
+		val intent = Intent().apply {
+			action = BROADCAST_SHOW_TOAST
+			putExtra("message", message)
+		}
+		LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
+	}
+}
+
+fun parseJson (jsonString: String): JSONObject {
+	// get JSONObject from JSON file
+	val obj = JSONObject(jsonString)
+	val bitcoin: JSONObject = obj.getJSONObject("bitcoin")
+	return bitcoin
 }
 
 fun numberToCurrency(number: String?, prefCurrency: String): String {
@@ -102,19 +112,9 @@ fun numberToCurrency(number: String?, prefCurrency: String): String {
 }
 
 fun stringToInt (str: String?): Int {
+	if (str == "-1") return -1
 	val digits = str?.filter { it.isDigit() }
 	//println("converted $currency to $digits")
 	if (digits.isNullOrBlank()) return -1
 	return digits.toInt()
-}
-
-/*fun intToString (int: Int?): String {
-
-}*/
-
-fun parseJson (jsonString: String): JSONObject {
-	// get JSONObject from JSON file
-	val obj = JSONObject(jsonString)
-	val bitcoin: JSONObject = obj.getJSONObject("bitcoin")
-	return bitcoin
 }
