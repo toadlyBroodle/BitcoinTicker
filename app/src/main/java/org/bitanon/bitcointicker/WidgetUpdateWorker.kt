@@ -56,6 +56,7 @@ class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerPa
 
 	fun getBitcoinPrice(prefCurrency: String) {
 		var price: String
+		var dayChange: String
 		//build correct url based on currency preference
 		val cur = prefCurrency.lowercase()
 		val url = urlCGReqBtcPrice.replace("vs_currencies=usd","vs_currencies=$cur")
@@ -73,11 +74,13 @@ class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerPa
 				val jsonObj = parseJson(response.body()!!.string())
 
 				price = numberToCurrency(jsonObj.getString(prefCurrency.lowercase()), prefCurrency)
+				dayChange = jsonObj.getString("${prefCurrency.lowercase()}_24h_change")
 
 				Intent().also { intent ->
 					intent.action = BROADCAST_PRICE_UPDATED
-					intent.putExtra("price", price)
 					intent.putExtra("widget_id", widgetId)
+					intent.putExtra("price", price)
+					intent.putExtra("day_change", dayChange)
 					LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
 				}
 

@@ -9,8 +9,4 @@
         android:title="@string/currency"
         android:summary="%s"/>
 
-    <SwitchPreferenceCompat
-        app:key="pref_show_day_change"
-        app:title="@string/show_day_change"/>
-
 </PreferenceScreen>

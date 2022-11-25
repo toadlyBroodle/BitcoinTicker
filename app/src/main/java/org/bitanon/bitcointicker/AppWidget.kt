@@ -11,6 +11,7 @@ import androidx.work.WorkManager
 const val PREF_PREFIX = "org.bitanon.bitcointicker."
 const val PREF_CURRENCY = "PREF_CURRENCY"
 const val PREF_PRICE = "PREF_PRICE"
+const val PREF_DAY_CHANGE = "PREF_DAY_CHANGE"
 const val PREF_UPDATE_FREQ = "PREF_UPDATE_FREQUENCY"
 
 fun getPrefsName(id: Int): String { return PREF_PREFIX + id }
@@ -59,13 +60,15 @@ class AppWidget : AppWidgetProvider() {
             when (intent?.action) {
                 BROADCAST_PRICE_UPDATED -> {
                     val price = intent.getStringExtra("price")
+                    val dayChange = intent.getStringExtra("day_change")
 
-                    // otherwise save widget prefs price
+                    // save widget prefs price
                     val prefsKey = widgetId?.let { getPrefsName(it) }
                     val prefs = context?.getSharedPreferences(prefsKey, 0)
                     val prefsEditor = prefs?.edit()
                     if (prefsEditor != null) {
                         prefsEditor.putString(PREF_PRICE, price)
+                        prefsEditor.putString(PREF_DAY_CHANGE, dayChange)
                         prefsEditor.commit()
                     }
                     println("saved $prefsKey :${prefs?.all}")
@@ -97,12 +100,25 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
     val prefs = loadWidgetPrefs(context, appWidgetId)
     val prefCurr = prefs.getString(PREF_CURRENCY, context.getString(R.string.usd))
     val prefPrice = prefs.getString(PREF_PRICE, context.getString(R.string.loading))
+    val prefDayChange = prefs.getString(PREF_DAY_CHANGE, null)?.toFloat()
     // Attach an on-click listener to the widget and set currency units from prefs
     views.apply {
         setOnClickPendingIntent(R.id.widget_linear_layout, pendingIntent)
         setTextViewText(R.id.widget_textview_btcprice_units, "$prefCurr/BTC")
         if (prefCurr != null)
             setTextViewText(R.id.widget_textview_btcprice, numberToCurrency(prefPrice, prefCurr))
+        if (prefDayChange != null)
+            setTextViewText(R.id.widget_textview_day_change_value, "%.2f".format(prefDayChange) + "%")
+        // change color of price based on 24h change
+        if (prefDayChange != null) {
+            val deltaColor: Int
+            if (prefDayChange > 0)
+                deltaColor = context.getColor(R.color.green)
+            else
+                deltaColor = context.getColor(R.color.red)
+            setTextColor(R.id.widget_textview_btcprice, deltaColor)
+            setTextColor(R.id.widget_textview_day_change_value, deltaColor)
+        }
     }
 
     // Instruct the widget manager to update the widget

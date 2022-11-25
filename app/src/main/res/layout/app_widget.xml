@@ -1,33 +1,66 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/widget_linear_layout"
     android:background="@color/black">
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/widget_ll_row1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true">
+        android:gravity="center">
+
         <TextView
             android:id="@+id/widget_textview_btcprice_units"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:contentDescription="@string/usd_btc"
             android:text="@string/usd_btc"
-            android:textSize="16sp"
-            android:textColor="@color/orange" />
+            android:textSize="12sp"
+            android:textColor="@color/orange"
+            android:padding="5sp"/>
 
         <TextView
             android:id="@+id/widget_textview_btcprice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/widget_textview_btcprice_units"
-            android:layout_centerHorizontal="true"
+            android:layout_toEndOf="@id/widget_textview_btcprice_units"
             android:contentDescription="@string/usd_btc"
             android:text="@string/loading"
-            android:textSize="16sp"
-            android:textColor="@color/orange" />
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:textColor="@color/orange"
+            android:padding="5sp"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/ll_row2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/widget_ll_row1"
+        android:gravity="center">
+        <TextView
+            android:id="@+id/widget_textview_day_change"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/usd_btc"
+            android:text="@string/day_change"
+            android:textSize="12sp"
+            android:textColor="@color/orange"
+            android:paddingEnd="5sp"
+            android:paddingStart="5sp"/>
 
+        <TextView
+            android:id="@+id/widget_textview_day_change_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/widget_textview_day_change"
+            android:contentDescription="@string/day_change"
+            android:text="@string/loading"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:textColor="@color/orange"
+            android:paddingStart="5sp"
+            android:paddingEnd="5sp" />
     </RelativeLayout>
 </RelativeLayout>

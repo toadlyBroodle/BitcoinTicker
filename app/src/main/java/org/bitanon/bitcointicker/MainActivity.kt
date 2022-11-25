@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +18,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.preference.PreferenceManager
 import androidx.work.*
 import org.bitanon.bitcointicker.databinding.ActivityMainBinding
+
 
 const val PREF_LIST_CURRENCY = "pref_list_currency"
 const val PREF_LAST_REAL_BTC_PRICE = "pref_last_real_btc_price"
@@ -29,11 +32,13 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var sharedPrefs: SharedPreferences
     private lateinit var prefCurrency: String
+    private var prefDayChange: Float = 0f
     lateinit var lastRealBtcPrice: String
     private var lastReqTime: Long = 0
 
     private lateinit var btcPriceUnitsTextView: TextView
     private lateinit var btcPriceTextView: TextView
+    private lateinit var dayChangeTextView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +60,7 @@ class MainActivity : AppCompatActivity() {
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         prefCurrency = sharedPrefs.getString(PREF_LIST_CURRENCY, "USD").toString()
+        prefDayChange = sharedPrefs.getFloat(PREF_DAY_CHANGE, 0f)
         lastRealBtcPrice = sharedPrefs.getInt(PREF_LAST_REAL_BTC_PRICE, -1).toString()
 
         println("loaded sharedPrefs: ${sharedPrefs.all}")
@@ -63,17 +69,11 @@ class MainActivity : AppCompatActivity() {
         btcPriceUnitsTextView.text = "$prefCurrency/BTC"
         btcPriceTextView = findViewById(R.id.textview_btcprice)
         btcPriceTextView.text = numberToCurrency(lastRealBtcPrice, prefCurrency)
+        dayChangeTextView = findViewById(R.id.textview_day_change_value)
+        dayChangeTextView.text = prefDayChange.toString()
 
-        // construct recurring price query
-        val priceReq = OneTimeWorkRequestBuilder<WidgetUpdateWorker>()
-        val data = Data.Builder()
-        data.putString("pref_curr", prefCurrency)
-        data.putInt("widget_id", -1)
-        priceReq.setInputData(data.build())
-        priceReq.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
 
-        WorkManager.getInstance(this).enqueue(priceReq.build())
-
+        queryPriceServer()
      }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -105,14 +105,16 @@ class MainActivity : AppCompatActivity() {
     // update price when screen touched
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_UP) {
-            //if last update less than 1m ago, update last real price with random price jitter
+            //if last update less than 1m ago,
             if (System.currentTimeMillis() - lastReqTime <= 60000) {
-                val rand = (-9..9).random()
-                val jitteredPrice = lastRealBtcPrice.toInt().plus(rand).toString()
-                println("jittered price: $jitteredPrice")
-
-                updateUI(numberToCurrency(jitteredPrice, prefCurrency))
-            }
+                val anim: Animation = AlphaAnimation(0.0f, 1.0f)
+                anim.duration = 50
+                anim.startOffset = 20
+                anim.repeatMode = Animation.REVERSE
+                anim.repeatCount = 1
+                btcPriceTextView.startAnimation(anim)
+            } else
+                queryPriceServer()
         }
 
         return true
@@ -125,10 +127,33 @@ class MainActivity : AppCompatActivity() {
             .unregisterReceiver(br)
     }
 
-    fun updateUI(price: String?) {
+    fun queryPriceServer() {
+        // construct recurring price query
+        val priceReq = OneTimeWorkRequestBuilder<WidgetUpdateWorker>()
+        val data = Data.Builder()
+        data.putString("pref_curr", prefCurrency)
+        data.putInt("widget_id", -1)
+        priceReq.setInputData(data.build())
+        priceReq.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+
+        WorkManager.getInstance(this).enqueue(priceReq.build())
+    }
+
+    fun updateUI(price: String?, dayChange: Float?) {
         //update price
         runOnUiThread {
             btcPriceTextView.text = price
+            dayChangeTextView.text = "%.2f".format(dayChange) + "%"
+            // change color of price based on 24h change
+            if (dayChange != null) {
+                val deltaColor: Int
+                if (dayChange > 0)
+                    deltaColor = getColor(R.color.green)
+                else
+                    deltaColor = getColor(R.color.red)
+                dayChangeTextView.setTextColor(deltaColor)
+                btcPriceTextView.setTextColor(deltaColor)
+            }
         }
     }
 
@@ -144,15 +169,21 @@ class MainActivity : AppCompatActivity() {
             if ( widgetId != -1) return
 
             val message = intent.getStringExtra("message")
-            val price = intent.getStringExtra("price")
             when (intent.action) {
                 BROADCAST_SHOW_TOAST -> message?.let { showToast(it) }
                 BROADCAST_PRICE_UPDATED -> {
-                    updateUI(price)
+                    val price = intent.getStringExtra("price")
+                    val dayChange = intent.getStringExtra("day_change")?.toFloat()
+                    updateUI(price, dayChange)
                     //save last real btc price to preferences to avoid null pointer exception
                     //if server cannot be reached on next server request
                     val priceInt = stringToInt(price)
-                    sharedPrefs.edit()?.putInt(PREF_LAST_REAL_BTC_PRICE, priceInt)?.apply()
+                    sharedPrefs.edit()?.apply() {
+                        putInt(PREF_LAST_REAL_BTC_PRICE, priceInt)
+                        if (dayChange != null) {
+                            putFloat(PREF_DAY_CHANGE, dayChange.toFloat())
+                        }
+                    }
                     lastRealBtcPrice = priceInt.toString()
                     println("saved last real price pref:$priceInt")
                     lastReqTime = System.currentTimeMillis()
