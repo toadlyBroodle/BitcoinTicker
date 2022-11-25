@@ -72,10 +72,11 @@ class AppWidgetConfigureActivity : Activity() {
         // load prefCurrency
         val prefs = loadWidgetPrefs(context, appWidgetId)
         val prefCurr = prefs.getString(PREF_CURRENCY, context.getString(R.string.usd))
+        val prefUpdFreq = prefs.getInt(PREF_UPDATE_FREQ, 1800000)
 
         // construct recurring price query
         val queryPriceWork = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
-            30, TimeUnit.MINUTES
+            prefUpdFreq.toLong(), TimeUnit.MILLISECONDS // minimum time is 15m
         )
         //Add parameter in Data class. just like bundle. You can also add Boolean and Number in parameter.
         val data = Data.Builder()
@@ -98,7 +99,11 @@ internal fun saveWidgetConfigPrefs(context: Context, appWidgetId: Int, binding: 
     val prefs = context.getSharedPreferences(prefsKey, 0)
     val prefsEditor = prefs.edit()
     prefsEditor.putString(PREF_CURRENCY, binding.widgetCurrenciesList.selectedItem.toString())
-    prefsEditor.putString(PREF_UPDATE_FREQ, binding.widgetUpdateFrequencyList.selectedItem.toString())
+
+    val selected = binding.widgetUpdateFrequencyList.selectedItem.toString()
+    val index = context.resources.getStringArray(R.array.update_freq).indexOf(selected)
+    val freqValue = context.resources.getStringArray(R.array.update_freq_values).get(index).toString()
+    prefsEditor.putInt(PREF_UPDATE_FREQ, stringToInt(freqValue))
     prefsEditor.commit()
     println("saved $prefsKey :${prefs.all}")
 }

@@ -13,13 +13,4 @@
         app:key="pref_show_day_change"
         app:title="@string/show_day_change"/>
 
-
-    <ListPreference
-        android:key="pref_update_frequency"
-        android:defaultValue="1800000"
-        android:entries="@array/update_freq"
-        android:entryValues="@array/update_freq_values"
-        android:title="@string/update_frequency"
-        android:summary="%s"/>
-
 </PreferenceScreen>

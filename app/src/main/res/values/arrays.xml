@@ -14,12 +14,14 @@
     </string-array>
 
     <string-array name="update_freq">
+        <item>15m</item>
         <item>30m</item>
-        <item>60m</item>
-        <item>120m</item>
+        <item>1h</item>
+        <item>2h</item>
     </string-array>
 
     <string-array name="update_freq_values">
+        <item>900000</item>
         <item>1800000</item>
         <item>3600000</item>
         <item>7200000</item>

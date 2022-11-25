@@ -46,7 +46,7 @@
         android:id="@+id/widget_update_frequency_list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:defaultValue="2m"
+        android:defaultValue="30m"
         android:entries="@array/update_freq"
         android:entryValues="@array/update_freq_values"
         android:minHeight="48dp"

@@ -14,12 +14,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.preference.PreferenceManager
-import androidx.work.Data
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.work.*
 import org.bitanon.bitcointicker.databinding.ActivityMainBinding
-import java.util.concurrent.TimeUnit
 
 const val PREF_LIST_CURRENCY = "pref_list_currency"
 const val PREF_LAST_REAL_BTC_PRICE = "pref_last_real_btc_price"
@@ -60,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         prefCurrency = sharedPrefs.getString(PREF_LIST_CURRENCY, "USD").toString()
         lastRealBtcPrice = sharedPrefs.getInt(PREF_LAST_REAL_BTC_PRICE, -1).toString()
+
         println("loaded sharedPrefs: ${sharedPrefs.all}")
 
         btcPriceUnitsTextView = findViewById(R.id.textview_btcprice_units)
@@ -68,19 +65,14 @@ class MainActivity : AppCompatActivity() {
         btcPriceTextView.text = numberToCurrency(lastRealBtcPrice, prefCurrency)
 
         // construct recurring price query
-        val queryPriceWork = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
-            1, TimeUnit.MINUTES
-        )
+        val priceReq = OneTimeWorkRequestBuilder<WidgetUpdateWorker>()
         val data = Data.Builder()
         data.putString("pref_curr", prefCurrency)
         data.putInt("widget_id", -1)
-        queryPriceWork.setInputData(data.build())
+        priceReq.setInputData(data.build())
+        priceReq.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
 
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            getWorkerName(-1),
-            ExistingPeriodicWorkPolicy.REPLACE,
-            queryPriceWork.build()
-        )
+        WorkManager.getInstance(this).enqueue(priceReq.build())
 
      }
 

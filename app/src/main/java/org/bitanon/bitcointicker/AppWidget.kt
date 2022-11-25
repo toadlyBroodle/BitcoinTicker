@@ -41,13 +41,13 @@ class AppWidget : AppWidgetProvider() {
     override fun onEnabled(context: Context) {
         // register price update receiver
         val filterPrice = IntentFilter(BROADCAST_PRICE_UPDATED)
-        LocalBroadcastManager.getInstance(context).registerReceiver(br, filterPrice)
+        LocalBroadcastManager.getInstance(context.applicationContext).registerReceiver(br, filterPrice)
 
     }
 
     override fun onDisabled(context: Context) {
         // unregister price update receiver
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(br)
+        LocalBroadcastManager.getInstance(context.applicationContext).unregisterReceiver(br)
     }
 
     private val br = object : BroadcastReceiver() {
