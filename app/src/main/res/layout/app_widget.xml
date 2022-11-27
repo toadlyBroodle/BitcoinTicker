@@ -1,8 +1,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/widget_linear_layout"
+    android:id="@+id/widget_background_layout"
     android:background="@color/black">
 
     <RelativeLayout
@@ -63,4 +64,18 @@
             android:paddingStart="5sp"
             android:paddingEnd="5sp" />
     </RelativeLayout>
+
+    <Button
+        android:id="@+id/widget_update_button"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:padding="0dp"
+        android:layout_margin="0dp"
+        android:contentDescription="@string/reload_widget"
+        android:text="@string/sync_symbol"
+        android:textSize="16sp"
+        android:background="@color/transparent"
+        android:textColor="@color/orange"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"/>
 </RelativeLayout>

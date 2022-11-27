@@ -11,6 +11,9 @@ import java.io.IOException
 import java.text.NumberFormat
 import java.util.*
 
+const val BROADCAST_SHOW_TOAST = "org.bitanon.bitcointicker.BROADCAST_SHOW_TOAST"
+const val BROADCAST_PRICE_UPDATED = "org.bitanon.bitcointicker.BROADCAST_PRICE_UPDATED"
+
 private const val urlCGReqPing = "https://api.coingecko.com/api/v3/ping"
 private const val urlCGReqBtcPrice = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true&precision=0"
 
@@ -34,7 +37,7 @@ class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerPa
 		return Result.success()
 	}
 
-	fun pingCoinGeckoCom(prefCurrency: String) {
+	private fun pingCoinGeckoCom(prefCurrency: String) {
 		val request = Request.Builder()
 			.url(urlCGReqPing)
 			.build()
@@ -70,6 +73,7 @@ class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerPa
 				println("coingecko.com bitcoin price request failed: ${e.message}")
 			}
 			override fun onResponse(call: Call, response: Response) {
+				println("coingeck.com responded")
 				//OLD val parsedResponse = response.body()?.string()?.substringAfter("$cur\":","")?.substringBefore(",","")
 				val jsonObj = parseJson(response.body()!!.string())
 
@@ -99,11 +103,10 @@ class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerPa
 	}
 }
 
-fun parseJson (jsonString: String): JSONObject {
+fun parseJson(jsonString: String): JSONObject {
 	// get JSONObject from JSON file
 	val obj = JSONObject(jsonString)
-	val bitcoin: JSONObject = obj.getJSONObject("bitcoin")
-	return bitcoin
+	return obj.getJSONObject("bitcoin")
 }
 
 fun numberToCurrency(number: String?, prefCurrency: String): String {

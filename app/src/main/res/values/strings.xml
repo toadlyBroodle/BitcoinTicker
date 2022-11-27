@@ -20,5 +20,7 @@
     <string name="configure_widget">Configure Widget</string>
     <string name="bad_server_response">bad response from server</string>
     <string name="day_change">24h Δ</string>
+    <string name="sync_symbol">&#8634;</string>
+    <string name="reload_widget">reload widget</string>
 
 </resources>

@@ -71,25 +71,29 @@ class AppWidgetConfigureActivity : Activity() {
 
         // load prefCurrency
         val prefs = loadWidgetPrefs(context, appWidgetId)
-        val prefCurr = prefs.getString(PREF_CURRENCY, context.getString(R.string.usd))
-        val prefUpdFreq = prefs.getInt(PREF_UPDATE_FREQ, 1800000)
+        val prefCurr = prefs?.getString(PREF_CURRENCY, context.getString(R.string.usd))
+        val prefUpdFreq = prefs?.getInt(PREF_UPDATE_FREQ, 1800000)
 
         // construct recurring price query
-        val queryPriceWork = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
-            prefUpdFreq.toLong(), TimeUnit.MILLISECONDS // minimum time is 15m
-        )
+        val queryPriceWork = prefUpdFreq?.let { it1 ->
+            PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
+                it1.toLong(), TimeUnit.MILLISECONDS // minimum time is 15m
+            )
+        }
         //Add parameter in Data class. just like bundle. You can also add Boolean and Number in parameter.
         val data = Data.Builder()
         data.putString("pref_curr", prefCurr)
         data.putInt("widget_id", appWidgetId)
-        queryPriceWork.setInputData(data.build())
+        queryPriceWork?.setInputData(data.build())
 
         // add recurring price query worker
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            getWorkerName(appWidgetId),
-            ExistingPeriodicWorkPolicy.REPLACE,
-            queryPriceWork.build()
-        )
+        if (queryPriceWork != null) {
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                getWorkerName(appWidgetId),
+                ExistingPeriodicWorkPolicy.REPLACE,
+                queryPriceWork.build()
+            )
+        }
     }
 }
 

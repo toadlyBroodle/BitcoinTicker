@@ -6,13 +6,18 @@ import android.appwidget.AppWidgetProvider
 import android.content.*
 import android.widget.RemoteViews
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 
-const val PREF_PREFIX = "org.bitanon.bitcointicker."
+
+const val PREF_PREFIX = "org.bitanon.bitcointicker.widget"
 const val PREF_CURRENCY = "PREF_CURRENCY"
 const val PREF_PRICE = "PREF_PRICE"
 const val PREF_DAY_CHANGE = "PREF_DAY_CHANGE"
 const val PREF_UPDATE_FREQ = "PREF_UPDATE_FREQUENCY"
+const val BROADCAST_WIDGET_UPDATE_BUTTON_CLICK = "org.bitanon.bitcointicker.BROADCAST_WIDGET_UPDATE_BUTTON_CLICK"
 
 fun getPrefsName(id: Int): String { return PREF_PREFIX + id }
 
@@ -40,22 +45,27 @@ class AppWidget : AppWidgetProvider() {
         }
     }
     override fun onEnabled(context: Context) {
-        // register price update receiver
-        val filterPrice = IntentFilter(BROADCAST_PRICE_UPDATED)
-        LocalBroadcastManager.getInstance(context.applicationContext).registerReceiver(br, filterPrice)
-
+        // register price and widget button update receivers
+        val filters = IntentFilter()
+        filters.addAction(BROADCAST_PRICE_UPDATED)
+        filters.addAction(BROADCAST_WIDGET_UPDATE_BUTTON_CLICK)
+        LocalBroadcastManager.getInstance(context.applicationContext).registerReceiver(br, filters)
     }
 
     override fun onDisabled(context: Context) {
-        // unregister price update receiver
+        // unregister price and widget button update receivers
         LocalBroadcastManager.getInstance(context.applicationContext).unregisterReceiver(br)
     }
 
     private val br = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
+
+            println("broadcast received")
             // ignore widget price updates
             val widgetId = intent?.getIntExtra("widget_id", 0)
             if ( widgetId == -1) return
+
+            val prefs = loadWidgetPrefs(context, widgetId)
 
             when (intent?.action) {
                 BROADCAST_PRICE_UPDATED -> {
@@ -63,20 +73,36 @@ class AppWidget : AppWidgetProvider() {
                     val dayChange = intent.getStringExtra("day_change")
 
                     // save widget prefs price
-                    val prefsKey = widgetId?.let { getPrefsName(it) }
-                    val prefs = context?.getSharedPreferences(prefsKey, 0)
                     val prefsEditor = prefs?.edit()
                     if (prefsEditor != null) {
                         prefsEditor.putString(PREF_PRICE, price)
                         prefsEditor.putString(PREF_DAY_CHANGE, dayChange)
                         prefsEditor.commit()
                     }
-                    println("saved $prefsKey :${prefs?.all}")
+                    println("saved widget$widgetId prefs:${prefs?.all}")
 
                     // and update widgets
                     val appWidgetManager = AppWidgetManager.getInstance(context)
                     if (context != null && widgetId != null) {
                         updateAppWidget(context, appWidgetManager, widgetId)
+                    }
+                }
+                // TODO not receiving this broadcast
+                BROADCAST_WIDGET_UPDATE_BUTTON_CLICK -> {
+                    // construct onetime price query
+                    val priceReq = OneTimeWorkRequestBuilder<WidgetUpdateWorker>()
+                    val data = Data.Builder()
+                    if (prefs != null) {
+                        data.putString("pref_curr", prefs.getString(PREF_CURRENCY, "USD"))
+                    }
+                    if (widgetId != null) {
+                        data.putInt("widget_id", widgetId)
+                    }
+                    priceReq.setInputData(data.build())
+                    priceReq.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+
+                    if (context != null) {
+                        WorkManager.getInstance(context).enqueue(priceReq.build())
                     }
                 }
             }
@@ -89,21 +115,29 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.app_widget)
 
-    // Create an Intent to launch MainActivity when widget touched
-    val pendingIntent: PendingIntent = PendingIntent.getActivity(
-        /* context = */ context,
-        /* requestCode = */  0,
-        /* intent = */ Intent(context, MainActivity::class.java),
-        /* flags = */ PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-    )
+    // Create an Intent to launch MainActivity when widget background touched
+    val piLaunchMainActiv: PendingIntent = PendingIntent.getActivity(context,0,
+        Intent(context.applicationContext, MainActivity::class.java),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    views.setOnClickPendingIntent(R.id.widget_background_layout, piLaunchMainActiv)
 
+    // create intent to update widget when button clicked TODO this not working
+    val piWidgetUpdateButtonClicked =
+        PendingIntent.getBroadcast(context, appWidgetId,
+            Intent(BROADCAST_WIDGET_UPDATE_BUTTON_CLICK), PendingIntent.FLAG_UPDATE_CURRENT
+                    or PendingIntent.FLAG_IMMUTABLE
+        )
+    views.setOnClickPendingIntent(R.id.widget_update_button, piWidgetUpdateButtonClicked)
+
+    // get prefs
     val prefs = loadWidgetPrefs(context, appWidgetId)
-    val prefCurr = prefs.getString(PREF_CURRENCY, context.getString(R.string.usd))
-    val prefPrice = prefs.getString(PREF_PRICE, context.getString(R.string.loading))
-    val prefDayChange = prefs.getString(PREF_DAY_CHANGE, null)?.toFloat()
-    // Attach an on-click listener to the widget and set currency units from prefs
+    val prefCurr = prefs?.getString(PREF_CURRENCY, context.getString(R.string.usd))
+    val prefPrice = prefs?.getString(PREF_PRICE, context.getString(R.string.loading))
+    val prefDayChange = prefs?.getString(PREF_DAY_CHANGE, null)?.toFloat()
+
+    //update widget views
     views.apply {
-        setOnClickPendingIntent(R.id.widget_linear_layout, pendingIntent)
         setTextViewText(R.id.widget_textview_btcprice_units, "$prefCurr/BTC")
         if (prefCurr != null)
             setTextViewText(R.id.widget_textview_btcprice, numberToCurrency(prefPrice, prefCurr))
@@ -111,11 +145,10 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
             setTextViewText(R.id.widget_textview_day_change_value, "%.2f".format(prefDayChange) + "%")
         // change color of price based on 24h change
         if (prefDayChange != null) {
-            val deltaColor: Int
-            if (prefDayChange > 0)
-                deltaColor = context.getColor(R.color.green)
+            val deltaColor: Int = if (prefDayChange > 0)
+                context.getColor(R.color.green)
             else
-                deltaColor = context.getColor(R.color.red)
+                context.getColor(R.color.red)
             setTextColor(R.id.widget_textview_btcprice, deltaColor)
             setTextColor(R.id.widget_textview_day_change_value, deltaColor)
         }
@@ -126,10 +159,12 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
 }
 
 // Read the prefixed SharedPreferences object for this widget
-internal fun loadWidgetPrefs(context: Context, appWidgetId: Int): SharedPreferences {
-    val prefsKey = getPrefsName(appWidgetId)
-    val prefs = context.getSharedPreferences(prefsKey, 0)
-    println("loaded $prefsKey :${prefs.all}")
+internal fun loadWidgetPrefs(context: Context?, appWidgetId: Int?): SharedPreferences? {
+    val prefsKey = appWidgetId?.let { getPrefsName(it) }
+    val prefs = context?.getSharedPreferences(prefsKey, 0)
+    if (prefs != null) {
+        println("loaded $prefsKey :${prefs.all}")
+    }
     return prefs
 }
 

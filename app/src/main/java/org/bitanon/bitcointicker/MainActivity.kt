@@ -22,8 +22,6 @@ import org.bitanon.bitcointicker.databinding.ActivityMainBinding
 
 const val PREF_LIST_CURRENCY = "pref_list_currency"
 const val PREF_LAST_REAL_BTC_PRICE = "pref_last_real_btc_price"
-const val BROADCAST_SHOW_TOAST = "org.bitanon.bitcointicker.BROADCAST_SHOW_TOAST"
-const val BROADCAST_PRICE_UPDATED = "org.bitanon.bitcointicker.BROADCAST_PRICE_UPDATED"
 
 class MainActivity : AppCompatActivity() {
 
@@ -127,7 +125,7 @@ class MainActivity : AppCompatActivity() {
             .unregisterReceiver(br)
     }
 
-    fun queryPriceServer() {
+    private fun queryPriceServer() {
         // construct recurring price query
         val priceReq = OneTimeWorkRequestBuilder<WidgetUpdateWorker>()
         val data = Data.Builder()
@@ -146,11 +144,10 @@ class MainActivity : AppCompatActivity() {
             dayChangeTextView.text = "%.2f".format(dayChange) + "%"
             // change color of price based on 24h change
             if (dayChange != null) {
-                val deltaColor: Int
-                if (dayChange > 0)
-                    deltaColor = getColor(R.color.green)
+                val deltaColor: Int = if (dayChange > 0)
+                    getColor(R.color.green)
                 else
-                    deltaColor = getColor(R.color.red)
+                    getColor(R.color.red)
                 dayChangeTextView.setTextColor(deltaColor)
                 btcPriceTextView.setTextColor(deltaColor)
             }
