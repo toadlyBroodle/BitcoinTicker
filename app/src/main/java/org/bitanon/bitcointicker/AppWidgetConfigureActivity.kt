@@ -32,6 +32,15 @@ class AppWidgetConfigureActivity : Activity() {
         binding = AppWidgetConfigureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+/*        // on radio button checked, print it's resID and name
+        lateinit var checkedRadioID: String
+        val rg = findViewById<RadioGroup>(R.id.radio_group)
+        rg.setOnCheckedChangeListener { group, checkedId ->
+            println("radioGroupChecked->${group.checkedRadioButtonId}")
+            checkedRadioID = resources.getResourceEntryName(checkedId)
+            println("checkedRadioID=$checkedRadioID")
+        }*/
+
         binding.addWidgetButton.setOnClickListener(onClickListener)
 
         // Find the widget id from the intent.
@@ -48,10 +57,6 @@ class AppWidgetConfigureActivity : Activity() {
             finish()
             return
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 
     private var onClickListener = View.OnClickListener {
@@ -99,15 +104,18 @@ class AppWidgetConfigureActivity : Activity() {
 
 //Write the prefixed SharedPreferences object for this widget
 internal fun saveWidgetConfigPrefs(context: Context, appWidgetId: Int, binding: AppWidgetConfigureBinding) {
+    val freqSelected = binding.widgetUpdateFrequencyList.selectedItem.toString()
+    val index = context.resources.getStringArray(R.array.update_freq).indexOf(freqSelected)
+    val freqValue = context.resources.getStringArray(R.array.update_freq_values)[index].toString()
+
     val prefsKey = getPrefsName(appWidgetId)
     val prefs = context.getSharedPreferences(prefsKey, 0)
     val prefsEditor = prefs.edit()
     prefsEditor.putString(PREF_CURRENCY, binding.widgetCurrenciesList.selectedItem.toString())
-
-    val selected = binding.widgetUpdateFrequencyList.selectedItem.toString()
-    val index = context.resources.getStringArray(R.array.update_freq).indexOf(selected)
-    val freqValue = context.resources.getStringArray(R.array.update_freq_values).get(index).toString()
     prefsEditor.putInt(PREF_UPDATE_FREQ, stringToInt(freqValue))
+    prefsEditor.putFloat(PREF_BG_TRANSPARENCY, binding.transparencySlider.value)
+    prefsEditor.putString(PREF_BG_CHECKED_COLOR_RADIO_ID,
+        context.resources.getResourceEntryName(binding.radioGroup.checkedRadioButtonId))
     prefsEditor.commit()
     println("saved $prefsKey :${prefs.all}")
 }

@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.*
+import android.graphics.Color
 import android.widget.RemoteViews
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.Data
@@ -17,6 +18,8 @@ const val PREF_CURRENCY = "PREF_CURRENCY"
 const val PREF_PRICE = "PREF_PRICE"
 const val PREF_DAY_CHANGE = "PREF_DAY_CHANGE"
 const val PREF_UPDATE_FREQ = "PREF_UPDATE_FREQUENCY"
+const val PREF_BG_TRANSPARENCY = "PREF_BG_TRANSPARENCY"
+const val PREF_BG_CHECKED_COLOR_RADIO_ID = "PREF_BG_CHECKED_COLOR_RADIO_ID"
 const val BROADCAST_WIDGET_UPDATE_BUTTON_CLICK = "org.bitanon.bitcointicker.BROADCAST_WIDGET_UPDATE_BUTTON_CLICK"
 
 fun getPrefsName(id: Int): String { return PREF_PREFIX + id }
@@ -135,9 +138,43 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
     val prefCurr = prefs?.getString(PREF_CURRENCY, context.getString(R.string.usd))
     val prefPrice = prefs?.getString(PREF_PRICE, context.getString(R.string.loading))
     val prefDayChange = prefs?.getString(PREF_DAY_CHANGE, null)?.toFloat()
+    val prefBgTransp = prefs?.getFloat(PREF_BG_TRANSPARENCY, 0.5f)
+
+    // get bg color selected
+    val bgColorRadioId = prefs?.getString(PREF_BG_CHECKED_COLOR_RADIO_ID, "radio_color_black")
+    val bgColor = when (bgColorRadioId) {
+        "radio_color_darkgrey" -> R.color.dark_grey
+        "radio_color_lightgrey" -> R.color.light_grey
+        "radio_color_white" -> R.color.white
+        "radio_color_teal" -> R.color.teal_200
+        "radio_color_lightblue" -> R.color.light_blue_600
+        "radio_color_darkblue" -> R.color.light_blue_900
+        "radio_color_purple" -> R.color.purple_700
+        else -> R.color.black
+    }
+    // convert bg color float -> int -> hex
+    var hexBgTransp = prefBgTransp?.times(255)?.let { Integer.toHexString(it.toInt()) }
+    // pad 0 value with extra 0 for correct color hex formatting
+    if (stringToInt(hexBgTransp) == 0)
+        hexBgTransp = "00"
+    // add transparency to hex color
+    val bgTranspColorVal = context.getString(bgColor).replace("ff", "$hexBgTransp")
 
     //update widget views
     views.apply {
+        try { // try parsing transparent color
+            setInt(R.id.widget_background_layout, "setBackgroundColor",
+                Color.parseColor(bgTranspColorVal))
+        } catch (e: Exception) {
+            println("bgColorRadioId=$bgColorRadioId")
+            println("bgColor=${context.getString(bgColor)}")
+            println("hexBgTransp=$hexBgTransp")
+            println("bgTranspColorVal=$bgTranspColorVal")
+            println(e)
+            // if fails, just use original non-transparent color value
+            setInt(R.id.widget_background_layout, "setBackgroundColor",
+                Color.parseColor(context.getString(bgColor)))
+        }
         setTextViewText(R.id.widget_textview_btcprice_units, "$prefCurr/BTC")
         if (prefCurr != null)
             setTextViewText(R.id.widget_textview_btcprice, numberToCurrency(prefPrice, prefCurr))

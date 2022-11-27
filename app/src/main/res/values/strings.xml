@@ -22,5 +22,9 @@
     <string name="day_change">24h Δ</string>
     <string name="sync_symbol">&#8634;</string>
     <string name="reload_widget">reload widget</string>
+    <string name="bg_transparency">Background transparency</string>
+    <string name="background">Background</string>
+    <string name="transparency">Transparency</string>
+    <string name="color">Color</string>
 
 </resources>
