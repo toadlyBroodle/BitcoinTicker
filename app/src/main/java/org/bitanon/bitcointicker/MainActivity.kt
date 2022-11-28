@@ -1,12 +1,14 @@
 package org.bitanon.bitcointicker
 
 import android.content.*
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import android.widget.TableLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -15,28 +17,30 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.preference.PreferenceManager
 import androidx.work.*
 import org.bitanon.bitcointicker.databinding.ActivityMainBinding
 
-
-const val PREF_LIST_CURRENCY = "pref_list_currency"
-const val PREF_LAST_REAL_BTC_PRICE = "pref_last_real_btc_price"
+const val MAIN_PREFS = "main_prefs"
+const val MAIN_PREF_CURRENCY = "main_pref_currency"
+const val MAIN_PREF_PRICE = "main_pref_price"
+const val MAIN_PREF_DAY_CHANGE = "main_pref_day_change"
+const val MAIN_PREF_BG_COLOR_RADIO_ID = "main_pref_bg_color"
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
-    lateinit var sharedPrefs: SharedPreferences
     private lateinit var prefCurrency: String
-    private var prefDayChange: Float = 0f
-    lateinit var lastRealBtcPrice: String
+    lateinit var prefPrice: String
+    private lateinit var prefDayChange: String
+    private lateinit var prefBgColor: String
     private var lastReqTime: Long = 0
 
     private lateinit var btcPriceUnitsTextView: TextView
     private lateinit var btcPriceTextView: TextView
     private lateinit var dayChangeTextView: TextView
+    private lateinit var mainTableLayout: TableLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,21 +60,23 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        prefCurrency = sharedPrefs.getString(PREF_LIST_CURRENCY, "USD").toString()
-        prefDayChange = sharedPrefs.getFloat(PREF_DAY_CHANGE, 0f)
-        lastRealBtcPrice = sharedPrefs.getInt(PREF_LAST_REAL_BTC_PRICE, -1).toString()
+        val sharedPrefs = getSharedPreferences(MAIN_PREFS, 0)
+        prefCurrency = sharedPrefs.getString(MAIN_PREF_CURRENCY, "USD").toString()
+        prefDayChange = sharedPrefs.getString(WIDGET_PREF_DAY_CHANGE,
+            getString(R.string.loading)).toString()
+        prefPrice = sharedPrefs.getString(MAIN_PREF_PRICE,
+            getString(R.string.loading)).toString()
+        prefBgColor = getString(getBgColor(sharedPrefs.getString(
+            MAIN_PREF_BG_COLOR_RADIO_ID, "").toString())) // getBgColor will return default black color
 
         println("loaded sharedPrefs: ${sharedPrefs.all}")
 
         btcPriceUnitsTextView = findViewById(R.id.textview_btcprice_units)
-        btcPriceUnitsTextView.text = "$prefCurrency/BTC"
         btcPriceTextView = findViewById(R.id.textview_btcprice)
-        btcPriceTextView.text = numberToCurrency(lastRealBtcPrice, prefCurrency)
         dayChangeTextView = findViewById(R.id.textview_day_change_value)
-        dayChangeTextView.text = prefDayChange.toString()
+        mainTableLayout = findViewById(R.id.main_table_layout)
 
-
+        updateUI()
         queryPriceServer()
      }
 
@@ -125,6 +131,25 @@ class MainActivity : AppCompatActivity() {
             .unregisterReceiver(br)
     }
 
+    fun updateUI() {
+        //update price
+        runOnUiThread {
+            btcPriceUnitsTextView.text = "$prefCurrency/BTC"
+            btcPriceTextView.text = prefPrice
+            dayChangeTextView.text = formatDayChange(prefDayChange)
+            mainTableLayout.setBackgroundColor(Color.parseColor(prefBgColor))
+            // change color of price based on 24h change
+            if (prefDayChange != "…") {
+                val deltaColor: Int = if (prefDayChange.toFloat() > 0)
+                    getColor(R.color.green)
+                else
+                    getColor(R.color.red)
+                dayChangeTextView.setTextColor(deltaColor)
+                btcPriceTextView.setTextColor(deltaColor)
+            }
+        }
+    }
+
     private fun queryPriceServer() {
         // construct recurring price query
         val priceReq = OneTimeWorkRequestBuilder<WidgetUpdateWorker>()
@@ -137,28 +162,6 @@ class MainActivity : AppCompatActivity() {
         WorkManager.getInstance(this).enqueue(priceReq.build())
     }
 
-    fun updateUI(price: String?, dayChange: Float?) {
-        //update price
-        runOnUiThread {
-            btcPriceTextView.text = price
-            dayChangeTextView.text = "%.2f".format(dayChange) + "%"
-            // change color of price based on 24h change
-            if (dayChange != null) {
-                val deltaColor: Int = if (dayChange > 0)
-                    getColor(R.color.green)
-                else
-                    getColor(R.color.red)
-                dayChangeTextView.setTextColor(deltaColor)
-                btcPriceTextView.setTextColor(deltaColor)
-            }
-        }
-    }
-
-    fun showToast(message: String) =
-        runOnUiThread {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-        }
-
     private val br = object : BroadcastReceiver() {
         override fun onReceive(contxt: Context?, intent: Intent?) {
             // ignore widget price updates
@@ -169,25 +172,42 @@ class MainActivity : AppCompatActivity() {
             when (intent.action) {
                 BROADCAST_SHOW_TOAST -> message?.let { showToast(it) }
                 BROADCAST_PRICE_UPDATED -> {
-                    val price = intent.getStringExtra("price")
-                    val dayChange = intent.getStringExtra("day_change")?.toFloat()
-                    updateUI(price, dayChange)
-                    //save last real btc price to preferences to avoid null pointer exception
-                    //if server cannot be reached on next server request
-                    val priceInt = stringToInt(price)
-                    sharedPrefs.edit()?.apply() {
-                        putInt(PREF_LAST_REAL_BTC_PRICE, priceInt)
-                        if (dayChange != null) {
-                            putFloat(PREF_DAY_CHANGE, dayChange.toFloat())
-                        }
-                    }
-                    lastRealBtcPrice = priceInt.toString()
-                    println("saved last real price pref:$priceInt")
+                    prefPrice = intent.getStringExtra("price").toString()
+                    prefDayChange = intent.getStringExtra("day_change").toString()
+                    savePrefs(baseContext, null, prefPrice, prefDayChange, null)
+                    updateUI()
                     lastReqTime = System.currentTimeMillis()
                 }
             }
         }
     }
 
+    fun showToast(message: String) =
+        runOnUiThread {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        }
 }
 
+internal fun savePrefs(ctx: Context, currency: String?,
+                      price: String?, dayChange: String?, bgColorRadioName: String?) {
+    //save last btc price to preferences to avoid null pointer exception
+    //if server cannot be reached on next server request
+    val prefs = ctx.getSharedPreferences(MAIN_PREFS, 0)
+    val prefsEditor = prefs.edit()
+    prefsEditor.apply {
+        if (currency != null)
+            putString(MAIN_PREF_CURRENCY, currency)
+        if (price != null)
+            putString(MAIN_PREF_PRICE, price)
+        if (dayChange != null)
+            putString(MAIN_PREF_DAY_CHANGE, dayChange)
+        if (bgColorRadioName!= null)
+            putString(MAIN_PREF_BG_COLOR_RADIO_ID, bgColorRadioName)
+    }.commit()
+    println("saved sharedPrefs: ${prefs.all}")
+}
+
+private fun formatDayChange(dc: String?): CharSequence {
+    if (dc == "…") return "…"
+    return "%.2f".format(dc?.toFloat()) + "%"
+}

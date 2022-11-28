@@ -41,7 +41,7 @@ class AppWidgetConfigureActivity : Activity() {
             println("checkedRadioID=$checkedRadioID")
         }*/
 
-        binding.addWidgetButton.setOnClickListener(onClickListener)
+        binding.addWidgetButton.setOnClickListener(addWidgetOnClickListener)
 
         // Find the widget id from the intent.
         val intent = intent
@@ -59,7 +59,7 @@ class AppWidgetConfigureActivity : Activity() {
         }
     }
 
-    private var onClickListener = View.OnClickListener {
+    private var addWidgetOnClickListener = View.OnClickListener {
 
         // save config prefs before updating widget
         saveWidgetConfigPrefs(context, appWidgetId, binding)
@@ -76,8 +76,8 @@ class AppWidgetConfigureActivity : Activity() {
 
         // load prefCurrency
         val prefs = loadWidgetPrefs(context, appWidgetId)
-        val prefCurr = prefs?.getString(PREF_CURRENCY, context.getString(R.string.usd))
-        val prefUpdFreq = prefs?.getInt(PREF_UPDATE_FREQ, 1800000)
+        val prefCurr = prefs?.getString(WIDGET_PREF_CURRENCY, context.getString(R.string.usd))
+        val prefUpdFreq = prefs?.getInt(WIDGET_PREF_UPDATE_FREQ, 1800000)
 
         // construct recurring price query
         val queryPriceWork = prefUpdFreq?.let { it1 ->
@@ -111,10 +111,10 @@ internal fun saveWidgetConfigPrefs(context: Context, appWidgetId: Int, binding: 
     val prefsKey = getPrefsName(appWidgetId)
     val prefs = context.getSharedPreferences(prefsKey, 0)
     val prefsEditor = prefs.edit()
-    prefsEditor.putString(PREF_CURRENCY, binding.widgetCurrenciesList.selectedItem.toString())
-    prefsEditor.putInt(PREF_UPDATE_FREQ, stringToInt(freqValue))
-    prefsEditor.putFloat(PREF_BG_TRANSPARENCY, binding.transparencySlider.value)
-    prefsEditor.putString(PREF_BG_CHECKED_COLOR_RADIO_ID,
+    prefsEditor.putString(WIDGET_PREF_CURRENCY, binding.widgetCurrenciesList.selectedItem.toString())
+    prefsEditor.putInt(WIDGET_PREF_UPDATE_FREQ, stringToInt(freqValue))
+    prefsEditor.putFloat(WIDGET_PREF_BG_TRANSPARENCY, binding.transparencySlider.value)
+    prefsEditor.putString(WIDGET_PREF_BG_COLOR_CHECKED_RADIO_ID,
         context.resources.getResourceEntryName(binding.radioGroup.checkedRadioButtonId))
     prefsEditor.commit()
     println("saved $prefsKey :${prefs.all}")

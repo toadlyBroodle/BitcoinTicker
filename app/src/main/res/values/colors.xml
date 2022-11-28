@@ -12,8 +12,9 @@
     <color name="orange">#F7931A</color>
     <color name="light_orange">#FFB254</color>
     <color name="red">#FF0000</color>
-    <color name="green">#4CAF50</color>
-    <color name="light_green">#8BC34A</color>
+    <color name="green">#00FF00</color>
+    <color name="light_green">#4CAF50</color>
+    <color name="dark_green">#29652C</color>
     <color name="light_blue_50">#FFE1F5FE</color>
     <color name="light_blue_200">#FF81D4FA</color>
     <color name="light_blue_600">#FF039BE5</color>

@@ -110,6 +110,7 @@ fun parseJson(jsonString: String): JSONObject {
 }
 
 fun numberToCurrency(number: String?, prefCurrency: String): String {
+	if (number == "…") return "…"
 	val int = stringToInt(number)
 	val format: NumberFormat = NumberFormat.getCurrencyInstance()
 	format.maximumFractionDigits = 0
