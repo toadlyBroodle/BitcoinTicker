@@ -70,12 +70,12 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
-<!--            <intent-filter>
+            <intent-filter>
                 <action android:name="org.bitanon.bitcointicker.BROADCAST_PRICE_UPDATED" />
             </intent-filter>
             <intent-filter>
                 <action android:name="org.bitanon.bitcointicker.BROADCAST_WIDGET_UPDATE_BUTTON_CLICK" />
-            </intent-filter>-->
+            </intent-filter>
 
             <meta-data
                 android:name="android.appwidget.provider"
