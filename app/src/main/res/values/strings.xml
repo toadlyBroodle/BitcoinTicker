@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">Bitcoin Ticker</string>
+    <string name="app_name">Bitcoin Metrics</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="bitcoin_ticker_fragment_label">Bitcoin Ticker</string>
+    <string name="bitcoin_ticker_fragment_label">Bitcoin Metrics</string>
 
     <string name="usd">USD</string>
     <string name="usd_btc">USD/BTC</string>
