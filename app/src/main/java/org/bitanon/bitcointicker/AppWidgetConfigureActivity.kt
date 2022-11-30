@@ -108,7 +108,7 @@ internal fun saveWidgetConfigPrefs(context: Context, appWidgetId: Int, binding: 
     val index = context.resources.getStringArray(R.array.update_freq).indexOf(freqSelected)
     val freqValue = context.resources.getStringArray(R.array.update_freq_values)[index].toString()
 
-    val prefsKey = getPrefsName(appWidgetId)
+    val prefsKey = getWidgetPackageName(appWidgetId)
     val prefs = context.getSharedPreferences(prefsKey, 0)
     val prefsEditor = prefs.edit()
     prefsEditor.putString(WIDGET_PREF_CURRENCY, binding.widgetCurrenciesList.selectedItem.toString())

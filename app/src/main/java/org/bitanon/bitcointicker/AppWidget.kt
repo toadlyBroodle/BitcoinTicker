@@ -22,7 +22,7 @@ const val WIDGET_PREF_BG_TRANSPARENCY = "WIDGET_PREF_BG_TRANSPARENCY"
 const val WIDGET_PREF_BG_COLOR_CHECKED_RADIO_ID = "WIDGET_PREF_BG_CHECKED_COLOR_RADIO_ID"
 const val BROADCAST_WIDGET_UPDATE_BUTTON_CLICK = "org.bitanon.bitcointicker.BROADCAST_WIDGET_UPDATE_BUTTON_CLICK"
 
-fun getPrefsName(id: Int): String { return WIDGET_PREF_PREFIX + id }
+fun getWidgetPackageName(id: Int): String { return WIDGET_PREF_PREFIX + id }
 
 var widgetIds: IntArray? = null
 
@@ -90,7 +90,6 @@ class AppWidget : AppWidgetProvider() {
                         updateAppWidget(context, appWidgetManager, widgetId)
                     }
                 }
-                // TODO not receiving this broadcast
                 BROADCAST_WIDGET_UPDATE_BUTTON_CLICK -> {
                     // construct onetime price query
                     val priceReq = OneTimeWorkRequestBuilder<WidgetUpdateWorker>()
@@ -125,10 +124,12 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
         )
     views.setOnClickPendingIntent(R.id.widget_background_layout, piLaunchMainActiv)
 
+    val updateWidgetIntent = Intent(BROADCAST_WIDGET_UPDATE_BUTTON_CLICK).setClass(
+        context.applicationContext, AppWidget::class.java)
     // create intent to update widget when button clicked TODO this not working
     val piWidgetUpdateButtonClicked =
-        PendingIntent.getBroadcast(context, appWidgetId,
-            Intent(BROADCAST_WIDGET_UPDATE_BUTTON_CLICK), PendingIntent.FLAG_UPDATE_CURRENT
+        PendingIntent.getBroadcast(context.applicationContext, appWidgetId,
+            updateWidgetIntent, PendingIntent.FLAG_UPDATE_CURRENT
                     or PendingIntent.FLAG_IMMUTABLE
         )
     views.setOnClickPendingIntent(R.id.widget_update_button, piWidgetUpdateButtonClicked)
@@ -188,7 +189,7 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
 
 // Read the prefixed SharedPreferences object for this widget
 internal fun loadWidgetPrefs(context: Context?, appWidgetId: Int?): SharedPreferences? {
-    val prefsKey = appWidgetId?.let { getPrefsName(it) }
+    val prefsKey = appWidgetId?.let { getWidgetPackageName(it) }
     val prefs = context?.getSharedPreferences(prefsKey, 0)
     if (prefs != null) {
         println("loaded $prefsKey :${prefs.all}")
@@ -197,7 +198,7 @@ internal fun loadWidgetPrefs(context: Context?, appWidgetId: Int?): SharedPrefer
 }
 
 internal fun deleteWidgetPrefs(context: Context, appWidgetId: Int) {
-    val prefsKey = getPrefsName(appWidgetId)
+    val prefsKey = getWidgetPackageName(appWidgetId)
     val prefsEditor = context.getSharedPreferences(prefsKey, 0).edit()
     prefsEditor.remove(prefsKey)
     prefsEditor.apply()

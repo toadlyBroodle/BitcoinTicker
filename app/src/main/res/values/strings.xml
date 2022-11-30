@@ -28,5 +28,6 @@
     <string name="background">Background</string>
     <string name="transparency">Transparency</string>
     <string name="color">Color</string>
+    <string name="updating_metrics">updating metrics…</string>
 
 </resources>

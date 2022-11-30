@@ -53,7 +53,7 @@ class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerPa
 			.setContentTitle(appContext.getString(R.string.app_name))
 			.setLocalOnly(true)
 			.setVisibility(NotificationCompat.VISIBILITY_SECRET)
-			.setContentText("Updating widget")
+			.setContentText(appContext.getString(R.string.updating_metrics))
 			.build()
 		return ForegroundInfo(1337, notification)
 	}
