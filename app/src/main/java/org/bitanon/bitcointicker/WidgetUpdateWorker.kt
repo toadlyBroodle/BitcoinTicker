@@ -1,9 +1,15 @@
 package org.bitanon.bitcointicker
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import okhttp3.*
 import org.json.JSONObject
@@ -18,13 +24,45 @@ private const val urlCGReqPing = "https://api.coingecko.com/api/v3/ping"
 private const val urlCGReqBtcPrice = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true&precision=0"
 
 class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerParameters)
-	: Worker(appContext, workerParams) {
+	: CoroutineWorker(appContext, workerParams) {
+
+	// CoroutineWorker extras for Android versions < 12: for adding mandatory notification
+	companion object {
+		private const val NOTIFICATION_CHANNEL_ID = "11"
+		private const val NOTIFICATION_CHANNEL_NAME = "Work Service"
+	}
+	override suspend fun getForegroundInfo(): ForegroundInfo {
+		val notificationManager =
+			appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			val channel = NotificationChannel(
+				NOTIFICATION_CHANNEL_ID,
+				NOTIFICATION_CHANNEL_NAME,
+				NotificationManager.IMPORTANCE_HIGH
+			)
+			notificationManager.createNotificationChannel(channel)
+		}
+		val notification = NotificationCompat.Builder(appContext, NOTIFICATION_CHANNEL_ID)
+			.setContentIntent(PendingIntent.getActivity(appContext, 0, Intent(appContext, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE))
+			.setSmallIcon(R.mipmap.ic_launcher)
+			.setOngoing(true)
+			.setAutoCancel(true)
+			.setOnlyAlertOnce(true)
+			.setPriority(NotificationCompat.PRIORITY_MIN)
+			.setContentTitle(appContext.getString(R.string.app_name))
+			.setLocalOnly(true)
+			.setVisibility(NotificationCompat.VISIBILITY_SECRET)
+			.setContentText("Updating widget")
+			.build()
+		return ForegroundInfo(1337, notification)
+	}
 
 	private var widgetId: Int = -1
 
 	private val client = OkHttpClient()
 
-	override fun doWork(): Result {
+	override suspend fun doWork(): Result {
 
 		//get Input Data back using "inputData" variable
 		val prefCurr =  inputData.getString("pref_curr")

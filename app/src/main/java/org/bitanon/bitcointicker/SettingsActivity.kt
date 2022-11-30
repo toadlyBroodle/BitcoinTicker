@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NavUtils
+import org.bitanon.bitcointicker.databinding.SettingsActivityBinding
 
 
 class SettingsActivity : AppCompatActivity() {
+
+    private lateinit var binding: SettingsActivityBinding
 
     private lateinit var prefCurrency: String
     private lateinit var prefBgColorRadioName: String
@@ -18,7 +21,9 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_activity)
+
+        binding = SettingsActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -41,7 +46,7 @@ class SettingsActivity : AppCompatActivity() {
         currencySpinner.setSelection(arrayAdapter.getPosition(prefCurrency))
         val id = resources.getIdentifier(prefBgColorRadioName,
             "id", baseContext.packageName)
-        findViewById<RadioButton>(id).isChecked = true
+        binding.root.findViewById<RadioButton>(id).isChecked = true
     }
 
     override fun onPause() {
