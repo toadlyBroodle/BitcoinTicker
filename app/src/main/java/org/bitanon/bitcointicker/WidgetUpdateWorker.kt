@@ -14,8 +14,12 @@ import androidx.work.WorkerParameters
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
+import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.*
+import kotlin.math.floor
+import kotlin.math.log10
+import kotlin.math.pow
 
 const val BROADCAST_SHOW_TOAST = "org.bitanon.bitcointicker.BROADCAST_SHOW_TOAST"
 const val BROADCAST_PRICE_UPDATED = "org.bitanon.bitcointicker.BROADCAST_PRICE_UPDATED"
@@ -96,8 +100,7 @@ class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerPa
 	}
 
 	fun getBitcoinPrice(prefCurrency: String) {
-		var price: String
-		var dayChange: String
+
 		//build correct url based on currency preference
 		val cur = prefCurrency.lowercase()
 		val url = urlCGReqBtcPrice.replace("vs_currencies=usd","vs_currencies=$cur")
@@ -112,17 +115,23 @@ class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerPa
 			}
 			override fun onResponse(call: Call, response: Response) {
 				println("coingeck.com responded")
-				//OLD val parsedResponse = response.body()?.string()?.substringAfter("$cur\":","")?.substringBefore(",","")
+
 				val jsonObj = parseJson(response.body()!!.string())
 
-				price = numberToCurrency(jsonObj.getString(prefCurrency.lowercase()), prefCurrency)
-				dayChange = jsonObj.getString("${prefCurrency.lowercase()}_24h_change")
+				val price = numberToCurrency(jsonObj.getString(prefCurrency.lowercase()), prefCurrency)
+				val marketCap = prettyNumber(jsonObj.getString("${prefCurrency.lowercase()}_market_cap").toDouble())
+				val dayVolume = prettyNumber(jsonObj.getString("${prefCurrency.lowercase()}_24h_vol").toDouble())
+				val dayChange = jsonObj.getString("${prefCurrency.lowercase()}_24h_change")
+				val lastUpdate = jsonObj.getString("last_updated_at")
 
 				Intent().also { intent ->
 					intent.action = BROADCAST_PRICE_UPDATED
 					intent.putExtra("widget_id", widgetId)
 					intent.putExtra("price", price)
 					intent.putExtra("day_change", dayChange)
+					intent.putExtra("market_cap", marketCap)
+					intent.putExtra("day_volume", dayVolume)
+					intent.putExtra("last_update", lastUpdate)
 					LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
 				}
 
@@ -162,4 +171,18 @@ fun stringToInt (str: String?): Int {
 	//println("converted $currency to $digits")
 	if (digits.isNullOrBlank()) return -1
 	return digits.toInt()
+}
+
+fun prettyNumber(number: Number): String? {
+	val suffix = charArrayOf(' ', 'k', 'M', 'B', 'T', 'P', 'E')
+	val numValue = number.toLong()
+	val value = floor(log10(numValue.toDouble())).toInt()
+	val base = value / 3
+	return if (value >= 3 && base < suffix.size) {
+		DecimalFormat("#0.00").format(
+			numValue / 10.0.pow((base * 3).toDouble())
+		) + suffix[base]
+	} else {
+		DecimalFormat("#,##0").format(numValue)
+	}
 }

@@ -58,7 +58,8 @@ class SettingsActivity : AppCompatActivity() {
         val curr = currencySpinner.getItemAtPosition(selPos).toString()
         val rbName = resources.getResourceEntryName(colorRadioGroup.checkedRadioButtonId)
         //val bgCol = baseContext.getString(getBgColor(rbID))
-        savePrefs(baseContext, curr, null, null, rbName)
+        savePrefs(baseContext, curr, null, null,
+            null, null, null, rbName)
     }
 
 }

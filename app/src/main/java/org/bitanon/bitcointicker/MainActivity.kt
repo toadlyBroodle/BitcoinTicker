@@ -5,10 +5,10 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.TableLayout
+import android.widget.TableRow
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,11 +19,16 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.work.*
 import org.bitanon.bitcointicker.databinding.ActivityMainBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 const val MAIN_PREFS = "main_prefs"
 const val MAIN_PREF_CURRENCY = "main_pref_currency"
 const val MAIN_PREF_PRICE = "main_pref_price"
 const val MAIN_PREF_DAY_CHANGE = "main_pref_day_change"
+const val MAIN_PREF_MARKET_CAP = "main_pref_market_cap"
+const val MAIN_PREF_DAY_VOLUME = "main_pref_day_volume"
+const val MAIN_PREF_LAST_UPDATE = "main_pref_last_update"
 const val MAIN_PREF_BG_COLOR_RADIO_ID = "main_pref_bg_color"
 
 class MainActivity : AppCompatActivity() {
@@ -34,13 +39,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefCurrency: String
     lateinit var prefPrice: String
     private lateinit var prefDayChange: String
+    private lateinit var prefDayVolume: String
+    private lateinit var prefMarketCap: String
+    private lateinit var prefLastUpdate: String
     private lateinit var prefBgColor: String
     private var lastReqTime: Long = 0
 
-    private lateinit var btcPriceUnitsTextView: TextView
-    private lateinit var btcPriceTextView: TextView
-    private lateinit var dayChangeTextView: TextView
-    private lateinit var mainTableLayout: TableLayout
+    private lateinit var tlMain: TableLayout
+    private lateinit var trLastPriceUpdate: TableRow
+    private lateinit var tvPriceUnits: TextView
+    private lateinit var tvPrice: TextView
+    private lateinit var tvDayChange: TextView
+    private lateinit var tvMarketCap: TextView
+    private lateinit var tvDayVolume: TextView
+    private lateinit var tvLastUpdate: TextView
+    private lateinit var tvUpdateIcon: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,22 +74,45 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         val sharedPrefs = getSharedPreferences(MAIN_PREFS, 0)
-        prefCurrency = sharedPrefs.getString(MAIN_PREF_CURRENCY, "USD").toString()
-        prefDayChange = sharedPrefs.getString(WIDGET_PREF_DAY_CHANGE,
-            getString(R.string.loading)).toString()
-        prefPrice = sharedPrefs.getString(MAIN_PREF_PRICE,
-            getString(R.string.loading)).toString()
         prefBgColor = getString(getBgColor(sharedPrefs.getString(
             MAIN_PREF_BG_COLOR_RADIO_ID, "").toString())) // getBgColor will return default black color
-
+        prefCurrency = sharedPrefs.getString(MAIN_PREF_CURRENCY, "USD").toString()
+        prefDayChange = sharedPrefs.getString(WIDGET_PREF_DAY_CHANGE, getString(R.string.loading)).toString()
+        prefPrice = sharedPrefs.getString(MAIN_PREF_PRICE, getString(R.string.loading)).toString()
+        prefMarketCap = sharedPrefs.getString(MAIN_PREF_MARKET_CAP, getString(R.string.loading)).toString()
+        prefDayVolume = sharedPrefs.getString(MAIN_PREF_DAY_VOLUME, getString(R.string.loading)).toString()
+        prefLastUpdate = sharedPrefs.getString(MAIN_PREF_LAST_UPDATE, getString(R.string.loading)).toString()
         println("loaded sharedPrefs: ${sharedPrefs.all}")
 
-        btcPriceUnitsTextView = findViewById(R.id.textview_btcprice_units)
-        btcPriceTextView = findViewById(R.id.textview_btcprice)
-        dayChangeTextView = findViewById(R.id.textview_day_change_value)
-        mainTableLayout = findViewById(R.id.main_table_layout)
+        tvUpdateIcon = findViewById(R.id.textview_update_icon)
+        trLastPriceUpdate = findViewById(R.id.table_row_last_update_time)
+        // update price on touch top table row
+        trLastPriceUpdate.setOnClickListener{
+            //if last update less than 1m ago,
+            if (System.currentTimeMillis() - lastReqTime <= 60000) {
+                // blink price
+                val anim: Animation = AlphaAnimation(0.0f, 1.0f)
+                anim.duration = 50
+                anim.startOffset = 20
+                anim.repeatMode = Animation.REVERSE
+                anim.repeatCount = 1
+                tvLastUpdate.startAnimation(anim)
+                tvUpdateIcon.startAnimation(anim)
+            } else
+                queryPriceServer()
+        }
 
+        tlMain = findViewById(R.id.main_table_layout)
+        tvLastUpdate = findViewById(R.id.textview_last_update)
+        tvPriceUnits = findViewById(R.id.textview_btcprice_units)
+        tvPrice = findViewById(R.id.textview_btcprice)
+        tvDayChange = findViewById(R.id.textview_day_change_value)
+        tvMarketCap = findViewById(R.id.textview_market_cap_value)
+        tvDayVolume = findViewById(R.id.textview_day_volume_value)
+
+        // update views with old preference data
         updateUI()
+        // get new data
         queryPriceServer()
      }
 
@@ -106,24 +142,6 @@ class MainActivity : AppCompatActivity() {
                 || super.onSupportNavigateUp()
     }
 
-    // update price when screen touched
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (event.action == MotionEvent.ACTION_UP) {
-            //if last update less than 1m ago,
-            if (System.currentTimeMillis() - lastReqTime <= 60000) {
-                val anim: Animation = AlphaAnimation(0.0f, 1.0f)
-                anim.duration = 50
-                anim.startOffset = 20
-                anim.repeatMode = Animation.REVERSE
-                anim.repeatCount = 1
-                btcPriceTextView.startAnimation(anim)
-            } else
-                queryPriceServer()
-        }
-
-        return true
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         // unregister broadcast receiver
@@ -134,18 +152,22 @@ class MainActivity : AppCompatActivity() {
     fun updateUI() {
         //update price
         runOnUiThread {
-            btcPriceUnitsTextView.text = "$prefCurrency/BTC"
-            btcPriceTextView.text = prefPrice
-            dayChangeTextView.text = formatDayChange(prefDayChange)
-            mainTableLayout.setBackgroundColor(Color.parseColor(prefBgColor))
+            tlMain.setBackgroundColor(Color.parseColor(prefBgColor))
+            tvLastUpdate.text = getDateTime(prefLastUpdate)
+            tvPriceUnits.text = "$prefCurrency/BTC"
+            tvPrice.text = prefPrice
+            tvDayChange.text = formatDayChange(prefDayChange)
+            tvDayVolume.text = prefDayVolume
+            tvMarketCap.text = prefMarketCap
             // change color of price based on 24h change
             if (prefDayChange != "…") {
                 val deltaColor: Int = if (prefDayChange.toFloat() > 0)
                     getColor(R.color.green)
                 else
                     getColor(R.color.red)
-                dayChangeTextView.setTextColor(deltaColor)
-                btcPriceTextView.setTextColor(deltaColor)
+                tvDayChange.setTextColor(deltaColor)
+                tvPrice.setTextColor(deltaColor)
+                tvMarketCap.setTextColor(deltaColor)
             }
         }
     }
@@ -174,7 +196,11 @@ class MainActivity : AppCompatActivity() {
                 BROADCAST_PRICE_UPDATED -> {
                     prefPrice = intent.getStringExtra("price").toString()
                     prefDayChange = intent.getStringExtra("day_change").toString()
-                    savePrefs(baseContext, null, prefPrice, prefDayChange, null)
+                    prefMarketCap = intent.getStringExtra("market_cap").toString()
+                    prefDayVolume = intent.getStringExtra("day_volume").toString()
+                    prefLastUpdate = intent.getStringExtra("last_update").toString()
+                    savePrefs(baseContext, null, prefPrice, prefDayChange,
+                        prefMarketCap, prefDayVolume, prefLastUpdate, null)
                     updateUI()
                     lastReqTime = System.currentTimeMillis()
                 }
@@ -188,8 +214,9 @@ class MainActivity : AppCompatActivity() {
         }
 }
 
-internal fun savePrefs(ctx: Context, currency: String?,
-                      price: String?, dayChange: String?, bgColorRadioName: String?) {
+internal fun savePrefs(ctx: Context, currency: String?, price: String?,
+                       dayChange: String?, marketCap: String?, dayVolume: String?,
+                       lastUpdate: String?, bgColorRadioName: String?) {
     //save last btc price to preferences to avoid null pointer exception
     //if server cannot be reached on next server request
     val prefs = ctx.getSharedPreferences(MAIN_PREFS, 0)
@@ -201,6 +228,12 @@ internal fun savePrefs(ctx: Context, currency: String?,
             putString(MAIN_PREF_PRICE, price)
         if (dayChange != null)
             putString(MAIN_PREF_DAY_CHANGE, dayChange)
+        if (marketCap != null)
+            putString(MAIN_PREF_MARKET_CAP, marketCap)
+        if (dayVolume != null)
+            putString(MAIN_PREF_DAY_VOLUME, dayVolume)
+        if (lastUpdate != null)
+            putString(MAIN_PREF_LAST_UPDATE, lastUpdate)
         if (bgColorRadioName!= null)
             putString(MAIN_PREF_BG_COLOR_RADIO_ID, bgColorRadioName)
     }.commit()
@@ -210,4 +243,10 @@ internal fun savePrefs(ctx: Context, currency: String?,
 private fun formatDayChange(dc: String?): CharSequence {
     if (dc == "…") return "…"
     return "%.2f".format(dc?.toFloat()) + "%"
+}
+
+private fun getDateTime(s: String): String? {
+        val sdf = SimpleDateFormat("HH:mm:ss/dd/MM")
+        val netDate = Date(s.toLong() * 1000)
+        return sdf.format(netDate)
 }

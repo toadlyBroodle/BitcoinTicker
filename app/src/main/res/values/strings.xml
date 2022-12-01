@@ -8,6 +8,10 @@
     <string name="usd_btc">USD/BTC</string>
     <string name="loading">…</string>
     <string name="fail_contact_server">problem contacting server…</string>
+    <string name="market_cap">Market Cap</string>
+    <string name="metric">Metric</string>
+    <string name="value">Value</string>
+    <string name="day_volume">24h Volume</string>
 
     <!-- Settings -->
     <string name="settings">Settings</string>
@@ -21,7 +25,7 @@
     <string name="add_widget">Add widget</string>
     <string name="configure_widget">Configure Widget</string>
     <string name="bad_server_response">bad response from server</string>
-    <string name="day_change">24h Δ</string>
+    <string name="day_change">Δd</string>
     <string name="sync_symbol">&#8634;</string>
     <string name="reload_widget">reload widget</string>
     <string name="bg_transparency">Background transparency</string>
@@ -29,5 +33,6 @@
     <string name="transparency">Transparency</string>
     <string name="color">Color</string>
     <string name="updating_metrics">updating metrics…</string>
+
 
 </resources>
