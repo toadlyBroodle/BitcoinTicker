@@ -129,43 +129,6 @@
         android:weightSum="4">
 
         <TextView
-            android:id="@+id/textview_market_cap"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_column="1"
-            android:layout_weight="1"
-            android:padding="5sp"
-            android:text="@string/market_cap"
-            android:textColor="@color/orange"
-            android:textSize="24sp"/>
-        <TextView
-            android:id="@+id/textview_market_cap_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_column="2"
-            android:layout_weight="1"
-            android:text="@string/loading"
-            android:textColor="@color/orange"
-            android:textSize="24sp"
-            android:gravity="center_horizontal"/>
-
-        <TextView
-            android:id="@+id/textview_market_cap_day_change_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_column="3"
-            android:layout_weight="1"
-            android:text="@string/loading"
-            android:textColor="@color/orange"
-            android:textSize="24sp"
-            android:gravity="center_horizontal"/>
-    </TableRow>
-    <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="4">
-
-        <TextView
             android:id="@+id/textview_day_volume"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -197,4 +160,43 @@
             android:textSize="24sp"
             android:gravity="center_horizontal"/>
     </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="4">
+
+        <TextView
+            android:id="@+id/textview_market_cap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_weight="1"
+            android:padding="5sp"
+            android:text="@string/market_cap"
+            android:textColor="@color/orange"
+            android:textSize="24sp"/>
+        <TextView
+            android:id="@+id/textview_market_cap_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="2"
+            android:layout_weight="1"
+            android:text="@string/loading"
+            android:textColor="@color/orange"
+            android:textSize="24sp"
+            android:gravity="center_horizontal"/>
+
+        <TextView
+            android:id="@+id/textview_market_cap_day_change_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="3"
+            android:layout_weight="1"
+            android:text="@string/loading"
+            android:textColor="@color/orange"
+            android:textSize="24sp"
+            android:gravity="center_horizontal"/>
+    </TableRow>
+
 </TableLayout>

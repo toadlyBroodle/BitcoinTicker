@@ -240,13 +240,14 @@ internal fun savePrefs(ctx: Context, currency: String?, price: String?,
     println("saved sharedPrefs: ${prefs.all}")
 }
 
-private fun formatDayChange(dc: String?): CharSequence {
+fun formatDayChange(dc: String?): CharSequence {
     if (dc == "…") return "…"
     return "%.2f".format(dc?.toFloat()) + "%"
 }
 
-private fun getDateTime(s: String): String? {
-        val sdf = SimpleDateFormat("HH:mm:ss/dd/MM")
-        val netDate = Date(s.toLong() * 1000)
-        return sdf.format(netDate)
+fun getDateTime(s: String): String? {
+    if (s == "…") return "…"
+    val sdf = SimpleDateFormat("HH:mm:ss/dd/MM")
+    val netDate = Date(s.toLong() * 1000)
+    return sdf.format(netDate)
 }

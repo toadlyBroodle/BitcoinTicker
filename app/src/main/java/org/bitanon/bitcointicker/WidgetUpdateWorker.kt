@@ -119,8 +119,8 @@ class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerPa
 				val jsonObj = parseJson(response.body()!!.string())
 
 				val price = numberToCurrency(jsonObj.getString(prefCurrency.lowercase()), prefCurrency)
-				val marketCap = prettyNumber(jsonObj.getString("${prefCurrency.lowercase()}_market_cap").toDouble())
-				val dayVolume = prettyNumber(jsonObj.getString("${prefCurrency.lowercase()}_24h_vol").toDouble())
+				val marketCap = prettyBigNumber(jsonObj.getString("${prefCurrency.lowercase()}_market_cap"))
+				val dayVolume = prettyBigNumber(jsonObj.getString("${prefCurrency.lowercase()}_24h_vol"))
 				val dayChange = jsonObj.getString("${prefCurrency.lowercase()}_24h_change")
 				val lastUpdate = jsonObj.getString("last_updated_at")
 
@@ -173,7 +173,9 @@ fun stringToInt (str: String?): Int {
 	return digits.toInt()
 }
 
-fun prettyNumber(number: Number): String? {
+fun prettyBigNumber(str: String): String? {
+	if (str == "…") return "…"
+	val number = str.toDouble()
 	val suffix = charArrayOf(' ', 'k', 'M', 'B', 'T', 'P', 'E')
 	val numValue = number.toLong()
 	val value = floor(log10(numValue.toDouble())).toInt()

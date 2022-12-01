@@ -1,6 +1,4 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/widget_background_layout"
@@ -13,33 +11,25 @@
         android:gravity="center">
 
         <TextView
-            android:id="@+id/widget_textview_btcprice_units"
-            android:layout_width="wrap_content"
+            android:id="@+id/widget_metric_column"
+            android:layout_width="80sp"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/usd_btc"
-            android:text="@string/usd_btc"
-            android:textSize="12sp"
+            android:text="@string/sync_symbol"
+            android:textSize="16sp"
             android:textColor="@color/orange"
-            android:padding="5sp"/>
-
+            android:textAlignment="center"
+            android:maxLines="1"/>
         <TextView
-            android:id="@+id/widget_textview_btcprice"
-            android:layout_width="wrap_content"
+            android:id="@+id/widget_value_column"
+            android:layout_width="80sp"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/widget_textview_btcprice_units"
-            android:contentDescription="@string/usd_btc"
-            android:text="@string/loading"
-            android:maxLines="1"
-            android:textSize="12sp"
+            android:textSize="10sp"
             android:textColor="@color/orange"
-            android:padding="5sp"/>
-    </RelativeLayout>
-    <RelativeLayout
-        android:id="@+id/ll_row2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/widget_ll_row1"
-        android:gravity="center">
+            android:text="@string/value"
+            android:maxLines="1"
+            android:layout_toEndOf="@id/widget_metric_column"
+            android:layout_alignBottom="@id/widget_metric_column"/>
+
         <TextView
             android:id="@+id/widget_textview_day_change"
             android:layout_width="wrap_content"
@@ -48,14 +38,83 @@
             android:text="@string/day_change"
             android:textSize="12sp"
             android:textColor="@color/orange"
-            android:paddingEnd="5sp"
-            android:paddingStart="5sp"/>
+            android:layout_toEndOf="@id/widget_value_column"
+            android:layout_alignBottom="@id/widget_value_column"
+            android:paddingStart="10sp"
+            android:paddingEnd="10sp"/>
+
+        <TextView
+            android:id="@+id/widget_textview_btcprice_units"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/usd_btc"
+            android:text="@string/usd_btc"
+            android:textSize="12sp"
+            android:textColor="@color/orange"
+            android:padding="5sp"
+            android:layout_toStartOf="@id/widget_textview_btcprice"
+            android:layout_alignBaseline="@id/widget_textview_btcprice"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/widget_textview_btcprice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/widget_metric_column"
+            android:layout_below="@id/widget_value_column"
+            android:contentDescription="@string/usd_btc"
+            android:text="@string/loading"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:textColor="@color/orange"
+            android:paddingStart="5sp"
+            android:paddingEnd="5sp"/>
 
         <TextView
             android:id="@+id/widget_textview_day_change_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/widget_textview_day_change"
+            android:layout_toEndOf="@id/widget_value_column"
+            android:layout_alignBaseline="@id/widget_textview_btcprice"
+            android:contentDescription="@string/day_change"
+            android:text="@string/loading"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:textColor="@color/orange"
+            android:padding="5sp"/>
+
+        <TextView
+            android:id="@+id/widget_textview_day_volume"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/widget_textview_day_volume_value"
+            android:layout_alignBaseline="@id/widget_textview_day_volume_value"
+            android:contentDescription="@string/day_volume"
+            android:text= "@string/day_volume"
+            android:textSize="12sp"
+            android:textColor="@color/orange"
+            android:padding="5sp"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/widget_textview_day_volume_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/widget_metric_column"
+            android:layout_below="@id/widget_textview_btcprice"
+            android:contentDescription="@string/day_volume"
+            android:text="@string/loading"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:textColor="@color/orange"
+            android:padding="5sp"/>
+
+        <TextView
+            android:id="@+id/widget_textview_volume_day_change_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/widget_value_column"
+            android:layout_alignBaseline="@+id/widget_textview_day_volume_value"
             android:contentDescription="@string/day_change"
             android:text="@string/loading"
             android:maxLines="1"
@@ -63,19 +122,47 @@
             android:textColor="@color/orange"
             android:paddingStart="5sp"
             android:paddingEnd="5sp" />
+
+        <TextView
+            android:id="@+id/widget_textview_market_cap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/widget_textview_market_cap_value"
+            android:layout_alignBaseline="@id/widget_textview_market_cap_value"
+            android:contentDescription="@string/market_cap"
+            android:text= "@string/market_cap"
+            android:textSize="12sp"
+            android:textColor="@color/orange"
+            android:padding="5sp"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/widget_textview_market_cap_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/widget_metric_column"
+            android:layout_below="@id/widget_textview_volume_day_change_value"
+            android:contentDescription="@string/market_cap"
+            android:text="@string/loading"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:textColor="@color/orange"
+            android:padding="5sp"/>
+
+        <TextView
+            android:id="@+id/widget_textview_market_cap_day_change_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/widget_value_column"
+            android:layout_alignBaseline="@+id/widget_textview_market_cap"
+            android:contentDescription="@string/market_cap"
+            android:text="@string/loading"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:textColor="@color/orange"
+            android:paddingStart="5sp"
+            android:paddingEnd="5sp" />
+
     </RelativeLayout>
 
-    <Button
-        android:id="@+id/widget_update_button"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:padding="0dp"
-        android:layout_margin="0dp"
-        android:contentDescription="@string/reload_widget"
-        android:text="@string/sync_symbol"
-        android:textSize="16sp"
-        android:background="@color/transparent"
-        android:textColor="@color/orange"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"/>
 </RelativeLayout>
