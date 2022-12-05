@@ -11,6 +11,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -23,11 +25,30 @@ import kotlin.math.pow
 
 const val BROADCAST_SHOW_TOAST = "org.bitanon.bitcointicker.BROADCAST_SHOW_TOAST"
 const val BROADCAST_PRICE_UPDATED = "org.bitanon.bitcointicker.BROADCAST_PRICE_UPDATED"
+const val BROADCAST_MARKET_CHARTS_UPDATED = "org.bitanon.bitcointicker.BROADCAST_MARKET_CHARTS_UPDATED"
+const val MESSAGE = "MESSAGE"
+const val PRICE = "PRICE"
+const val DAY_CHANGE = "DAY_CHANGE"
+const val DAY_VOLUME = "DAY_VOLUME"
+const val MARKET_CAP = "MARKET_CAP"
+const val LAST_UPDATE = "LAST_UPDATE"
+const val WIDGIT_ID = "WIDGET_ID"
+const val PRICE_DELTA_DAY = "PRICE_DELTA_DAY"
+const val PRICE_DELTA_WEEK = "PRICE_DELTA_WEEK"
+const val PRICE_DELTA_MONTH = "PRICE_DELTA_MONTH"
+const val VOLUME_DELTA_DAY = "VOLUME_DELTA_DAY"
+const val VOLUME_DELTA_WEEK = "VOLUME_DELTA_WEEK"
+const val VOLUME_DELTA_MONTH = "VOLUME_DELTA_MONTH"
+const val MARKET_CAP_DELTA_DAY = "MARKET_CAP_DELTA_DAY"
+const val MARKET_CAP_DELTA_WEEK = "MARKET_CAP_DELTA_WEEK"
+const val MARKET_CAP_DELTA_MONTH = "MARKET_CAP_DELTA_MONTH"
 
 private const val urlCGReqPing = "https://api.coingecko.com/api/v3/ping"
-private const val urlCGReqBtcPrice = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true&precision=0"
+private const val urlCGReqBtcSimplePrice = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true&precision=0"
+//private const val urlCGReqBtcCommunity = "https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&market_data=false&community_data=true&developer_data=true&sparkline=false"
+private const val urlCGReqBtcMarketCharts = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=29&interval=daily"
 
-class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerParameters)
+class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerParameters)
 	: CoroutineWorker(appContext, workerParams) {
 
 	// CoroutineWorker extras for Android versions < 12: for adding mandatory notification
@@ -92,18 +113,19 @@ class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerPa
 			override fun onResponse(call: Call, response: Response) {
 				if (response.body()?.string()?.contains("(V3) To the Moon!") == true) {
 					println("ping echoed")
-					getBitcoinPrice(prefCurrency)
+					getBitcoinSimplePrice(prefCurrency)
+					getBitcoinMarketCharts(prefCurrency)
 				}
 				else sendMainToast(appContext.getString(R.string.bad_server_response))
 			}
 		})
 	}
 
-	fun getBitcoinPrice(prefCurrency: String) {
+	fun getBitcoinSimplePrice(prefCurrency: String) {
 
 		//build correct url based on currency preference
 		val cur = prefCurrency.lowercase()
-		val url = urlCGReqBtcPrice.replace("vs_currencies=usd","vs_currencies=$cur")
+		val url = urlCGReqBtcSimplePrice.replace("vs_currencies=usd","vs_currencies=$cur")
 
 		val request = Request.Builder()
 			.url(url)
@@ -111,30 +133,75 @@ class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerPa
 
 		client.newCall(request).enqueue(object : Callback {
 			override fun onFailure(call: Call, e: IOException) {
-				println("coingecko.com bitcoin price request failed: ${e.message}")
+				println("coingecko.com bitcoin simple price request failed: ${e.message}")
 			}
 			override fun onResponse(call: Call, response: Response) {
-				println("coingeck.com responded")
+				println("coingeck.com responded with simple price")
 
-				val jsonObj = parseJson(response.body()!!.string())
+				val jsonObj = parseJsonSimplePrice(response.body()!!.string())
 
+				// TODO move formatting to MainActivity.updateUI
 				val price = numberToCurrency(jsonObj.getString(prefCurrency.lowercase()), prefCurrency)
 				val marketCap = prettyBigNumber(jsonObj.getString("${prefCurrency.lowercase()}_market_cap"))
 				val dayVolume = prettyBigNumber(jsonObj.getString("${prefCurrency.lowercase()}_24h_vol"))
 				val dayChange = jsonObj.getString("${prefCurrency.lowercase()}_24h_change")
 				val lastUpdate = jsonObj.getString("last_updated_at")
 
-				Intent().also { intent ->
-					intent.action = BROADCAST_PRICE_UPDATED
-					intent.putExtra("widget_id", widgetId)
-					intent.putExtra("price", price)
-					intent.putExtra("day_change", dayChange)
-					intent.putExtra("market_cap", marketCap)
-					intent.putExtra("day_volume", dayVolume)
-					intent.putExtra("last_update", lastUpdate)
-					LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
+				val intent = Intent().apply {
+					action = BROADCAST_PRICE_UPDATED
+					putExtra(WIDGIT_ID, widgetId)
+					putExtra(PRICE, price)
+					putExtra(DAY_CHANGE, dayChange)
+					putExtra(DAY_VOLUME, dayVolume)
+					putExtra(MARKET_CAP, marketCap)
+					putExtra(LAST_UPDATE, lastUpdate)
 				}
+				LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
+				// close response body once done with it
+				response.body()!!.close()
+			}
+		})
+	}
 
+	fun getBitcoinMarketCharts(prefCurrency: String) {
+
+		//build correct url based on currency preference
+		val cur = prefCurrency.lowercase()
+		val url = urlCGReqBtcMarketCharts.replace("vs_currencies=usd","vs_currencies=$cur")
+
+		val request = Request.Builder()
+			.url(url)
+			.build()
+
+		client.newCall(request).enqueue(object : Callback {
+			override fun onFailure(call: Call, e: IOException) {
+				println("coingecko.com bitcoin market chart request failed: ${e.message}")
+			}
+			override fun onResponse(call: Call, response: Response) {
+				println("coingeck.com responded with market charts")
+
+				val charts = parseJsonMarketCharts(response.body()!!.string())
+
+				// get deltas
+				val priceDeltas = Calculator.getDeltas(charts.prices)
+				val volumeDeltas = Calculator.getDeltas(charts.total_volumes)
+				val marketCapDeltas = Calculator.getDeltas(charts.market_caps)
+				//println("priceDeltas-> daily: ${priceDeltas[0]}, weekly: ${priceDeltas[1]}, monthly: ${priceDeltas[2]}")
+
+				val intent = Intent().apply {
+					action = BROADCAST_MARKET_CHARTS_UPDATED
+					putExtra(WIDGIT_ID, widgetId)
+					putExtra(PRICE_DELTA_DAY, priceDeltas[0])
+					putExtra(PRICE_DELTA_WEEK, priceDeltas[1])
+					putExtra(PRICE_DELTA_MONTH, priceDeltas[2])
+					putExtra(VOLUME_DELTA_DAY, volumeDeltas[0])
+					putExtra(VOLUME_DELTA_WEEK, volumeDeltas[1])
+					putExtra(VOLUME_DELTA_MONTH, volumeDeltas[2])
+					putExtra(MARKET_CAP_DELTA_DAY, marketCapDeltas[0])
+					putExtra(MARKET_CAP_DELTA_WEEK, marketCapDeltas[1])
+					putExtra(MARKET_CAP_DELTA_MONTH, marketCapDeltas[2])
+				}
+				LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
 				// close response body once done with it
 				response.body()!!.close()
 			}
@@ -144,16 +211,22 @@ class WidgetUpdateWorker(private val appContext: Context, workerParams: WorkerPa
 	private fun sendMainToast(message: String) {
 		val intent = Intent().apply {
 			action = BROADCAST_SHOW_TOAST
+			putExtra(WIDGIT_ID, widgetId)
 			putExtra("message", message)
 		}
 		LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
 	}
 }
 
-fun parseJson(jsonString: String): JSONObject {
+fun parseJsonSimplePrice(json: String): JSONObject {
 	// get JSONObject from JSON file
-	val obj = JSONObject(jsonString)
+	val obj = JSONObject(json)
 	return obj.getJSONObject("bitcoin")
+}
+
+fun parseJsonMarketCharts(json: String): MarketCharts {
+	val typeToken = object : TypeToken<MarketCharts>() {}.type
+	return Gson().fromJson(json, typeToken)
 }
 
 fun numberToCurrency(number: String?, prefCurrency: String): String {
@@ -188,3 +261,7 @@ fun prettyBigNumber(str: String): String? {
 		DecimalFormat("#,##0").format(numValue)
 	}
 }
+
+data class MarketCharts(var prices: List<List<Number>>,
+						var market_caps: List<List<Number>>,
+						var total_volumes: List<List<Number>>) {}

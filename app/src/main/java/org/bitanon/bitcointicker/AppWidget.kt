@@ -22,7 +22,6 @@ const val WIDGET_PREF_MARKET_CAP = "WIDGET_PREF_PRICE_MARKET_CAP"
 const val WIDGET_PREF_LAST_UPDATE = "WIDGET_PREF_LAST_UPDATE"
 const val WIDGET_PREF_UPDATE_FREQ = "WIDGET_PREF_UPDATE_FREQUENCY"
 const val WIDGET_PREF_BG_TRANSPARENCY = "WIDGET_PREF_BG_TRANSPARENCY"
-const val WIDGET_PREF_BG_COLOR_CHECKED_RADIO_ID = "WIDGET_PREF_BG_CHECKED_COLOR_RADIO_ID"
 const val BROADCAST_WIDGET_UPDATE_BUTTON_CLICK = "org.bitanon.bitcointicker.BROADCAST_WIDGET_UPDATE_BUTTON_CLICK"
 
 fun getWidgetPackageName(id: Int): String { return WIDGET_PREF_PREFIX + id }
@@ -68,18 +67,18 @@ class AppWidget : AppWidgetProvider() {
 
             println("broadcast received")
             // ignore widget price updates
-            val widgetId = intent?.getIntExtra("widget_id", 0)
+            val widgetId = intent?.getIntExtra(WIDGIT_ID, 0)
             if ( widgetId == -1) return
 
             val prefs = loadWidgetPrefs(context, widgetId)
 
             when (intent?.action) {
                 BROADCAST_PRICE_UPDATED -> {
-                    val price = intent.getStringExtra("price")
-                    val dayChange = intent.getStringExtra("day_change")
-                    val dayVolume = intent.getStringExtra("day_volume").toString()
-                    val marketCap = intent.getStringExtra("market_cap").toString()
-                    val lastUpdate = intent.getStringExtra("last_update").toString()
+                    val price = intent.getStringExtra(PRICE)
+                    val dayChange = intent.getStringExtra(DAY_CHANGE)
+                    val dayVolume = intent.getStringExtra(DAY_VOLUME).toString()
+                    val marketCap = intent.getStringExtra(MARKET_CAP).toString()
+                    val lastUpdate = intent.getStringExtra(LAST_UPDATE).toString()
 
                     // save widget prefs price
                     val prefsEditor = prefs?.edit()
@@ -101,13 +100,13 @@ class AppWidget : AppWidgetProvider() {
                 }
                 BROADCAST_WIDGET_UPDATE_BUTTON_CLICK -> {
                     // construct onetime price query
-                    val priceReq = OneTimeWorkRequestBuilder<WidgetUpdateWorker>()
+                    val priceReq = OneTimeWorkRequestBuilder<RequestUpdateWorker>()
                     val data = Data.Builder()
                     if (prefs != null) {
-                        data.putString("pref_curr", prefs.getString(WIDGET_PREF_CURRENCY, "USD"))
+                        data.putString(WIDGET_PREF_CURRENCY, prefs.getString(WIDGET_PREF_CURRENCY, "USD"))
                     }
                     if (widgetId != null) {
-                        data.putInt("widget_id", widgetId)
+                        data.putInt(WIDGIT_ID, widgetId)
                     }
                     priceReq.setInputData(data.build())
                     priceReq.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
@@ -157,36 +156,22 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
 
     // get bg color selected
     val prefBgTransp = prefs?.getFloat(WIDGET_PREF_BG_TRANSPARENCY, 0.5f)
-    val bgColorRadioId = prefs?.getString(WIDGET_PREF_BG_COLOR_CHECKED_RADIO_ID, "radio_color_black")
-    val bgColor = context.getString(getBgColor(bgColorRadioId))
     // convert bg color float -> int -> hex
     var hexBgTransp = prefBgTransp?.times(255)?.let { Integer.toHexString(it.toInt()) }
     // pad 0 value with extra 0 for correct color hex formatting
     if (stringToInt(hexBgTransp) == 0)
         hexBgTransp = "00"
-    // add transparency to hex color
-    val bgTranspColorVal = bgColor.replace("ff", "$hexBgTransp")
 
     //update widget views
     views.apply {
-        try { // try parsing transparent color
-            setInt(R.id.widget_background_layout, "setBackgroundColor",
-                Color.parseColor(bgTranspColorVal))
-        } catch (e: Exception) {
-            println("bgColorRadioId=$bgColorRadioId")
-            println("bgColor=$bgColor")
-            println("hexBgTransp=$hexBgTransp")
-            println("bgTranspColorVal=$bgTranspColorVal")
-            println(e)
-            // if fails, just use original non-transparent color value
-            setInt(R.id.widget_background_layout, "setBackgroundColor",
-                Color.parseColor(bgColor))
-        }
+        // add transparency to black background
+        setInt(R.id.widget_background_layout, "setBackgroundColor",
+            Color.parseColor("#${hexBgTransp}000000"))
         setTextViewText(R.id.widget_textview_btcprice_units, "$prefCurr/BTC")
         if (prefCurr != null)
             setTextViewText(R.id.widget_textview_btcprice, numberToCurrency(prefPrice, prefCurr))
         if (prefDayChange != null)
-            setTextViewText(R.id.widget_textview_day_change_value, formatDayChange(prefDayChange))
+            setTextViewText(R.id.widget_textview_day_change_value, formatChangePercent(prefDayChange.toFloat()))
         if (prefDayVolume != null)
             setTextViewText(R.id.widget_textview_day_volume_value, prefDayVolume)
         if (prefMarketCap != null)

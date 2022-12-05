@@ -6,11 +6,6 @@
     android:padding="16dp">
     <!-- android:background="@color/black" -->
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?android:attr/listDivider" />
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,67 +25,6 @@
         android:minHeight="48dp"
         android:summary="%s"
         android:title="@string/currency" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?android:attr/listDivider" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="@string/bg_color"
-        android:textSize="20sp" />
-
-    <RadioGroup
-        android:id="@+id/main_settings_radio_group"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <RadioButton android:id="@+id/main_settings_radio_color_black"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/orange"
-            android:background="@color/black"
-            android:checked="true"/>
-        <RadioButton android:id="@+id/main_settings_radio_color_darkgrey"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/orange"
-            android:background="@color/dark_grey"/>
-        <RadioButton android:id="@+id/main_settings_radio_color_lightgrey"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/orange"
-            android:background="@color/light_grey"/>
-        <RadioButton android:id="@+id/main_settings_radio_color_white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/orange"
-            android:background="@color/white"/>
-        <RadioButton android:id="@+id/main_settings_radio_color_teal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/orange"
-            android:background="@color/teal_200"/>
-        <RadioButton android:id="@+id/main_settings_radio_color_lightblue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/orange"
-            android:background="@color/light_blue_600"/>
-        <RadioButton android:id="@+id/main_settings_radio_color_darkblue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/orange"
-            android:background="@color/light_blue_900"/>
-        <RadioButton android:id="@+id/main_settings_radio_color_purple"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/orange"
-            android:background="@color/purple_700"/>
-    </RadioGroup>
 
     <View
         android:layout_width="match_parent"

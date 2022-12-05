@@ -81,14 +81,14 @@ class AppWidgetConfigureActivity : Activity() {
 
         // construct recurring price query
         val queryPriceWork = prefUpdFreq?.let { it1 ->
-            PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
+            PeriodicWorkRequestBuilder<RequestUpdateWorker>(
                 it1.toLong(), TimeUnit.MILLISECONDS // minimum time is 15m
             )
         }
         //Add parameter in Data class. just like bundle. You can also add Boolean and Number in parameter.
         val data = Data.Builder()
-        data.putString("pref_curr", prefCurr)
-        data.putInt("widget_id", appWidgetId)
+        data.putString(WIDGET_PREF_CURRENCY, prefCurr)
+        data.putInt(WIDGIT_ID, appWidgetId)
         queryPriceWork?.setInputData(data.build())
 
         // add recurring price query worker
@@ -114,8 +114,6 @@ internal fun saveWidgetConfigPrefs(context: Context, appWidgetId: Int, binding: 
     prefsEditor.putString(WIDGET_PREF_CURRENCY, binding.widgetCurrenciesList.selectedItem.toString())
     prefsEditor.putInt(WIDGET_PREF_UPDATE_FREQ, stringToInt(freqValue))
     prefsEditor.putFloat(WIDGET_PREF_BG_TRANSPARENCY, binding.transparencySlider.value)
-    prefsEditor.putString(WIDGET_PREF_BG_COLOR_CHECKED_RADIO_ID,
-        context.resources.getResourceEntryName(binding.radioGroup.checkedRadioButtonId))
     prefsEditor.commit()
     println("saved $prefsKey :${prefs.all}")
 }

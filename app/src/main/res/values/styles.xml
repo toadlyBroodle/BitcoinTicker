@@ -8,4 +8,20 @@
         <item name="android:background">?android:attr/colorBackground</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
+
+    <style name="MainMetricLabelText" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">?android:colorPrimary</item>
+        <item name="android:textSize">@dimen/main_metric_header_text_size</item>
+        <item name="android:padding">@dimen/main_text_padding</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="MainMetricText" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">?android:colorPrimary</item>
+        <item name="android:textSize">@dimen/main_metric_text_size</item>
+        <item name="android:padding">@dimen/main_text_padding</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:maxLines">1</item>
+    </style>
 </resources>

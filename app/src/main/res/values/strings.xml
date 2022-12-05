@@ -25,7 +25,9 @@
     <string name="add_widget">Add widget</string>
     <string name="configure_widget">Configure Widget</string>
     <string name="bad_server_response">bad response from server</string>
-    <string name="day_change">Δd</string>
+    <string name="change_day">dΔ%</string>
+    <string name="change_week">wΔ%</string>
+    <string name="change_month">mΔ%</string>
     <string name="sync_symbol">&#8634;</string>
     <string name="reload_widget">reload widget</string>
     <string name="bg_transparency">Background transparency</string>

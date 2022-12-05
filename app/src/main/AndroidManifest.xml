@@ -30,6 +30,9 @@
             <intent-filter>
                 <action android:name="org.bitanon.bitcointicker.BROADCAST_PRICE_UPDATED" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="org.bitanon.bitcointicker.BROADCAST_MARKET_CHARTS_UPDATED" />
+            </intent-filter>
 
             <meta-data
                 android:name="android.app.lib_name"
