@@ -12,9 +12,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 
-
 const val WIDGET_PREF_PREFIX = "org.bitanon.bitcointicker.widget"
-const val WIDGET_PREF_CURRENCY = "WIDGET_PREF_CURRENCY"
 const val WIDGET_PREF_PRICE = "WIDGET_PREF_PRICE"
 const val WIDGET_PREF_DAY_CHANGE = "WIDGET_PREF_DAY_CHANGE"
 const val WIDGET_PREF_DAY_VOLUME = "WIDGET_PREF_DAY_VOLUME"
@@ -103,7 +101,7 @@ class AppWidget : AppWidgetProvider() {
                     val priceReq = OneTimeWorkRequestBuilder<RequestUpdateWorker>()
                     val data = Data.Builder()
                     if (prefs != null) {
-                        data.putString(WIDGET_PREF_CURRENCY, prefs.getString(WIDGET_PREF_CURRENCY, "USD"))
+                        data.putString(PREF_CURRENCY, prefs.getString(PREF_CURRENCY, "USD"))
                     }
                     if (widgetId != null) {
                         data.putInt(WIDGIT_ID, widgetId)
@@ -144,7 +142,7 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
 
     // get prefs
     val prefs = loadWidgetPrefs(context, appWidgetId)
-    val prefCurr = prefs?.getString(WIDGET_PREF_CURRENCY, context.getString(R.string.usd))
+    val prefCurr = prefs?.getString(PREF_CURRENCY, context.getString(R.string.usd))
     val prefPrice = prefs?.getString(WIDGET_PREF_PRICE, context.getString(R.string.loading))
     val prefDayChange = prefs?.getString(WIDGET_PREF_DAY_CHANGE, null)
     val prefDayVolume = prefs?.getString(WIDGET_PREF_DAY_VOLUME,

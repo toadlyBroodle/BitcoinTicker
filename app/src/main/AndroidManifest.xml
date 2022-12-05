@@ -24,15 +24,6 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="org.bitanon.bitcointicker.BROADCAST_SHOW_TOAST" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="org.bitanon.bitcointicker.BROADCAST_PRICE_UPDATED" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="org.bitanon.bitcointicker.BROADCAST_MARKET_CHARTS_UPDATED" />
-            </intent-filter>
 
             <meta-data
                 android:name="android.app.lib_name"
@@ -57,27 +48,11 @@
                 android:value="org.bitanon.bitcointicker.MainActivity" />
         </activity>
 
-<!--        <receiver android:name=".MainActivity"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="org.bitanon.bitcointicker.BROADCAST_SHOW_TOAST" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="org.bitanon.bitcointicker.BROADCAST_PRICE_UPDATED" />
-            </intent-filter>
-        </receiver>-->
-
         <receiver
             android:name=".AppWidget"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="org.bitanon.bitcointicker.BROADCAST_PRICE_UPDATED" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="org.bitanon.bitcointicker.BROADCAST_WIDGET_UPDATE_BUTTON_CLICK" />
             </intent-filter>
 
             <meta-data

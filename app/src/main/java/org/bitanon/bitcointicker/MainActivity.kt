@@ -21,7 +21,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 const val MAIN_PREFS = "main_prefs"
-const val MAIN_PREF_CURRENCY = "main_pref_currency"
 const val MAIN_PREF_PRICE = "main_pref_price"
 const val MAIN_PREF_MARKET_CAP = "main_pref_market_cap"
 const val MAIN_PREF_DAY_VOLUME = "main_pref_day_volume"
@@ -209,8 +208,8 @@ class MainActivity : AppCompatActivity() {
         // construct recurring price query
         val priceReq = OneTimeWorkRequestBuilder<RequestUpdateWorker>()
         val data = Data.Builder()
-        data.putString("pref_curr", prefCurrency)
-        data.putInt("widget_id", -1)
+        data.putString(PREF_CURRENCY, prefCurrency)
+        data.putInt(WIDGIT_ID, -1)
         priceReq.setInputData(data.build())
         priceReq.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
 
@@ -259,7 +258,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadPrefs() {
         val sharedPrefs = getSharedPreferences(MAIN_PREFS, 0)
-        prefCurrency = sharedPrefs.getString(MAIN_PREF_CURRENCY, "USD").toString()
+        prefCurrency = sharedPrefs.getString(PREF_CURRENCY, "USD").toString()
         prefPrice = sharedPrefs.getString(MAIN_PREF_PRICE, getString(R.string.loading)).toString()
         prefMarketCap = sharedPrefs.getString(MAIN_PREF_MARKET_CAP, getString(R.string.loading)).toString()
         prefDayVolume = sharedPrefs.getString(MAIN_PREF_DAY_VOLUME, getString(R.string.loading)).toString()
@@ -282,7 +281,7 @@ class MainActivity : AppCompatActivity() {
         val prefs = getSharedPreferences(MAIN_PREFS, 0)
         val prefsEditor = prefs.edit()
         prefsEditor.apply {
-            putString(MAIN_PREF_CURRENCY, prefCurrency)
+            putString(PREF_CURRENCY, prefCurrency)
             putString(MAIN_PREF_PRICE, prefPrice)
             putString(MAIN_PREF_MARKET_CAP, prefMarketCap)
             putString(MAIN_PREF_DAY_VOLUME, prefDayVolume)
