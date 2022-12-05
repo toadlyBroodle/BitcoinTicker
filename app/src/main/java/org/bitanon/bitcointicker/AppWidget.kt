@@ -47,6 +47,7 @@ class AppWidget : AppWidgetProvider() {
         val filters = IntentFilter()
         filters.addAction(BROADCAST_PRICE_UPDATED)
         filters.addAction(BROADCAST_WIDGET_UPDATE_BUTTON_CLICK)
+        // TODO integrate BROADCAST_MARKET_CHARTS_UPDATED
         LocalBroadcastManager.getInstance(context.applicationContext).registerReceiver(br, filters)
     }
 
@@ -65,20 +66,18 @@ class AppWidget : AppWidgetProvider() {
 
             when (intent?.action) {
                 BROADCAST_PRICE_UPDATED -> {
-                    val price = intent.getStringExtra(PRICE)
-                    val dayChange = intent.getStringExtra(DAY_CHANGE)
-                    val dayVolume = intent.getStringExtra(DAY_VOLUME).toString()
-                    val marketCap = intent.getStringExtra(MARKET_CAP).toString()
-                    val lastUpdate = intent.getStringExtra(LAST_UPDATE).toString()
+                    val price = intent.getStringExtra(CURR_PRICE)
+                    val dayVolume = intent.getStringExtra(CURR_DAY_VOLUME).toString()
+                    val marketCap = intent.getStringExtra(CURR_MARKET_CAP).toString()
+                    val lastUpdate = intent.getStringExtra(CURR_LAST_UPDATE).toString()
 
                     // save widget prefs price
                     val prefsEditor = prefs?.edit()
                     if (prefsEditor != null) {
-                        prefsEditor.putString(PRICE, price)
-                        prefsEditor.putString(DAY_CHANGE, dayChange)
-                        prefsEditor.putString(DAY_VOLUME, dayVolume)
-                        prefsEditor.putString(MARKET_CAP, marketCap)
-                        prefsEditor.putString(LAST_UPDATE, lastUpdate)
+                        prefsEditor.putString(CURR_PRICE, price)
+                        prefsEditor.putString(CURR_DAY_VOLUME, dayVolume)
+                        prefsEditor.putString(CURR_MARKET_CAP, marketCap)
+                        prefsEditor.putString(CURR_LAST_UPDATE, lastUpdate)
                         prefsEditor.commit()
                     }
                     println("saved widget$widgetId prefs:${prefs?.all}")
@@ -136,14 +135,10 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
     // get prefs
     val prefs = loadWidgetPrefs(context, appWidgetId)
     val prefCurr = prefs?.getString(CURRENCY, context.getString(R.string.usd))
-    val prefPrice = prefs?.getString(PRICE, context.getString(R.string.loading))
-    val prefDayChange = prefs?.getString(DAY_CHANGE, null)
-    val prefDayVolume = prefs?.getString(DAY_VOLUME,
-        context.getString(R.string.loading))
-    val prefMarketCap = prefs?.getString(MARKET_CAP,
-        context.getString(R.string.loading))
-    val prefLastUpdate = prefs?.getString(LAST_UPDATE,
-        context.getString(R.string.loading))?.let { getDateTime(it) }
+    val prefPrice = prefs?.getString(CURR_PRICE, context.getString(R.string.loading))
+    val prefDayVolume = prefs?.getString(CURR_DAY_VOLUME, context.getString(R.string.loading))
+    val prefMarketCap = prefs?.getString(CURR_MARKET_CAP, context.getString(R.string.loading))
+    val prefLastUpdate = prefs?.getString(CURR_LAST_UPDATE, context.getString(R.string.loading))?.let { getDateTime(it) }
 
     // get bg color selected
     val prefBgTransp = prefs?.getFloat(WIDGET_PREF_BG_TRANSPARENCY, 0.5f)
@@ -161,8 +156,6 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
         setTextViewText(R.id.widget_textview_btcprice_units, "$prefCurr/BTC")
         if (prefCurr != null)
             setTextViewText(R.id.widget_textview_btcprice, numberToCurrency(prefPrice, prefCurr))
-        if (prefDayChange != null)
-            setTextViewText(R.id.widget_textview_day_change_value, formatChangePercent(prefDayChange.toFloat()))
         if (prefDayVolume != null)
             setTextViewText(R.id.widget_textview_day_volume_value, prefDayVolume)
         if (prefMarketCap != null)
@@ -170,7 +163,7 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
         if (prefLastUpdate != null)
             setTextViewText(R.id.widget_value_column, prefLastUpdate)
         // change metric colors based on 24h change
-        if (prefDayChange != null) {
+        /*if (prefDayChange != null) {
             val deltaColor: Int = if (prefDayChange.toFloat() > 0)
                 context.getColor(R.color.green)
             else
@@ -178,7 +171,7 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
             setTextColor(R.id.widget_textview_btcprice, deltaColor)
             setTextColor(R.id.widget_textview_day_change_value, deltaColor)
             setTextColor(R.id.widget_textview_market_cap_value, deltaColor)
-        }
+        }*/
     }
 
     // Instruct the widget manager to update the widget

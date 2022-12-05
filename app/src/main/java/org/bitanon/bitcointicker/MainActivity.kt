@@ -214,10 +214,10 @@ class MainActivity : AppCompatActivity() {
                     intent.getStringExtra(MESSAGE)?.let { showToast(it) }
                 }
                 BROADCAST_PRICE_UPDATED -> {
-                    prefPrice = intent.getStringExtra(PRICE).toString()
-                    prefMarketCap = intent.getStringExtra(MARKET_CAP).toString()
-                    prefDayVolume = intent.getStringExtra(DAY_VOLUME).toString()
-                    prefLastUpdate = intent.getStringExtra(LAST_UPDATE).toString()
+                    prefPrice = intent.getStringExtra(CURR_PRICE).toString()
+                    prefMarketCap = intent.getStringExtra(CURR_MARKET_CAP).toString()
+                    prefDayVolume = intent.getStringExtra(CURR_DAY_VOLUME).toString()
+                    prefLastUpdate = intent.getStringExtra(CURR_LAST_UPDATE).toString()
 
                     updateUI()
                     lastReqTime = System.currentTimeMillis()
@@ -246,10 +246,10 @@ class MainActivity : AppCompatActivity() {
     private fun loadPrefs() {
         val sharedPrefs = getSharedPreferences(MAIN_PREFS, 0)
         prefCurrency = sharedPrefs.getString(CURRENCY, "USD").toString()
-        prefPrice = sharedPrefs.getString(PRICE, getString(R.string.loading)).toString()
-        prefMarketCap = sharedPrefs.getString(MARKET_CAP, getString(R.string.loading)).toString()
-        prefDayVolume = sharedPrefs.getString(DAY_VOLUME, getString(R.string.loading)).toString()
-        prefLastUpdate = sharedPrefs.getString(LAST_UPDATE, getString(R.string.loading)).toString()
+        prefPrice = sharedPrefs.getString(CURR_PRICE, getString(R.string.loading)).toString()
+        prefMarketCap = sharedPrefs.getString(CURR_MARKET_CAP, getString(R.string.loading)).toString()
+        prefDayVolume = sharedPrefs.getString(CURR_DAY_VOLUME, getString(R.string.loading)).toString()
+        prefLastUpdate = sharedPrefs.getString(CURR_LAST_UPDATE, getString(R.string.loading)).toString()
         prefPriceDeltaDay = sharedPrefs.getFloat(PRICE_DELTA_DAY, 0f)
         prefPriceDeltaWeek = sharedPrefs.getFloat(PRICE_DELTA_WEEK, 0f)
         prefPriceDeltaMonth = sharedPrefs.getFloat(PRICE_DELTA_MONTH , 0f)
@@ -269,10 +269,10 @@ class MainActivity : AppCompatActivity() {
         val prefsEditor = prefs.edit()
         prefsEditor.apply {
             putString(CURRENCY, prefCurrency)
-            putString(PRICE, prefPrice)
-            putString(MARKET_CAP, prefMarketCap)
-            putString(DAY_VOLUME, prefDayVolume)
-            putString(LAST_UPDATE, prefLastUpdate)
+            putString(CURR_PRICE, prefPrice)
+            putString(CURR_MARKET_CAP, prefMarketCap)
+            putString(CURR_DAY_VOLUME, prefDayVolume)
+            putString(CURR_LAST_UPDATE, prefLastUpdate)
             putFloat(PRICE_DELTA_DAY, prefPriceDeltaDay)
             putFloat(PRICE_DELTA_WEEK, prefPriceDeltaWeek)
             putFloat(PRICE_DELTA_MONTH, prefPriceDeltaMonth)

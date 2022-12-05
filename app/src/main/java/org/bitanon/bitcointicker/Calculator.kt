@@ -2,7 +2,7 @@ package org.bitanon.bitcointicker
 
 class Calculator {
 	companion object {
-
+		// TODO replace today's values with most current
 		fun getDeltas(chart: List<List<Number>>): MutableList<Float> {
 			val deltas = mutableListOf(0f, 0f, 0f) //daily, weekly, monthly changes
 
