@@ -31,7 +31,7 @@ class SettingsActivity : AppCompatActivity() {
         //load main prefs
         val sharedPrefs = getSharedPreferences(MAIN_PREFS, 0)
         println("settingsActiv loaded prefs:${sharedPrefs.all}")
-        prefCurrency = sharedPrefs.getString(PREF_CURRENCY, getString(R.string.usd)).toString()
+        prefCurrency = sharedPrefs.getString(CURRENCY, getString(R.string.usd)).toString()
 
         //set views same as prefs
         arrayAdapter = ArrayAdapter.createFromResource(
@@ -49,7 +49,7 @@ class SettingsActivity : AppCompatActivity() {
         val prefs = getSharedPreferences(MAIN_PREFS, 0)
         val prefsEditor = prefs.edit()
         prefsEditor.apply {
-            putString(PREF_CURRENCY, curr)
+            putString(CURRENCY, curr)
         }.commit()
     }
 }

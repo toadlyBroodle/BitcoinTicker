@@ -76,7 +76,7 @@ class AppWidgetConfigureActivity : Activity() {
 
         // load prefCurrency
         val prefs = loadWidgetPrefs(context, appWidgetId)
-        val prefCurr = prefs?.getString(PREF_CURRENCY, context.getString(R.string.usd))
+        val prefCurr = prefs?.getString(CURRENCY, context.getString(R.string.usd))
         val prefUpdFreq = prefs?.getInt(WIDGET_PREF_UPDATE_FREQ, 1800000)
 
         // construct recurring price query
@@ -87,7 +87,7 @@ class AppWidgetConfigureActivity : Activity() {
         }
         //Add parameter in Data class. just like bundle. You can also add Boolean and Number in parameter.
         val data = Data.Builder()
-        data.putString(PREF_CURRENCY, prefCurr)
+        data.putString(CURRENCY, prefCurr)
         data.putInt(WIDGIT_ID, appWidgetId)
         queryPriceWork?.setInputData(data.build())
 
@@ -111,7 +111,7 @@ internal fun saveWidgetConfigPrefs(context: Context, appWidgetId: Int, binding: 
     val prefsKey = getWidgetPackageName(appWidgetId)
     val prefs = context.getSharedPreferences(prefsKey, 0)
     val prefsEditor = prefs.edit()
-    prefsEditor.putString(PREF_CURRENCY, binding.widgetCurrenciesList.selectedItem.toString())
+    prefsEditor.putString(CURRENCY, binding.widgetCurrenciesList.selectedItem.toString())
     prefsEditor.putInt(WIDGET_PREF_UPDATE_FREQ, stringToInt(freqValue))
     prefsEditor.putFloat(WIDGET_PREF_BG_TRANSPARENCY, binding.transparencySlider.value)
     prefsEditor.commit()

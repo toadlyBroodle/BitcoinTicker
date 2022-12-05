@@ -13,14 +13,9 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 
 const val WIDGET_PREF_PREFIX = "org.bitanon.bitcointicker.widget"
-const val WIDGET_PREF_PRICE = "WIDGET_PREF_PRICE"
-const val WIDGET_PREF_DAY_CHANGE = "WIDGET_PREF_DAY_CHANGE"
-const val WIDGET_PREF_DAY_VOLUME = "WIDGET_PREF_DAY_VOLUME"
-const val WIDGET_PREF_MARKET_CAP = "WIDGET_PREF_PRICE_MARKET_CAP"
-const val WIDGET_PREF_LAST_UPDATE = "WIDGET_PREF_LAST_UPDATE"
-const val WIDGET_PREF_UPDATE_FREQ = "WIDGET_PREF_UPDATE_FREQUENCY"
-const val WIDGET_PREF_BG_TRANSPARENCY = "WIDGET_PREF_BG_TRANSPARENCY"
 const val BROADCAST_WIDGET_UPDATE_BUTTON_CLICK = "org.bitanon.bitcointicker.BROADCAST_WIDGET_UPDATE_BUTTON_CLICK"
+const val WIDGET_PREF_BG_TRANSPARENCY = "WIDGET_PREF_BG_TRANSPARENCY"
+const val WIDGET_PREF_UPDATE_FREQ = "WIDGET_PREF_UPDATE_FREQ"
 
 fun getWidgetPackageName(id: Int): String { return WIDGET_PREF_PREFIX + id }
 
@@ -62,8 +57,6 @@ class AppWidget : AppWidgetProvider() {
 
     private val br = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-
-            println("broadcast received")
             // ignore widget price updates
             val widgetId = intent?.getIntExtra(WIDGIT_ID, 0)
             if ( widgetId == -1) return
@@ -81,11 +74,11 @@ class AppWidget : AppWidgetProvider() {
                     // save widget prefs price
                     val prefsEditor = prefs?.edit()
                     if (prefsEditor != null) {
-                        prefsEditor.putString(WIDGET_PREF_PRICE, price)
-                        prefsEditor.putString(WIDGET_PREF_DAY_CHANGE, dayChange)
-                        prefsEditor.putString(WIDGET_PREF_DAY_VOLUME, dayVolume)
-                        prefsEditor.putString(WIDGET_PREF_MARKET_CAP, marketCap)
-                        prefsEditor.putString(WIDGET_PREF_LAST_UPDATE, lastUpdate)
+                        prefsEditor.putString(PRICE, price)
+                        prefsEditor.putString(DAY_CHANGE, dayChange)
+                        prefsEditor.putString(DAY_VOLUME, dayVolume)
+                        prefsEditor.putString(MARKET_CAP, marketCap)
+                        prefsEditor.putString(LAST_UPDATE, lastUpdate)
                         prefsEditor.commit()
                     }
                     println("saved widget$widgetId prefs:${prefs?.all}")
@@ -101,7 +94,7 @@ class AppWidget : AppWidgetProvider() {
                     val priceReq = OneTimeWorkRequestBuilder<RequestUpdateWorker>()
                     val data = Data.Builder()
                     if (prefs != null) {
-                        data.putString(PREF_CURRENCY, prefs.getString(PREF_CURRENCY, "USD"))
+                        data.putString(CURRENCY, prefs.getString(CURRENCY, "USD"))
                     }
                     if (widgetId != null) {
                         data.putInt(WIDGIT_ID, widgetId)
@@ -142,14 +135,14 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
 
     // get prefs
     val prefs = loadWidgetPrefs(context, appWidgetId)
-    val prefCurr = prefs?.getString(PREF_CURRENCY, context.getString(R.string.usd))
-    val prefPrice = prefs?.getString(WIDGET_PREF_PRICE, context.getString(R.string.loading))
-    val prefDayChange = prefs?.getString(WIDGET_PREF_DAY_CHANGE, null)
-    val prefDayVolume = prefs?.getString(WIDGET_PREF_DAY_VOLUME,
+    val prefCurr = prefs?.getString(CURRENCY, context.getString(R.string.usd))
+    val prefPrice = prefs?.getString(PRICE, context.getString(R.string.loading))
+    val prefDayChange = prefs?.getString(DAY_CHANGE, null)
+    val prefDayVolume = prefs?.getString(DAY_VOLUME,
         context.getString(R.string.loading))
-    val prefMarketCap = prefs?.getString(WIDGET_PREF_MARKET_CAP,
+    val prefMarketCap = prefs?.getString(MARKET_CAP,
         context.getString(R.string.loading))
-    val prefLastUpdate = prefs?.getString(WIDGET_PREF_LAST_UPDATE,
+    val prefLastUpdate = prefs?.getString(LAST_UPDATE,
         context.getString(R.string.loading))?.let { getDateTime(it) }
 
     // get bg color selected

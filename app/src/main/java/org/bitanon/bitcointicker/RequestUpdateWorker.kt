@@ -26,7 +26,7 @@ import kotlin.math.pow
 const val BROADCAST_SHOW_TOAST = "org.bitanon.bitcointicker.BROADCAST_SHOW_TOAST"
 const val BROADCAST_PRICE_UPDATED = "org.bitanon.bitcointicker.BROADCAST_PRICE_UPDATED"
 const val BROADCAST_MARKET_CHARTS_UPDATED = "org.bitanon.bitcointicker.BROADCAST_MARKET_CHARTS_UPDATED"
-const val PREF_CURRENCY = "PREF_CURRENCY"
+const val CURRENCY = "PREF_CURRENCY"
 const val MESSAGE = "MESSAGE"
 const val PRICE = "PRICE"
 const val DAY_CHANGE = "DAY_CHANGE"
@@ -91,7 +91,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 	override suspend fun doWork(): Result {
 
 		//get Input Data back using "inputData" variable
-		val prefCurr =  inputData.getString(PREF_CURRENCY)
+		val prefCurr =  inputData.getString(CURRENCY)
 		widgetId = inputData.getInt(WIDGIT_ID, -1)
 
 		if (prefCurr != null) {

@@ -208,7 +208,7 @@ class MainActivity : AppCompatActivity() {
         // construct recurring price query
         val priceReq = OneTimeWorkRequestBuilder<RequestUpdateWorker>()
         val data = Data.Builder()
-        data.putString(PREF_CURRENCY, prefCurrency)
+        data.putString(CURRENCY, prefCurrency)
         data.putInt(WIDGIT_ID, -1)
         priceReq.setInputData(data.build())
         priceReq.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
@@ -258,7 +258,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadPrefs() {
         val sharedPrefs = getSharedPreferences(MAIN_PREFS, 0)
-        prefCurrency = sharedPrefs.getString(PREF_CURRENCY, "USD").toString()
+        prefCurrency = sharedPrefs.getString(CURRENCY, "USD").toString()
         prefPrice = sharedPrefs.getString(MAIN_PREF_PRICE, getString(R.string.loading)).toString()
         prefMarketCap = sharedPrefs.getString(MAIN_PREF_MARKET_CAP, getString(R.string.loading)).toString()
         prefDayVolume = sharedPrefs.getString(MAIN_PREF_DAY_VOLUME, getString(R.string.loading)).toString()
@@ -281,7 +281,7 @@ class MainActivity : AppCompatActivity() {
         val prefs = getSharedPreferences(MAIN_PREFS, 0)
         val prefsEditor = prefs.edit()
         prefsEditor.apply {
-            putString(PREF_CURRENCY, prefCurrency)
+            putString(CURRENCY, prefCurrency)
             putString(MAIN_PREF_PRICE, prefPrice)
             putString(MAIN_PREF_MARKET_CAP, prefMarketCap)
             putString(MAIN_PREF_DAY_VOLUME, prefDayVolume)
