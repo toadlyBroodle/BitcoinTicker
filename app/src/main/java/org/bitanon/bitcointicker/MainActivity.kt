@@ -21,19 +21,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 const val MAIN_PREFS = "main_prefs"
-const val MAIN_PREF_PRICE = "main_pref_price"
-const val MAIN_PREF_MARKET_CAP = "main_pref_market_cap"
-const val MAIN_PREF_DAY_VOLUME = "main_pref_day_volume"
-const val MAIN_PREF_LAST_UPDATE = "main_pref_last_update"
-const val MAIN_PREF_PRICE_DELTA_DAY = "MAIN_PREF_PRICE_DELTA_DAY"
-const val MAIN_PREF_PRICE_DELTA_WEEK = "MAIN_PREF_PRICE_DELTA_WEEK"
-const val MAIN_PREF_PRICE_DELTA_MONTH = "MAIN_PREF_PRICE_DELTA_MONTH"
-const val MAIN_PREF_VOLUME_DELTA_DAY = "MAIN_PREF_VOLUME_DELTA_DAY"
-const val MAIN_PREF_VOLUME_DELTA_WEEK = "MAIN_PREF_VOLUME_DELTA_WEEK"
-const val MAIN_PREF_VOLUME_DELTA_MONTH = "MAIN_PREF_VOLUME_DELTA_MONTH"
-const val MAIN_PREF_MARKET_CAP_DELTA_DAY = "MAIN_PREF_MARKET_CAP_DELTA_DAY"
-const val MAIN_PREF_MARKET_CAP_DELTA_WEEK = "MAIN_PREF_MARKET_CAP_DELTA_WEEK"
-const val MAIN_PREF_MARKET_CAP_DELTA_MONTH = "MAIN_PREF_MARKET_CAP_DELTA_MONTH"
 
 class MainActivity : AppCompatActivity() {
 
@@ -259,19 +246,19 @@ class MainActivity : AppCompatActivity() {
     private fun loadPrefs() {
         val sharedPrefs = getSharedPreferences(MAIN_PREFS, 0)
         prefCurrency = sharedPrefs.getString(CURRENCY, "USD").toString()
-        prefPrice = sharedPrefs.getString(MAIN_PREF_PRICE, getString(R.string.loading)).toString()
-        prefMarketCap = sharedPrefs.getString(MAIN_PREF_MARKET_CAP, getString(R.string.loading)).toString()
-        prefDayVolume = sharedPrefs.getString(MAIN_PREF_DAY_VOLUME, getString(R.string.loading)).toString()
-        prefLastUpdate = sharedPrefs.getString(MAIN_PREF_LAST_UPDATE, getString(R.string.loading)).toString()
-        prefPriceDeltaDay = sharedPrefs.getFloat(MAIN_PREF_PRICE_DELTA_DAY, 0f)
-        prefPriceDeltaWeek = sharedPrefs.getFloat(MAIN_PREF_PRICE_DELTA_WEEK, 0f)
-        prefPriceDeltaMonth = sharedPrefs.getFloat(MAIN_PREF_PRICE_DELTA_MONTH , 0f)
-        prefVolumeDeltaDay = sharedPrefs.getFloat(MAIN_PREF_VOLUME_DELTA_DAY, 0f)
-        prefVolumeDeltaWeek = sharedPrefs.getFloat(MAIN_PREF_VOLUME_DELTA_WEEK, 0f)
-        prefVolumeDeltaMonth = sharedPrefs.getFloat(MAIN_PREF_VOLUME_DELTA_MONTH, 0f)
-        prefMarketCapDeltaDay = sharedPrefs.getFloat(MAIN_PREF_MARKET_CAP_DELTA_DAY, 0f)
-        prefMarketCapDeltaWeek = sharedPrefs.getFloat(MAIN_PREF_MARKET_CAP_DELTA_WEEK , 0f)
-        prefMarketCapDeltaMonth = sharedPrefs.getFloat(MAIN_PREF_MARKET_CAP_DELTA_MONTH, 0f)
+        prefPrice = sharedPrefs.getString(PRICE, getString(R.string.loading)).toString()
+        prefMarketCap = sharedPrefs.getString(MARKET_CAP, getString(R.string.loading)).toString()
+        prefDayVolume = sharedPrefs.getString(DAY_VOLUME, getString(R.string.loading)).toString()
+        prefLastUpdate = sharedPrefs.getString(LAST_UPDATE, getString(R.string.loading)).toString()
+        prefPriceDeltaDay = sharedPrefs.getFloat(PRICE_DELTA_DAY, 0f)
+        prefPriceDeltaWeek = sharedPrefs.getFloat(PRICE_DELTA_WEEK, 0f)
+        prefPriceDeltaMonth = sharedPrefs.getFloat(PRICE_DELTA_MONTH , 0f)
+        prefVolumeDeltaDay = sharedPrefs.getFloat(VOLUME_DELTA_DAY, 0f)
+        prefVolumeDeltaWeek = sharedPrefs.getFloat(VOLUME_DELTA_WEEK, 0f)
+        prefVolumeDeltaMonth = sharedPrefs.getFloat(VOLUME_DELTA_MONTH, 0f)
+        prefMarketCapDeltaDay = sharedPrefs.getFloat(MARKET_CAP_DELTA_DAY, 0f)
+        prefMarketCapDeltaWeek = sharedPrefs.getFloat(MARKET_CAP_DELTA_WEEK , 0f)
+        prefMarketCapDeltaMonth = sharedPrefs.getFloat(MARKET_CAP_DELTA_MONTH, 0f)
         //println("loaded sharedPrefs: ${sharedPrefs.all}")
     }
 
@@ -282,19 +269,19 @@ class MainActivity : AppCompatActivity() {
         val prefsEditor = prefs.edit()
         prefsEditor.apply {
             putString(CURRENCY, prefCurrency)
-            putString(MAIN_PREF_PRICE, prefPrice)
-            putString(MAIN_PREF_MARKET_CAP, prefMarketCap)
-            putString(MAIN_PREF_DAY_VOLUME, prefDayVolume)
-            putString(MAIN_PREF_LAST_UPDATE, prefLastUpdate)
-            putFloat(MAIN_PREF_PRICE_DELTA_DAY, prefPriceDeltaDay)
-            putFloat(MAIN_PREF_PRICE_DELTA_WEEK, prefPriceDeltaWeek)
-            putFloat(MAIN_PREF_PRICE_DELTA_MONTH, prefPriceDeltaMonth)
-            putFloat(MAIN_PREF_VOLUME_DELTA_DAY, prefVolumeDeltaDay)
-            putFloat(MAIN_PREF_VOLUME_DELTA_WEEK, prefVolumeDeltaWeek)
-            putFloat(MAIN_PREF_VOLUME_DELTA_MONTH, prefVolumeDeltaMonth)
-            putFloat(MAIN_PREF_MARKET_CAP_DELTA_DAY, prefMarketCapDeltaDay)
-            putFloat(MAIN_PREF_MARKET_CAP_DELTA_WEEK, prefMarketCapDeltaWeek)
-            putFloat(MAIN_PREF_MARKET_CAP_DELTA_MONTH, prefMarketCapDeltaMonth)
+            putString(PRICE, prefPrice)
+            putString(MARKET_CAP, prefMarketCap)
+            putString(DAY_VOLUME, prefDayVolume)
+            putString(LAST_UPDATE, prefLastUpdate)
+            putFloat(PRICE_DELTA_DAY, prefPriceDeltaDay)
+            putFloat(PRICE_DELTA_WEEK, prefPriceDeltaWeek)
+            putFloat(PRICE_DELTA_MONTH, prefPriceDeltaMonth)
+            putFloat(VOLUME_DELTA_DAY, prefVolumeDeltaDay)
+            putFloat(VOLUME_DELTA_WEEK, prefVolumeDeltaWeek)
+            putFloat(VOLUME_DELTA_MONTH, prefVolumeDeltaMonth)
+            putFloat(MARKET_CAP_DELTA_DAY, prefMarketCapDeltaDay)
+            putFloat(MARKET_CAP_DELTA_WEEK, prefMarketCapDeltaWeek)
+            putFloat(MARKET_CAP_DELTA_MONTH, prefMarketCapDeltaMonth)
 
         }.commit()
         println("saved sharedPrefs: ${prefs.all}")
