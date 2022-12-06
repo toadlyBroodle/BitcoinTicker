@@ -131,7 +131,7 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
             updateWidgetIntent, PendingIntent.FLAG_UPDATE_CURRENT
                     or PendingIntent.FLAG_IMMUTABLE
         )
-    views.setOnClickPendingIntent(R.id.widget_metric_column, piWidgetUpdateButtonClicked)
+    views.setOnClickPendingIntent(R.id.widget_metric_update, piWidgetUpdateButtonClicked)
 
     // get prefs
     val prefs = loadWidgetPrefs(context, appWidgetId)
@@ -154,15 +154,15 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
         // add transparency to black background
         setInt(R.id.widget_background_layout, "setBackgroundColor",
             Color.parseColor("#${hexBgTransp}000000"))
-        setTextViewText(R.id.widget_textview_btcprice_units, "$prefCurr/BTC")
+        setTextViewText(R.id.widget_textview_price, "$prefCurr/BTC")
         if (prefCurr != null)
-            setTextViewText(R.id.widget_textview_btcprice, numberToCurrency(prefPrice, prefCurr))
+            setTextViewText(R.id.widget_textview_price_value, numberToCurrency(prefPrice, prefCurr))
         if (prefDayVolume != null)
-            setTextViewText(R.id.widget_textview_day_volume_value, prettyBigNumber(prefDayVolume))
+            setTextViewText(R.id.widget_textview_volume_value, prettyBigNumber(prefDayVolume))
         if (prefMarketCap != null)
             setTextViewText(R.id.widget_textview_market_cap_value, prettyBigNumber(prefMarketCap))
         if (prefLastUpdate != null)
-            setTextViewText(R.id.widget_value_column, getDateTime(prefLastUpdate))
+            setTextViewText(R.id.widget_last_update_time, getDateTime(prefLastUpdate))
         // change metric colors based on 24h change
         /*if (prefDayChange != null) {
             val deltaColor: Int = if (prefDayChange.toFloat() > 0)

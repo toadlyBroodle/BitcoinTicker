@@ -135,7 +135,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 				println("coingecko.com bitcoin simple price request failed: ${e.message}")
 			}
 			override fun onResponse(call: Call, response: Response) {
-				println("coingeck.com responded with simple price")
+				println("coingeck.com responded with simple price metrics")
 
 				val jsonObj = parseJsonCurrentMarkets(response.body()!!.string())
 

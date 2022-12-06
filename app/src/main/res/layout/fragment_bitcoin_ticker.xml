@@ -15,7 +15,7 @@
         android:weightSum="7">
 
         <TextView
-            android:id="@+id/textview_update_icon"
+            android:id="@+id/textview_header_update_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="1"
@@ -26,7 +26,7 @@
             android:gravity="end"/>
 
         <TextView
-            android:id="@+id/textview_last_update"
+            android:id="@+id/textview_header_last_update"
             android:layout_width="100sp"
             android:layout_height="wrap_content"
             android:layout_column="2"
@@ -36,30 +36,30 @@
             style="@style/MainMetricLabelText"/>
 
         <TextView
-            android:id="@+id/textview_change_day"
+            android:id="@+id/textview_header_delta_day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="3"
             android:layout_weight="1"
-            android:text="@string/change_day"
+            android:text="@string/delta_day"
             style="@style/MainMetricHeaderText"/>
 
         <TextView
-            android:id="@+id/textview_change_week"
+            android:id="@+id/textview_header_delta_week"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="4"
             android:layout_weight="1"
-            android:text="@string/change_week"
+            android:text="@string/delta_week"
             style="@style/MainMetricHeaderText"/>
 
         <TextView
-            android:id="@+id/textview_change_month"
+            android:id="@+id/textview_header_delta_month"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="5"
             android:layout_weight="1"
-            android:text="@string/change_month"
+            android:text="@string/delta_month"
             style="@style/MainMetricHeaderText"/>
     </TableRow>
 
@@ -87,7 +87,7 @@
             style="@style/MainMetricText"/>
 
         <TextView
-            android:id="@+id/textview_price_change_day_value"
+            android:id="@+id/textview_price_delta_day_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="3"
@@ -96,7 +96,7 @@
             style="@style/MainMetricText"/>
 
         <TextView
-            android:id="@+id/textview_price_change_week_value"
+            android:id="@+id/textview_price_delta_week_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="4"
@@ -105,7 +105,7 @@
             style="@style/MainMetricText"/>
 
         <TextView
-            android:id="@+id/textview_price_change_month_value"
+            android:id="@+id/textview_price_delta_month_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="5"
@@ -137,7 +137,7 @@
             style="@style/MainMetricText"/>
 
         <TextView
-            android:id="@+id/textview_market_cap_change_day_value"
+            android:id="@+id/textview_market_cap_delta_day_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="3"
@@ -146,7 +146,7 @@
             style="@style/MainMetricText"/>
 
         <TextView
-            android:id="@+id/textview_market_cap_change_week_value"
+            android:id="@+id/textview_market_cap_delta_week_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="4"
@@ -155,7 +155,7 @@
             style="@style/MainMetricText"/>
 
         <TextView
-            android:id="@+id/textview_market_cap_change_month_value"
+            android:id="@+id/textview_market_cap_delta_month_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="5"
@@ -187,7 +187,7 @@
             style="@style/MainMetricText"/>
 
         <TextView
-            android:id="@+id/textview_volume_change_day_value"
+            android:id="@+id/textview_volume_delta_day_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="3"
@@ -196,7 +196,7 @@
             style="@style/MainMetricText"/>
 
         <TextView
-            android:id="@+id/textview_volume_change_week_value"
+            android:id="@+id/textview_volume_delta_week_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="4"
@@ -205,7 +205,7 @@
             style="@style/MainMetricText"/>
 
         <TextView
-            android:id="@+id/textview_volume_change_month_value"
+            android:id="@+id/textview_volume_delta_month_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="5"

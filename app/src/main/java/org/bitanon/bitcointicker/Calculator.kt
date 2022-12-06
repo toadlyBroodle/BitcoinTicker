@@ -15,7 +15,7 @@ class Calculator {
 			deltas[1] = getPercDelta(curr, averages[0])
 			// calculate percent delta from monthly SMA
 			deltas[2] = getPercDelta(curr, averages[1])
-			println("calculated deltas -> daily: ${deltas[0]}, weekly: ${deltas[1]}, monthly: ${deltas[2]}")
+			//println("calculated deltas -> daily: ${deltas[0]}, weekly: ${deltas[1]}, monthly: ${deltas[2]}")
 			return deltas
 		}
 
@@ -31,7 +31,7 @@ class Calculator {
 			// calculate monthly price avg
 			for (i in 0..vals.lastIndex) avgs[1] += vals[i]
 			avgs[1] = avgs[1]/30 //days
-			println("calculated avgs: weekly=${avgs[0]}, monthly=${avgs[1]}")
+			//println("calculated avgs: weekly=${avgs[0]}, monthly=${avgs[1]}")
 			return avgs
 		}
 

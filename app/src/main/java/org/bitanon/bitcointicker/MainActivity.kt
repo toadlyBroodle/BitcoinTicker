@@ -7,9 +7,11 @@ import android.view.MenuItem
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.TableLayout
+import android.widget.TableRow
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -73,8 +75,8 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        tvUpdateIcon = findViewById(R.id.textview_update_icon)
-        tvLastPriceUpdate = findViewById(R.id.textview_last_update)
+        tvUpdateIcon = findViewById(R.id.textview_header_update_icon)
+        tvLastPriceUpdate = findViewById(R.id.textview_header_last_update)
         // update price on touch top table row
         tvLastPriceUpdate.setOnClickListener{
             //if last update less than 1m ago,
@@ -92,20 +94,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         tlMain = findViewById(R.id.main_table_layout)
-        tvLastUpdate = findViewById(R.id.textview_last_update)
+        tvLastUpdate = findViewById(R.id.textview_header_last_update)
         tvPriceUnits = findViewById(R.id.textview_price)
         tvPrice = findViewById(R.id.textview_price_value)
         tvMarketCap = findViewById(R.id.textview_market_cap_value)
         tvVolume = findViewById(R.id.textview_volume_value)
-        tvPriceDeltaDay = findViewById(R.id.textview_price_change_day_value)
-        tvPriceDeltaWeek = findViewById(R.id.textview_price_change_week_value)
-        tvPriceDeltaMonth = findViewById(R.id.textview_price_change_month_value)
-        tvVolumeDeltaDay = findViewById(R.id.textview_volume_change_day_value)
-        tvVolumeDeltaWeek = findViewById(R.id.textview_volume_change_week_value)
-        tvVolumeDeltaMonth = findViewById(R.id.textview_volume_change_month_value)
-        tvMarketCapDeltaDay = findViewById(R.id.textview_market_cap_change_day_value)
-        tvMarketCapDeltaWeek = findViewById(R.id.textview_market_cap_change_week_value)
-        tvMarketCapDeltaMonth = findViewById(R.id.textview_market_cap_change_month_value)
+        tvPriceDeltaDay = findViewById(R.id.textview_price_delta_day_value)
+        tvPriceDeltaWeek = findViewById(R.id.textview_price_delta_week_value)
+        tvPriceDeltaMonth = findViewById(R.id.textview_price_delta_month_value)
+        tvVolumeDeltaDay = findViewById(R.id.textview_volume_delta_day_value)
+        tvVolumeDeltaWeek = findViewById(R.id.textview_volume_delta_week_value)
+        tvVolumeDeltaMonth = findViewById(R.id.textview_volume_delta_month_value)
+        tvMarketCapDeltaDay = findViewById(R.id.textview_market_cap_delta_day_value)
+        tvMarketCapDeltaWeek = findViewById(R.id.textview_market_cap_delta_week_value)
+        tvMarketCapDeltaMonth = findViewById(R.id.textview_market_cap_delta_month_value)
      }
 
     override fun onResume() {
@@ -178,16 +180,50 @@ class MainActivity : AppCompatActivity() {
             tvMarketCapDeltaDay.text = formatChangePercent(prefMarketCapDeltaDay)
             tvMarketCapDeltaWeek.text = formatChangePercent(prefMarketCapDeltaWeek)
             tvMarketCapDeltaMonth.text = formatChangePercent(prefMarketCapDeltaMonth)
-            // change color of price based on 24h change
-            /*if (prefPriceDeltaDay != "…") {
-                val deltaColor: Int = if (prefDayChange.toFloat() > 0)
-                    getColor(R.color.green)
-                else
-                    getColor(R.color.red)
-                tvDayChange.setTextColor(deltaColor)
-                tvPrice.setTextColor(deltaColor)
-                tvMarketCap.setTextColor(deltaColor)
-            } */
+
+            // change color of delta metrics
+            for (tableRow in tlMain.children) {
+                tableRow as TableRow
+                for (child in tableRow.children) {
+
+                    val childId = resources.getResourceName(child.id)
+                    // not metric headers nor labels
+                    if ("header" in childId || "label" in childId) continue
+
+                    if ("week" in childId || "month" in childId) {
+                        // only textviews
+                        //if (child::class !is TextView) continue
+                        child as TextView
+                        // positive deltas turn green
+                        if (child.text.toString().toFloat() > 0)
+                            child.setTextColor(getColor(R.color.green))
+                        // positive deltas turn red, ignore zeros
+                        if (child.text.toString().toFloat() < 0)
+                            child.setTextColor(getColor(R.color.red))
+                    }
+                    // set corresponding metrics same color as day deltas
+                    if ("day" in childId) {
+                        // only textviews
+                        //if (child::class !is TextView) continue
+                        child as TextView
+                        // positive deltas green, neg red, zeros orange
+                        val color = if (child.text.toString().toFloat() > 0)
+                                getColor(R.color.green)
+                            else if (child.text.toString().toFloat() < 0)
+                                getColor(R.color.red) else getColor(R.color.orange)
+                        child.setTextColor(color)
+                        // also turn corresponding metrics same color as delta day
+                        if ("price" in childId)
+                            tvPrice.setTextColor(color)
+                        // also turn corresponding metrics same color as delta day
+                        if ("market_cap" in childId)
+                            tvMarketCap.setTextColor(color)
+                        // also turn corresponding metrics same color as delta day
+                        if ("volume" in childId)
+                            tvVolume.setTextColor(color)
+                    }
+                }
+            }
         }
     }
 
