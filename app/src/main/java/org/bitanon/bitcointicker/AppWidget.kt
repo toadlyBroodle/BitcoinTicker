@@ -58,6 +58,7 @@ class AppWidget : AppWidgetProvider() {
 
     private val br = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
+            println("broadcast received by widget -> action:${intent?.action}")
             // ignore widget price updates
             val widgetId = intent?.getIntExtra(WIDGIT_ID, 0)
             if ( widgetId == -1) return
@@ -138,7 +139,7 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
     val prefPrice = prefs?.getString(CURR_PRICE, context.getString(R.string.loading))
     val prefDayVolume = prefs?.getString(CURR_DAY_VOLUME, context.getString(R.string.loading))
     val prefMarketCap = prefs?.getString(CURR_MARKET_CAP, context.getString(R.string.loading))
-    val prefLastUpdate = prefs?.getString(CURR_LAST_UPDATE, context.getString(R.string.loading))?.let { getDateTime(it) }
+    val prefLastUpdate = prefs?.getString(CURR_LAST_UPDATE, context.getString(R.string.loading))
 
     // get bg color selected
     val prefBgTransp = prefs?.getFloat(WIDGET_PREF_BG_TRANSPARENCY, 0.5f)
@@ -157,11 +158,11 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
         if (prefCurr != null)
             setTextViewText(R.id.widget_textview_btcprice, numberToCurrency(prefPrice, prefCurr))
         if (prefDayVolume != null)
-            setTextViewText(R.id.widget_textview_day_volume_value, prefDayVolume)
+            setTextViewText(R.id.widget_textview_day_volume_value, prettyBigNumber(prefDayVolume))
         if (prefMarketCap != null)
-            setTextViewText(R.id.widget_textview_market_cap_value, prefMarketCap)
+            setTextViewText(R.id.widget_textview_market_cap_value, prettyBigNumber(prefMarketCap))
         if (prefLastUpdate != null)
-            setTextViewText(R.id.widget_value_column, prefLastUpdate)
+            setTextViewText(R.id.widget_value_column, getDateTime(prefLastUpdate))
         // change metric colors based on 24h change
         /*if (prefDayChange != null) {
             val deltaColor: Int = if (prefDayChange.toFloat() > 0)
@@ -182,9 +183,9 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
 internal fun loadWidgetPrefs(context: Context?, appWidgetId: Int?): SharedPreferences? {
     val prefsKey = appWidgetId?.let { getWidgetPackageName(it) }
     val prefs = context?.getSharedPreferences(prefsKey, 0)
-    if (prefs != null) {
+/*    if (prefs != null) {
         println("loaded $prefsKey :${prefs.all}")
-    }
+    }*/
     return prefs
 }
 

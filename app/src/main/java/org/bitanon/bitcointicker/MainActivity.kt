@@ -165,10 +165,10 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread {
             tvLastUpdate.text = getDateTime(prefLastUpdate)
             tvPriceUnits.text = "$prefCurrency/BTC"
-            tvPrice.text = prefPrice
-            //tvDayChange.text = formatChangePercent(prefDayChange.toFloat())
-            tvVolume.text = prefDayVolume
-            tvMarketCap.text = prefMarketCap
+
+            tvPrice.text = numberToCurrency(prefPrice, prefCurrency)
+            tvVolume.text = prettyBigNumber(prefDayVolume)
+            tvMarketCap.text = prettyBigNumber(prefMarketCap)
             tvPriceDeltaDay.text = formatChangePercent(prefPriceDeltaDay)
             tvPriceDeltaWeek.text = formatChangePercent(prefPriceDeltaWeek)
             tvPriceDeltaMonth.text = formatChangePercent(prefPriceDeltaMonth)
@@ -298,7 +298,7 @@ fun formatChangePercent(dc: Float): CharSequence {
 
 fun getDateTime(s: String): String? {
     if (s == "…") return "…"
-    val sdf = SimpleDateFormat("HH:mm:ss/dd/MM")
+    val sdf = SimpleDateFormat("HH:mm:ss|dd/MM")
     val netDate = try {
         Date(s.toLong() * 1000)
     } catch (e: Exception) {

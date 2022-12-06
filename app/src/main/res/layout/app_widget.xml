@@ -13,155 +13,98 @@
         <TextView
             android:id="@+id/widget_metric_column"
             android:layout_width="80sp"
-            android:layout_height="wrap_content"
             android:text="@string/sync_symbol"
             android:textSize="16sp"
-            android:textColor="@color/orange"
-            android:textAlignment="center"
-            android:maxLines="1"/>
+            android:textAlignment="viewEnd"
+            style="@style/WidgetMetricHeaderText"/>
         <TextView
             android:id="@+id/widget_value_column"
             android:layout_width="80sp"
-            android:layout_height="wrap_content"
             android:textSize="10sp"
-            android:textColor="@color/orange"
-            android:text="@string/value"
-            android:maxLines="1"
+            android:text="@string/loading"
+            style="@style/WidgetMetricText"
             android:layout_toEndOf="@id/widget_metric_column"
             android:layout_alignBottom="@id/widget_metric_column"/>
 
         <TextView
             android:id="@+id/widget_textview_day_change"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:contentDescription="@string/usd_btc"
             android:text="@string/change_day"
-            android:textSize="12sp"
-            android:textColor="@color/orange"
+            style="@style/WidgetMetricHeaderText"
             android:layout_toEndOf="@id/widget_value_column"
-            android:layout_alignBottom="@id/widget_value_column"
-            android:paddingStart="10sp"
-            android:paddingEnd="10sp"/>
+            android:layout_alignBottom="@id/widget_value_column"/>
 
         <TextView
             android:id="@+id/widget_textview_btcprice_units"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:contentDescription="@string/usd_btc"
             android:text="@string/usd_btc"
-            android:textSize="12sp"
-            android:textColor="@color/orange"
-            android:padding="5sp"
+            style="@style/WidgetMetricLabelText"
             android:layout_toStartOf="@id/widget_textview_btcprice"
-            android:layout_alignBaseline="@id/widget_textview_btcprice"
-            android:maxLines="1"/>
+            android:layout_alignBaseline="@id/widget_textview_btcprice" />
 
         <TextView
             android:id="@+id/widget_textview_btcprice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_toEndOf="@id/widget_metric_column"
             android:layout_below="@id/widget_value_column"
             android:contentDescription="@string/usd_btc"
             android:text="@string/loading"
-            android:maxLines="1"
-            android:textSize="12sp"
-            android:textColor="@color/orange"
-            android:paddingStart="5sp"
-            android:paddingEnd="5sp"/>
+            style="@style/WidgetMetricText"/>
 
         <TextView
             android:id="@+id/widget_textview_day_change_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_toEndOf="@id/widget_value_column"
             android:layout_alignBaseline="@id/widget_textview_btcprice"
             android:contentDescription="@string/change_day"
             android:text="@string/loading"
-            android:maxLines="1"
-            android:textSize="12sp"
-            android:textColor="@color/orange"
-            android:padding="5sp"/>
-
-        <TextView
-            android:id="@+id/widget_textview_day_volume"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toStartOf="@id/widget_textview_day_volume_value"
-            android:layout_alignBaseline="@id/widget_textview_day_volume_value"
-            android:contentDescription="@string/day_volume"
-            android:text= "@string/day_volume"
-            android:textSize="12sp"
-            android:textColor="@color/orange"
-            android:padding="5sp"
-            android:maxLines="1"/>
-
-        <TextView
-            android:id="@+id/widget_textview_day_volume_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/widget_metric_column"
-            android:layout_below="@id/widget_textview_btcprice"
-            android:contentDescription="@string/day_volume"
-            android:text="@string/loading"
-            android:maxLines="1"
-            android:textSize="12sp"
-            android:textColor="@color/orange"
-            android:padding="5sp"/>
-
-        <TextView
-            android:id="@+id/widget_textview_volume_day_change_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/widget_value_column"
-            android:layout_alignBaseline="@+id/widget_textview_day_volume_value"
-            android:contentDescription="@string/change_day"
-            android:text="@string/loading"
-            android:maxLines="1"
-            android:textSize="12sp"
-            android:textColor="@color/orange"
-            android:paddingStart="5sp"
-            android:paddingEnd="5sp" />
+            style="@style/WidgetMetricText"/>
 
         <TextView
             android:id="@+id/widget_textview_market_cap"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_toStartOf="@id/widget_textview_market_cap_value"
             android:layout_alignBaseline="@id/widget_textview_market_cap_value"
             android:contentDescription="@string/market_cap"
             android:text= "@string/market_cap"
-            android:textSize="12sp"
-            android:textColor="@color/orange"
-            android:padding="5sp"
-            android:maxLines="1"/>
+            style="@style/WidgetMetricLabelText"/>
 
         <TextView
             android:id="@+id/widget_textview_market_cap_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_toEndOf="@id/widget_metric_column"
-            android:layout_below="@id/widget_textview_volume_day_change_value"
+            android:layout_below="@id/widget_textview_btcprice"
             android:contentDescription="@string/market_cap"
             android:text="@string/loading"
-            android:maxLines="1"
-            android:textSize="12sp"
-            android:textColor="@color/orange"
-            android:padding="5sp"/>
+            style="@style/WidgetMetricText"/>
 
         <TextView
             android:id="@+id/widget_textview_market_cap_day_change_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_toEndOf="@id/widget_value_column"
-            android:layout_alignBaseline="@+id/widget_textview_market_cap"
+            android:layout_alignBaseline="@+id/widget_textview_market_cap_value"
             android:contentDescription="@string/market_cap"
             android:text="@string/loading"
-            android:maxLines="1"
-            android:textSize="12sp"
-            android:textColor="@color/orange"
-            android:paddingStart="5sp"
-            android:paddingEnd="5sp" />
+            style="@style/WidgetMetricText"/>
+
+        <TextView
+            android:id="@+id/widget_textview_day_volume"
+            android:layout_toStartOf="@id/widget_textview_day_volume_value"
+            android:layout_alignBaseline="@id/widget_textview_day_volume_value"
+            android:contentDescription="@string/day_volume"
+            android:text= "@string/day_volume"
+            style="@style/WidgetMetricLabelText"/>
+
+        <TextView
+            android:id="@+id/widget_textview_day_volume_value"
+            android:layout_toEndOf="@id/widget_metric_column"
+            android:layout_below="@id/widget_textview_market_cap_value"
+            android:contentDescription="@string/day_volume"
+            android:text="@string/loading"
+            style="@style/WidgetMetricText"/>
+
+        <TextView
+            android:id="@+id/widget_textview_volume_day_change_value"
+            android:layout_toEndOf="@id/widget_value_column"
+            android:layout_alignBaseline="@+id/widget_textview_day_volume_value"
+            android:contentDescription="@string/change_day"
+            android:text="@string/loading"
+            style="@style/WidgetMetricText"/>
 
     </RelativeLayout>
 

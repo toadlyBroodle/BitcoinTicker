@@ -114,7 +114,6 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 				if (response.body()?.string()?.contains("(V3) To the Moon!") == true) {
 					println("ping echoed")
 					getCoinGeckoCurrentPrice(prefCurrency)
-					getCoinGeckoDailyMarketCharts(prefCurrency)
 				}
 				else sendMainToast(appContext.getString(R.string.bad_server_response))
 			}
@@ -138,30 +137,36 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 			override fun onResponse(call: Call, response: Response) {
 				println("coingeck.com responded with simple price")
 
-				val jsonObj = parseJsonSimplePrice(response.body()!!.string())
+				val jsonObj = parseJsonCurrentMarkets(response.body()!!.string())
 
-				// TODO move formatting to MainActivity.updateUI
-				val price = numberToCurrency(jsonObj.getString(prefCurrency.lowercase()), prefCurrency)
-				val marketCap = prettyBigNumber(jsonObj.getString("${prefCurrency.lowercase()}_market_cap"))
-				val dayVolume = prettyBigNumber(jsonObj.getString("${prefCurrency.lowercase()}_24h_vol"))
+				val price = jsonObj.getString(prefCurrency.lowercase())
+				val volume = jsonObj.getString("${prefCurrency.lowercase()}_24h_vol")
+				val marketCap = jsonObj.getString("${prefCurrency.lowercase()}_market_cap")
 				val lastUpdate = jsonObj.getString("last_updated_at")
 
 				val intent = Intent().apply {
 					action = BROADCAST_PRICE_UPDATED
 					putExtra(WIDGIT_ID, widgetId)
 					putExtra(CURR_PRICE, price)
-					putExtra(CURR_DAY_VOLUME, dayVolume)
+					putExtra(CURR_DAY_VOLUME, volume)
 					putExtra(CURR_MARKET_CAP, marketCap)
 					putExtra(CURR_LAST_UPDATE, lastUpdate)
 				}
 				LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
 				// close response body once done with it
 				response.body()!!.close()
+
+				val currData = mutableListOf(0f,0f,0f)
+				currData[0] = price.toFloat()
+				currData[1] = marketCap.toFloat()
+				currData[2] = volume.toFloat()
+
+				getCoinGeckoDailyMarketCharts(prefCurrency, currData)
 			}
 		})
 	}
 
-	fun getCoinGeckoDailyMarketCharts(prefCurrency: String) {
+	fun getCoinGeckoDailyMarketCharts(prefCurrency: String, markets: List<Float>) {
 
 		//build correct url based on currency preference
 		val cur = prefCurrency.lowercase()
@@ -181,9 +186,9 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 				val charts = parseJsonMarketCharts(response.body()!!.string())
 
 				// get deltas
-				val priceDeltas = Calculator.getDeltas(charts.prices)
-				val volumeDeltas = Calculator.getDeltas(charts.total_volumes)
-				val marketCapDeltas = Calculator.getDeltas(charts.market_caps)
+				val priceDeltas = Calculator.getDeltas(charts.prices, markets[0])
+				val volumeDeltas = Calculator.getDeltas(charts.total_volumes, markets[2])
+				val marketCapDeltas = Calculator.getDeltas(charts.market_caps, markets[1])
 				//println("priceDeltas-> daily: ${priceDeltas[0]}, weekly: ${priceDeltas[1]}, monthly: ${priceDeltas[2]}")
 
 				val intent = Intent().apply {
@@ -216,7 +221,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 	}
 }
 
-fun parseJsonSimplePrice(json: String): JSONObject {
+fun parseJsonCurrentMarkets(json: String): JSONObject {
 	// get JSONObject from JSON file
 	val obj = JSONObject(json)
 	return obj.getJSONObject("bitcoin")

@@ -42,7 +42,7 @@
             android:layout_column="3"
             android:layout_weight="1"
             android:text="@string/change_day"
-            style="@style/MainMetricLabelText"/>
+            style="@style/MainMetricHeaderText"/>
 
         <TextView
             android:id="@+id/textview_change_week"
@@ -51,7 +51,7 @@
             android:layout_column="4"
             android:layout_weight="1"
             android:text="@string/change_week"
-            style="@style/MainMetricLabelText"/>
+            style="@style/MainMetricHeaderText"/>
 
         <TextView
             android:id="@+id/textview_change_month"
@@ -60,7 +60,7 @@
             android:layout_column="5"
             android:layout_weight="1"
             android:text="@string/change_month"
-            style="@style/MainMetricLabelText"/>
+            style="@style/MainMetricHeaderText"/>
     </TableRow>
 
     <TableRow
@@ -120,6 +120,56 @@
         android:weightSum="7">
 
         <TextView
+            android:id="@+id/textview_market_cap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_weight="2"
+            android:text="@string/market_cap"
+            style="@style/MainMetricLabelText"/>
+        <TextView
+            android:id="@+id/textview_market_cap_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="2"
+            android:layout_weight="2"
+            android:text="@string/loading"
+            style="@style/MainMetricText"/>
+
+        <TextView
+            android:id="@+id/textview_market_cap_change_day_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="3"
+            android:layout_weight="1"
+            android:text="@string/loading"
+            style="@style/MainMetricText"/>
+
+        <TextView
+            android:id="@+id/textview_market_cap_change_week_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="4"
+            android:layout_weight="1"
+            android:text="@string/loading"
+            style="@style/MainMetricText"/>
+
+        <TextView
+            android:id="@+id/textview_market_cap_change_month_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="5"
+            android:layout_weight="1"
+            android:text="@string/loading"
+            style="@style/MainMetricText"/>
+    </TableRow>
+
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:weightSum="7">
+
+        <TextView
             android:id="@+id/textview_volume"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -164,54 +214,5 @@
             style="@style/MainMetricText"/>
     </TableRow>
 
-    <TableRow
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:weightSum="7">
-
-        <TextView
-            android:id="@+id/textview_market_cap"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_column="1"
-            android:layout_weight="2"
-            android:text="@string/market_cap"
-            style="@style/MainMetricLabelText"/>
-        <TextView
-            android:id="@+id/textview_market_cap_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_column="2"
-            android:layout_weight="2"
-            android:text="@string/loading"
-            style="@style/MainMetricText"/>
-
-        <TextView
-            android:id="@+id/textview_market_cap_change_day_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_column="3"
-            android:layout_weight="1"
-            android:text="@string/loading"
-            style="@style/MainMetricText"/>
-
-        <TextView
-            android:id="@+id/textview_market_cap_change_week_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_column="4"
-            android:layout_weight="1"
-            android:text="@string/loading"
-            style="@style/MainMetricText"/>
-
-        <TextView
-            android:id="@+id/textview_market_cap_change_month_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_column="5"
-            android:layout_weight="1"
-            android:text="@string/loading"
-            style="@style/MainMetricText"/>
-    </TableRow>
 
 </TableLayout>
