@@ -1,6 +1,8 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
 
+    <dimen name="settings_header_text_size">18sp</dimen>
+
     <dimen name="main_metric_header_text_size">18sp</dimen>
     <dimen name="main_metric_label_padding_start">10sp</dimen>
     <dimen name="main_metric_text_size">16sp</dimen>

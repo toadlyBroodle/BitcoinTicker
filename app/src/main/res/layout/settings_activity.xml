@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
-    <!-- android:background="@color/black" -->
 
     <TextView
         android:layout_width="match_parent"
@@ -12,7 +11,7 @@
         android:textSize="20sp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:text="@string/currency" />
+        android:text="@string/currency"/>
 
     <Spinner
         android:key="main_settings_spinner"
@@ -24,7 +23,7 @@
         android:entryValues="@array/currency_codes"
         android:minHeight="48dp"
         android:summary="%s"
-        android:title="@string/currency" />
+        android:title="@string/currency"/>
 
     <View
         android:layout_width="match_parent"

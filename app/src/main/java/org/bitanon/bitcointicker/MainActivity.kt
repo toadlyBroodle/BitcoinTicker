@@ -268,6 +268,7 @@ class MainActivity : AppCompatActivity() {
                     prefMarketCapDeltaDay = intent.getFloatExtra(MARKET_CAP_DELTA_DAY, 0f)
                     prefMarketCapDeltaWeek =intent.getFloatExtra(MARKET_CAP_DELTA_WEEK, 0f)
                     prefMarketCapDeltaMonth = intent.getFloatExtra(MARKET_CAP_DELTA_MONTH, 0f)
+                    savePrefs()
                     updateUI()
                 }
             }
@@ -334,7 +335,7 @@ fun formatChangePercent(dc: Float): CharSequence {
 
 fun getDateTime(s: String): String? {
     if (s == "…") return "…"
-    val sdf = SimpleDateFormat("HH:mm:ss|dd/MM")
+    val sdf = SimpleDateFormat("HH:mm[dd/MM]")
     val netDate = try {
         Date(s.toLong() * 1000)
     } catch (e: Exception) {

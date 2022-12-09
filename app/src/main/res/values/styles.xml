@@ -1,9 +1,17 @@
 <resources>
     <style name="Widget.BitcoinTicker.AppWidget.Container" parent="android:Widget">
         <item name="android:id">@android:id/background</item>
-        <!--<item name="android:background">?android:attr/colorBackground</item>-->
     </style>
 
+    <style name="SettingsHeaderText" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">?android:colorPrimary</item>
+        <item name="android:textSize">@dimen/settings_header_text_size</item>
+        <item name="android:padding">@dimen/main_text_padding</item>
+    </style>
+
+    <style name="SpinnerItemStyle" parent="Widget.AppCompat.DropDownItem.Spinner">
+        <item name="android:textColor">@color/orange</item>
+    </style>
 
     <style name="MainMetricHeaderText" parent="TextAppearance.AppCompat">
         <item name="android:textColor">?android:colorPrimary</item>

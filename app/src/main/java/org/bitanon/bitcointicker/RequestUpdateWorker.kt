@@ -170,7 +170,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 
 		//build correct url based on currency preference
 		val cur = prefCurrency.lowercase()
-		val url = urlCGReqBtcMarketCharts.replace("vs_currencies=usd","vs_currencies=$cur")
+		val url = urlCGReqBtcMarketCharts.replace("vs_currency=usd","vs_currency=$cur")
 
 		val request = Request.Builder()
 			.url(url)
