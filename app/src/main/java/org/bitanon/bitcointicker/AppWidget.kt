@@ -29,7 +29,7 @@ class AppWidget : AppWidgetProvider() {
         // There may be multiple widgets active, so update all of them
         for (appWidgetId in appWidgetIds) {
 
-            updateAppWidget(context, appWidgetManager, appWidgetId)
+            updateAllWidgets(context, appWidgetManager, appWidgetId)
 
         }
     }
@@ -46,6 +46,7 @@ class AppWidget : AppWidgetProvider() {
         // register price and widget button update receivers
         val filters = IntentFilter()
         filters.addAction(BROADCAST_PRICE_UPDATED)
+        filters.addAction(BROADCAST_MARKET_CHARTS_UPDATED)
         filters.addAction(BROADCAST_WIDGET_UPDATE_BUTTON_CLICK)
         // TODO integrate BROADCAST_MARKET_CHARTS_UPDATED
         LocalBroadcastManager.getInstance(context.applicationContext).registerReceiver(br, filters)
@@ -66,30 +67,7 @@ class AppWidget : AppWidgetProvider() {
             val prefs = loadWidgetPrefs(context, widgetId)
 
             when (intent?.action) {
-                BROADCAST_PRICE_UPDATED -> {
-                    val price = intent.getStringExtra(CURR_PRICE)
-                    val dayVolume = intent.getStringExtra(CURR_DAY_VOLUME).toString()
-                    val marketCap = intent.getStringExtra(CURR_MARKET_CAP).toString()
-                    val lastUpdate = intent.getStringExtra(CURR_LAST_UPDATE).toString()
-
-                    // save widget prefs price
-                    val prefsEditor = prefs?.edit()
-                    if (prefsEditor != null) {
-                        prefsEditor.putString(CURR_PRICE, price)
-                        prefsEditor.putString(CURR_DAY_VOLUME, dayVolume)
-                        prefsEditor.putString(CURR_MARKET_CAP, marketCap)
-                        prefsEditor.putString(CURR_LAST_UPDATE, lastUpdate)
-                        prefsEditor.commit()
-                    }
-                    println("saved widget$widgetId prefs:${prefs?.all}")
-
-                    // and update widgets
-                    val appWidgetManager = AppWidgetManager.getInstance(context)
-                    if (context != null && widgetId != null) {
-                        updateAppWidget(context, appWidgetManager, widgetId)
-                    }
-                }
-                BROADCAST_WIDGET_UPDATE_BUTTON_CLICK -> {
+                BROADCAST_WIDGET_UPDATE_BUTTON_CLICK -> { //TODO not receiving
                     // construct onetime price query
                     val priceReq = OneTimeWorkRequestBuilder<RequestUpdateWorker>()
                     val data = Data.Builder()
@@ -106,12 +84,63 @@ class AppWidget : AppWidgetProvider() {
                         WorkManager.getInstance(context).enqueue(priceReq.build())
                     }
                 }
+                BROADCAST_PRICE_UPDATED -> {
+                    val price = intent.getStringExtra(CURR_PRICE)
+                    val dayVolume = intent.getStringExtra(CURR_DAY_VOLUME).toString()
+                    val marketCap = intent.getStringExtra(CURR_MARKET_CAP).toString()
+                    val lastUpdate = intent.getStringExtra(CURR_LAST_UPDATE).toString()
+
+                    // save widget prefs price
+                    prefs?.edit()?.apply {
+                        putString(CURR_PRICE, price)
+                        putString(CURR_DAY_VOLUME, dayVolume)
+                        putString(CURR_MARKET_CAP, marketCap)
+                        putString(CURR_LAST_UPDATE, lastUpdate)
+                        commit()
+                    }
+                    println("saved widget$widgetId prefs:${prefs?.all}")
+                    updateWidget(context, widgetId)
+                }
+                BROADCAST_MARKET_CHARTS_UPDATED -> {
+                    val priceDeltaDay = intent.getFloatExtra(PRICE_DELTA_DAY, 0f)
+                    val priceDeltaWeek = intent.getFloatExtra(PRICE_DELTA_WEEK, 0f)
+                    val priceDeltaMonth = intent.getFloatExtra(PRICE_DELTA_MONTH, 0f)
+                    val volumeDeltaDay = intent.getFloatExtra(VOLUME_DELTA_DAY, 0f)
+                    val volumeDeltaWeek = intent.getFloatExtra(VOLUME_DELTA_WEEK, 0f)
+                    val volumeDeltaMonth = intent.getFloatExtra(VOLUME_DELTA_MONTH, 0f)
+                    val marketCapDeltaDay = intent.getFloatExtra(MARKET_CAP_DELTA_DAY, 0f)
+                    val marketCapDeltaWeek = intent.getFloatExtra(MARKET_CAP_DELTA_WEEK, 0f)
+                    val marketCapDeltaMonth = intent.getFloatExtra(MARKET_CAP_DELTA_MONTH, 0f)
+
+                    prefs?.edit()?.apply {
+                        putFloat(PRICE_DELTA_DAY, priceDeltaDay)
+                        putFloat(PRICE_DELTA_WEEK, priceDeltaWeek)
+                        putFloat(PRICE_DELTA_MONTH, priceDeltaMonth)
+                        putFloat(VOLUME_DELTA_DAY, volumeDeltaDay)
+                        putFloat(VOLUME_DELTA_WEEK, volumeDeltaWeek)
+                        putFloat(VOLUME_DELTA_MONTH, volumeDeltaMonth)
+                        putFloat(MARKET_CAP_DELTA_DAY, marketCapDeltaDay)
+                        putFloat(MARKET_CAP_DELTA_WEEK, marketCapDeltaWeek)
+                        putFloat(MARKET_CAP_DELTA_MONTH, marketCapDeltaMonth)
+                        commit()
+                    }
+                    println("saved widget$widgetId prefs:${prefs?.all}")
+                    updateWidget(context, widgetId)
+                }
             }
         }
     }
 }
 
-internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+internal fun updateWidget(ctx: Context?, id: Int?) {
+    // and update widgets
+    val appWidgetManager = AppWidgetManager.getInstance(ctx)
+    if (ctx != null && id != null) {
+        updateAllWidgets(ctx, appWidgetManager, id)
+    }
+}
+
+internal fun updateAllWidgets(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
 
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.app_widget)
@@ -140,6 +169,15 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
     val prefDayVolume = prefs?.getString(CURR_DAY_VOLUME, context.getString(R.string.loading))
     val prefMarketCap = prefs?.getString(CURR_MARKET_CAP, context.getString(R.string.loading))
     val prefLastUpdate = prefs?.getString(CURR_LAST_UPDATE, context.getString(R.string.loading))
+    val prefPriceDeltaDay = prefs?.getFloat(PRICE_DELTA_DAY, 0f)
+    val prefPriceDeltaWeek = prefs?.getFloat(PRICE_DELTA_WEEK, 0f)
+    val prefPriceDeltaMonth = prefs?.getFloat(PRICE_DELTA_MONTH , 0f)
+    val prefVolumeDeltaDay = prefs?.getFloat(VOLUME_DELTA_DAY, 0f)
+    val prefVolumeDeltaWeek = prefs?.getFloat(VOLUME_DELTA_WEEK, 0f)
+    val prefVolumeDeltaMonth = prefs?.getFloat(VOLUME_DELTA_MONTH, 0f)
+    val prefMarketCapDeltaDay = prefs?.getFloat(MARKET_CAP_DELTA_DAY, 0f)
+    val prefMarketCapDeltaWeek = prefs?.getFloat(MARKET_CAP_DELTA_WEEK , 0f)
+    val prefMarketCapDeltaMonth = prefs?.getFloat(MARKET_CAP_DELTA_MONTH, 0f)
 
     // get bg color selected
     val prefBgTransp = prefs?.getFloat(WIDGET_PREF_BG_TRANSPARENCY, 0.5f)
@@ -155,15 +193,20 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
         setInt(R.id.widget_background_layout, "setBackgroundColor",
             Color.parseColor("#${hexBgTransp}000000"))
         setTextViewText(R.id.widget_textview_price, "$prefCurr/BTC")
-        if (prefCurr != null)
-            setTextViewText(R.id.widget_textview_price_value, numberToCurrency(prefPrice, prefCurr))
-        if (prefDayVolume != null)
-            setTextViewText(R.id.widget_textview_volume_value, prettyBigNumber(prefDayVolume))
-        if (prefMarketCap != null)
-            setTextViewText(R.id.widget_textview_market_cap_value, prettyBigNumber(prefMarketCap))
-        if (prefLastUpdate != null)
-            setTextViewText(R.id.widget_last_update_time, getDateTime(prefLastUpdate))
-        // change metric colors based on 24h change
+        setTextViewText(R.id.widget_textview_price_value, numberToCurrency(prefPrice, prefCurr.toString()))
+        setTextViewText(R.id.widget_textview_volume_value, prettyBigNumber(prefDayVolume.toString()))
+        setTextViewText(R.id.widget_textview_market_cap_value, prettyBigNumber(prefMarketCap.toString()))
+        setTextViewText(R.id.widget_last_update_time, getDateTime(prefLastUpdate.toString()))
+        setTextViewText(R.id.widget_textview_price_delta_day_value, prefPriceDeltaDay?.let { formatChangePercent(it) })
+        setTextViewText(R.id.widget_textview_price_delta_week_value, prefPriceDeltaWeek?.let { formatChangePercent(it) })
+        setTextViewText(R.id.widget_textview_price_delta_month_value, prefPriceDeltaMonth?.let { formatChangePercent(it) })
+        setTextViewText(R.id.widget_textview_market_cap_delta_day_value, prefVolumeDeltaDay?.let { formatChangePercent(it) })
+        setTextViewText(R.id.widget_textview_market_cap_delta_week_value, prefVolumeDeltaWeek?.let { formatChangePercent(it) })
+        setTextViewText(R.id.widget_textview_market_cap_delta_month_value, prefVolumeDeltaMonth?.let { formatChangePercent(it) })
+        setTextViewText(R.id.widget_textview_volume_delta_day_value, prefMarketCapDeltaDay?.let { formatChangePercent(it) })
+        setTextViewText(R.id.widget_textview_volume_delta_week_value, prefMarketCapDeltaWeek?.let { formatChangePercent(it) })
+        setTextViewText(R.id.widget_textview_volume_delta_month_value, prefMarketCapDeltaMonth?.let { formatChangePercent(it) })
+    // change metric colors based on 24h change
         /*if (prefDayChange != null) {
             val deltaColor: Int = if (prefDayChange.toFloat() > 0)
                 context.getColor(R.color.green)

@@ -66,7 +66,7 @@ class AppWidgetConfigureActivity : Activity() {
 
         // It is the responsibility of the widget manager to update the app widget
         val appWidgetManager = AppWidgetManager.getInstance(context)
-        updateAppWidget(context, appWidgetManager, appWidgetId)
+        updateAllWidgets(context, appWidgetManager, appWidgetId)
 
         // Make sure we pass back the original appWidgetId
         val resultValue = Intent()
