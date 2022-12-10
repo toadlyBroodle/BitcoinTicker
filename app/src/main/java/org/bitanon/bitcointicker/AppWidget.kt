@@ -200,22 +200,95 @@ internal fun updateAllWidgets(context: Context, appWidgetManager: AppWidgetManag
         setTextViewText(R.id.widget_textview_price_delta_day_value, prefPriceDeltaDay?.let { formatChangePercent(it) })
         setTextViewText(R.id.widget_textview_price_delta_week_value, prefPriceDeltaWeek?.let { formatChangePercent(it) })
         setTextViewText(R.id.widget_textview_price_delta_month_value, prefPriceDeltaMonth?.let { formatChangePercent(it) })
-        setTextViewText(R.id.widget_textview_market_cap_delta_day_value, prefVolumeDeltaDay?.let { formatChangePercent(it) })
-        setTextViewText(R.id.widget_textview_market_cap_delta_week_value, prefVolumeDeltaWeek?.let { formatChangePercent(it) })
-        setTextViewText(R.id.widget_textview_market_cap_delta_month_value, prefVolumeDeltaMonth?.let { formatChangePercent(it) })
-        setTextViewText(R.id.widget_textview_volume_delta_day_value, prefMarketCapDeltaDay?.let { formatChangePercent(it) })
-        setTextViewText(R.id.widget_textview_volume_delta_week_value, prefMarketCapDeltaWeek?.let { formatChangePercent(it) })
-        setTextViewText(R.id.widget_textview_volume_delta_month_value, prefMarketCapDeltaMonth?.let { formatChangePercent(it) })
-    // change metric colors based on 24h change
-        /*if (prefDayChange != null) {
-            val deltaColor: Int = if (prefDayChange.toFloat() > 0)
+        setTextViewText(R.id.widget_textview_market_cap_delta_day_value, prefMarketCapDeltaDay?.let { formatChangePercent(it) })
+        setTextViewText(R.id.widget_textview_market_cap_delta_week_value, prefMarketCapDeltaWeek?.let { formatChangePercent(it) })
+        setTextViewText(R.id.widget_textview_market_cap_delta_month_value, prefMarketCapDeltaMonth?.let { formatChangePercent(it) })
+        setTextViewText(R.id.widget_textview_volume_delta_day_value, prefVolumeDeltaDay?.let { formatChangePercent(it) })
+        setTextViewText(R.id.widget_textview_volume_delta_week_value, prefVolumeDeltaWeek?.let { formatChangePercent(it) })
+        setTextViewText(R.id.widget_textview_volume_delta_month_value, prefVolumeDeltaMonth?.let { formatChangePercent(it) })
+/*
+    R.id.widget_textview_price_value
+    R.id.widget_textview_volume_value
+    R.id.widget_textview_market_cap_value
+    R.id.widget_textview_price_delta_day_value
+    R.id.widget_textview_price_delta_week_value
+    R.id.widget_textview_price_delta_month_value
+    R.id.widget_textview_market_cap_delta_day_value
+    R.id.widget_textview_market_cap_delta_week_value
+    R.id.widget_textview_market_cap_delta_month_value
+    R.id.widget_textview_volume_delta_day_value
+    R.id.widget_textview_volume_delta_week_value
+    R.id.widget_textview_volume_delta_month_value
+    */
+
+        // change color of delta metrics
+        if (prefPriceDeltaDay != null) {
+            val deltaColor: Int = if (prefPriceDeltaDay > 0)
                 context.getColor(R.color.green)
             else
                 context.getColor(R.color.red)
-            setTextColor(R.id.widget_textview_btcprice, deltaColor)
-            setTextColor(R.id.widget_textview_day_change_value, deltaColor)
+            setTextColor(R.id.widget_textview_price_delta_day_value, deltaColor)
+            setTextColor(R.id.widget_textview_price_value, deltaColor)
+        }
+        if (prefMarketCapDeltaDay != null) {
+            val deltaColor: Int = if (prefMarketCapDeltaDay > 0)
+                context.getColor(R.color.green)
+            else
+                context.getColor(R.color.red)
+            setTextColor(R.id.widget_textview_market_cap_delta_day_value, deltaColor)
             setTextColor(R.id.widget_textview_market_cap_value, deltaColor)
-        }*/
+        }
+        if (prefVolumeDeltaDay != null) {
+            val deltaColor: Int = if (prefVolumeDeltaDay > 0)
+                context.getColor(R.color.green)
+            else
+                context.getColor(R.color.red)
+            setTextColor(R.id.widget_textview_volume_delta_day_value, deltaColor)
+            setTextColor(R.id.widget_textview_volume_value, deltaColor)
+        }
+        if (prefPriceDeltaWeek != null) {
+            val deltaColor: Int = if (prefPriceDeltaWeek > 0)
+                context.getColor(R.color.green)
+            else
+                context.getColor(R.color.red)
+            setTextColor(R.id.widget_textview_price_delta_week_value, deltaColor)
+        }
+        if (prefPriceDeltaMonth != null) {
+            val deltaColor: Int = if (prefPriceDeltaMonth > 0)
+                context.getColor(R.color.green)
+            else
+                context.getColor(R.color.red)
+            setTextColor(R.id.widget_textview_price_delta_month_value, deltaColor)
+        }
+        if (prefMarketCapDeltaWeek != null) {
+            val deltaColor: Int = if (prefMarketCapDeltaWeek > 0)
+                context.getColor(R.color.green)
+            else
+                context.getColor(R.color.red)
+            setTextColor(R.id.widget_textview_market_cap_delta_week_value, deltaColor)
+        }
+        if (prefMarketCapDeltaMonth != null) {
+            val deltaColor: Int = if (prefMarketCapDeltaMonth > 0)
+                context.getColor(R.color.green)
+            else
+                context.getColor(R.color.red)
+            setTextColor(R.id.widget_textview_market_cap_delta_month_value, deltaColor)
+        }
+        if (prefVolumeDeltaWeek != null) {
+            val deltaColor: Int = if (prefVolumeDeltaWeek > 0)
+                context.getColor(R.color.green)
+            else
+                context.getColor(R.color.red)
+            setTextColor(R.id.widget_textview_volume_delta_week_value, deltaColor)
+        }
+        if (prefVolumeDeltaMonth != null) {
+            val deltaColor: Int = if (prefVolumeDeltaMonth > 0)
+                context.getColor(R.color.green)
+            else
+                context.getColor(R.color.red)
+            setTextColor(R.id.widget_textview_volume_delta_month_value, deltaColor)
+        }
+
     }
 
     // Instruct the widget manager to update the widget

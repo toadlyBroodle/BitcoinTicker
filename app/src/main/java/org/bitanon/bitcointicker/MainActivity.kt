@@ -78,17 +78,17 @@ class MainActivity : AppCompatActivity() {
         tvUpdateIcon = findViewById(R.id.textview_header_update_icon)
         tvLastPriceUpdate = findViewById(R.id.textview_header_last_update)
         // update price on touch top table row
-        tvLastPriceUpdate.setOnClickListener{
+        tvUpdateIcon.setOnClickListener{
             //if last update less than 1m ago,
             if (System.currentTimeMillis() - lastReqTime <= 60000) {
-                // blink price
+                // blink update icon and time
                 val anim: Animation = AlphaAnimation(0.0f, 1.0f)
                 anim.duration = 50
                 anim.startOffset = 20
                 anim.repeatMode = Animation.REVERSE
                 anim.repeatCount = 1
-                tvLastUpdate.startAnimation(anim)
                 tvUpdateIcon.startAnimation(anim)
+                tvLastUpdate.startAnimation(anim)
             } else
                 queryPriceServer()
         }
