@@ -1,170 +1,154 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/widget_background_layout"
-    android:background="@color/black">
+    android:background="@color/black"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/widget_metric_update"
-        android:layout_width="80sp"
-        android:text="@string/sync_symbol"
-        android:textSize="16sp"
-        android:textAlignment="viewEnd"
-        style="@style/WidgetMetricHeaderText"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/widget_last_update_time"
-        android:layout_width="80sp"
-        android:textSize="10sp"
-        android:text="@string/loading"
-        style="@style/WidgetMetricText"
-        android:layout_toEndOf="@id/widget_metric_update"
-        android:layout_alignBottom="@id/widget_metric_update"
-        tools:ignore="SmallSp" />
+        <TextView
+            android:id="@+id/widget_metric_update"
+            android:layout_width="@dimen/widget_metric_header_text_width"
+            android:text="@string/sync_symbol"
+            android:textSize="16sp"
+            android:textAlignment="viewEnd"
+            style="@style/WidgetMetricHeaderText"/>
 
-    <TextView
-        android:id="@+id/widget_textview_delta_day"
-        android:contentDescription="@string/delta_day"
-        android:text="@string/delta_day"
-        style="@style/WidgetMetricHeaderText"
-        android:layout_toEndOf="@id/widget_last_update_time"
-        android:layout_alignBottom="@id/widget_last_update_time"/>
+        <TextView
+            android:id="@+id/widget_last_update_time"
+            android:layout_width="@dimen/widget_metric_header_text_width"
+            android:textSize="10sp"
+            android:text="@string/loading"
+            style="@style/WidgetMetricHeaderText"
+            tools:ignore="SmallSp" />
 
-    <TextView
-        android:id="@+id/widget_textview_delta_week"
-        android:contentDescription="@string/delta_week"
-        android:text="@string/delta_week"
-        style="@style/WidgetMetricHeaderText"
-        android:layout_toEndOf="@id/widget_textview_delta_day"
-        android:layout_alignBottom="@id/widget_textview_delta_day"/>
+        <TextView
+            android:id="@+id/widget_textview_delta_day"
+            android:contentDescription="@string/delta_day"
+            android:text="@string/delta_day"
+            style="@style/WidgetMetricHeaderDeltaText"/>
 
-    <TextView
-        android:id="@+id/widget_textview_delta_month"
-        android:contentDescription="@string/delta_month"
-        android:text="@string/delta_month"
-        style="@style/WidgetMetricHeaderText"
-        android:layout_toEndOf="@id/widget_textview_delta_week"
-        android:layout_alignBottom="@id/widget_textview_delta_week"/>
+        <TextView
+            android:id="@+id/widget_textview_delta_week"
+            android:contentDescription="@string/delta_week"
+            android:text="@string/delta_week"
+            style="@style/WidgetMetricHeaderDeltaText"/>
 
-    <TextView
-        android:id="@+id/widget_textview_price"
-        android:contentDescription="@string/usd_btc"
-        android:text="@string/usd_btc"
-        style="@style/WidgetMetricLabelText"
-        android:layout_toStartOf="@id/widget_textview_price_value"
-        android:layout_alignBaseline="@id/widget_textview_price_value" />
+        <TextView
+            android:id="@+id/widget_textview_delta_month"
+            android:contentDescription="@string/delta_month"
+            android:text="@string/delta_month"
+            style="@style/WidgetMetricHeaderDeltaText"/>
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/widget_textview_price_value"
-        android:layout_toEndOf="@id/widget_metric_update"
-        android:layout_below="@id/widget_last_update_time"
-        android:contentDescription="@string/usd_btc"
-        android:text="@string/loading"
-        style="@style/WidgetMetricText"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/widget_textview_price_delta_day_value"
-        android:layout_toEndOf="@id/widget_last_update_time"
-        android:layout_alignBaseline="@id/widget_textview_price_value"
-        android:contentDescription="@string/delta_day"
-        android:text="@string/loading"
-        style="@style/WidgetMetricText"/>
+        <TextView
+            android:id="@+id/widget_textview_price"
+            android:contentDescription="@string/usd_btc"
+            android:text="@string/usd_btc"
+            style="@style/WidgetMetricLabelText" />
 
-    <TextView
-        android:id="@+id/widget_textview_price_delta_week_value"
-        android:layout_toEndOf="@id/widget_textview_delta_day"
-        android:layout_alignBaseline="@id/widget_textview_price_value"
-        android:contentDescription="@string/delta_week"
-        android:text="@string/loading"
-        style="@style/WidgetMetricText"/>
+        <TextView
+            android:id="@+id/widget_textview_price_value"
+            android:contentDescription="@string/usd_btc"
+            android:text="@string/loading"
+            style="@style/WidgetMetricText"/>
 
-    <TextView
-        android:id="@+id/widget_textview_price_delta_month_value"
-        android:layout_toEndOf="@id/widget_textview_delta_week"
-        android:layout_alignBaseline="@id/widget_textview_price_value"
-        android:contentDescription="@string/delta_month"
-        android:text="@string/loading"
-        style="@style/WidgetMetricText"/>
+        <TextView
+            android:id="@+id/widget_textview_price_delta_day_value"
+            android:contentDescription="@string/delta_day"
+            android:text="@string/loading"
+            style="@style/WidgetMetricDeltaText"/>
 
-    <TextView
-        android:id="@+id/widget_textview_market_cap"
-        android:layout_toStartOf="@id/widget_textview_market_cap_value"
-        android:layout_alignBaseline="@id/widget_textview_market_cap_value"
-        android:contentDescription="@string/market_cap"
-        android:text= "@string/market_cap"
-        style="@style/WidgetMetricLabelText"/>
+        <TextView
+            android:id="@+id/widget_textview_price_delta_week_value"
+            android:contentDescription="@string/delta_week"
+            android:text="@string/loading"
+            style="@style/WidgetMetricDeltaText"/>
 
-    <TextView
-        android:id="@+id/widget_textview_market_cap_value"
-        android:layout_toEndOf="@id/widget_metric_update"
-        android:layout_below="@id/widget_textview_price_value"
-        android:contentDescription="@string/market_cap"
-        android:text="@string/loading"
-        style="@style/WidgetMetricText"/>
+        <TextView
+            android:id="@+id/widget_textview_price_delta_month_value"
+            android:contentDescription="@string/delta_month"
+            android:text="@string/loading"
+            style="@style/WidgetMetricDeltaText"/>
 
-    <TextView
-        android:id="@+id/widget_textview_market_cap_delta_day_value"
-        android:layout_toEndOf="@id/widget_last_update_time"
-        android:layout_alignBaseline="@+id/widget_textview_market_cap_value"
-        android:contentDescription="@string/market_cap"
-        android:text="@string/loading"
-        style="@style/WidgetMetricText"/>
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/widget_textview_market_cap_delta_week_value"
-        android:layout_toEndOf="@id/widget_textview_delta_day"
-        android:layout_alignBaseline="@+id/widget_textview_market_cap_value"
-        android:contentDescription="@string/market_cap"
-        android:text="@string/loading"
-        style="@style/WidgetMetricText"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/widget_textview_market_cap_delta_month_value"
-        android:layout_toEndOf="@id/widget_textview_delta_week"
-        android:layout_alignBaseline="@+id/widget_textview_market_cap_value"
-        android:contentDescription="@string/market_cap"
-        android:text="@string/loading"
-        style="@style/WidgetMetricText"/>
+        <TextView
+            android:id="@+id/widget_textview_market_cap"
+            android:contentDescription="@string/market_cap"
+            android:text= "@string/market_cap"
+            style="@style/WidgetMetricLabelText"/>
 
-    <TextView
-        android:id="@+id/widget_textview_volume"
-        android:layout_toStartOf="@id/widget_textview_volume_value"
-        android:layout_alignBaseline="@id/widget_textview_volume_value"
-        android:contentDescription="@string/day_volume"
-        android:text= "@string/day_volume"
-        style="@style/WidgetMetricLabelText"/>
+        <TextView
+            android:id="@+id/widget_textview_market_cap_value"
+            android:contentDescription="@string/market_cap"
+            android:text="@string/loading"
+            style="@style/WidgetMetricText"/>
 
-    <TextView
-        android:id="@+id/widget_textview_volume_value"
-        android:layout_toEndOf="@id/widget_metric_update"
-        android:layout_below="@id/widget_textview_market_cap_value"
-        android:contentDescription="@string/day_volume"
-        android:text="@string/loading"
-        style="@style/WidgetMetricText"/>
+        <TextView
+            android:id="@+id/widget_textview_market_cap_delta_day_value"
+            android:contentDescription="@string/market_cap"
+            android:text="@string/loading"
+            style="@style/WidgetMetricDeltaText"/>
 
-    <TextView
-        android:id="@+id/widget_textview_volume_delta_day_value"
-        android:layout_toEndOf="@id/widget_last_update_time"
-        android:layout_alignBaseline="@+id/widget_textview_volume_value"
-        android:contentDescription="@string/delta_day"
-        android:text="@string/loading"
-        style="@style/WidgetMetricText"/>
+        <TextView
+            android:id="@+id/widget_textview_market_cap_delta_week_value"
+            android:contentDescription="@string/market_cap"
+            android:text="@string/loading"
+            style="@style/WidgetMetricDeltaText"/>
 
-    <TextView
-        android:id="@+id/widget_textview_volume_delta_week_value"
-        android:layout_toEndOf="@id/widget_textview_delta_day"
-        android:layout_alignBaseline="@+id/widget_textview_volume_value"
-        android:contentDescription="@string/delta_day"
-        android:text="@string/loading"
-        style="@style/WidgetMetricText"/>
+        <TextView
+            android:id="@+id/widget_textview_market_cap_delta_month_value"
+            android:contentDescription="@string/market_cap"
+            android:text="@string/loading"
+            style="@style/WidgetMetricDeltaText"/>
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/widget_textview_volume_delta_month_value"
-        android:layout_toEndOf="@id/widget_textview_delta_week"
-        android:layout_alignBaseline="@+id/widget_textview_volume_value"
-        android:contentDescription="@string/delta_day"
-        android:text="@string/loading"
-        style="@style/WidgetMetricText"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/widget_textview_volume"
+            android:contentDescription="@string/day_volume"
+            android:text= "@string/day_volume"
+            style="@style/WidgetMetricLabelText"/>
+
+        <TextView
+            android:id="@+id/widget_textview_volume_value"
+            android:contentDescription="@string/day_volume"
+            android:text="@string/loading"
+            style="@style/WidgetMetricText"/>
+
+        <TextView
+            android:id="@+id/widget_textview_volume_delta_day_value"
+            android:contentDescription="@string/delta_day"
+            android:text="@string/loading"
+            style="@style/WidgetMetricDeltaText"/>
+
+        <TextView
+            android:id="@+id/widget_textview_volume_delta_week_value"
+            android:contentDescription="@string/delta_day"
+            android:text="@string/loading"
+            style="@style/WidgetMetricDeltaText"/>
+
+        <TextView
+            android:id="@+id/widget_textview_volume_delta_month_value"
+            android:contentDescription="@string/delta_day"
+            android:text="@string/loading"
+            style="@style/WidgetMetricDeltaText"/>
+    </LinearLayout>
+
+</LinearLayout>
