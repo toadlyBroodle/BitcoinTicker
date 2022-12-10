@@ -13,11 +13,15 @@ Refer to App Widget Documentation for margin information
 http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     -->
     <dimen name="widget_margin">0dp</dimen>
+    <dimen name="widget_metric_header_text_width">65sp</dimen>
+    <dimen name="widget_metric_delta_text_width">35sp</dimen>
     <dimen name="widget_metric_header_text_padding_start">5sp</dimen>
     <dimen name="widget_metric_header_text_padding_end">5sp</dimen>
     <dimen name="widget_metric_label_text_padding_end">5sp</dimen>
-    <dimen name="widget_metric_label_text_size">12sp</dimen>
-    <dimen name="widget_metric_text_size">12sp</dimen>
+    <dimen name="widget_metric_label_text_padding_start">5sp</dimen>
+    <dimen name="widget_last_update_text_size">9sp</dimen>
+    <dimen name="widget_metric_label_text_size">10sp</dimen>
+    <dimen name="widget_metric_text_size">10sp</dimen>
     <dimen name="widget_text_padding">3sp</dimen>
 
 

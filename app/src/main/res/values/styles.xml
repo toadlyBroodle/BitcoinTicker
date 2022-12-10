@@ -45,7 +45,18 @@
 
     <style name="WidgetMetricHeaderText" parent="TextAppearance.AppCompat">
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_width">@dimen/widget_metric_header_text_width</item>
+        <item name="android:textColor">@color/orange</item>
+        <item name="android:textSize">@dimen/widget_metric_label_text_size</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:paddingStart">@dimen/widget_metric_header_text_padding_start</item>
+        <item name="android:paddingEnd">@dimen/widget_metric_header_text_padding_end</item>
+    </style>
+
+    <style name="WidgetMetricHeaderDeltaText" parent="TextAppearance.AppCompat">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">@dimen/widget_metric_delta_text_width</item>
+        <item name="android:gravity">center_horizontal</item>
         <item name="android:textColor">@color/orange</item>
         <item name="android:textSize">@dimen/widget_metric_label_text_size</item>
         <item name="android:maxLines">1</item>
@@ -55,16 +66,27 @@
 
     <style name="WidgetMetricLabelText" parent="TextAppearance.AppCompat">
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_width">@dimen/widget_metric_header_text_width</item>
         <item name="android:textColor">@color/orange</item>
         <item name="android:textSize">@dimen/widget_metric_label_text_size</item>
         <item name="android:maxLines">1</item>
         <item name="android:paddingEnd">@dimen/widget_metric_label_text_padding_end</item>
+        <item name="android:paddingStart">@dimen/widget_metric_label_text_padding_start</item>
     </style>
 
     <style name="WidgetMetricText" parent="TextAppearance.AppCompat">
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_width">@dimen/widget_metric_header_text_width</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:textColor">@color/orange</item>
+        <item name="android:textSize">@dimen/widget_metric_text_size</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="WidgetMetricDeltaText" parent="TextAppearance.AppCompat">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">@dimen/widget_metric_delta_text_width</item>
+        <item name="android:gravity">center_horizontal</item>
         <item name="android:textColor">@color/orange</item>
         <item name="android:textSize">@dimen/widget_metric_text_size</item>
         <item name="android:maxLines">1</item>
