@@ -3,7 +3,12 @@
 
     <dimen name="settings_header_text_size">18sp</dimen>
 
+    <dimen name="main_metric_header_width">45sp</dimen>
     <dimen name="main_metric_header_text_size">16sp</dimen>
+    <dimen name="main_metric_category_label_text_size">16sp</dimen>
+    <dimen name="main_metric_category_label_width">80sp</dimen>
+    <dimen name="main_metric_category_label_padding_start">5sp</dimen>
+    <dimen name="main_metric_label_width">110sp</dimen>
     <dimen name="main_metric_label_text_size">16sp</dimen>
     <dimen name="main_metric_label_padding_start">10sp</dimen>
     <dimen name="main_metric_text_size">16sp</dimen>
@@ -15,13 +20,16 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     -->
     <dimen name="widget_margin">0dp</dimen>
     <dimen name="widget_metric_header_text_width">65sp</dimen>
-    <dimen name="widget_metric_delta_text_width">35sp</dimen>
     <dimen name="widget_metric_header_text_padding_start">5sp</dimen>
     <dimen name="widget_metric_header_text_padding_end">5sp</dimen>
+    <dimen name="widget_last_update_text_size">8sp</dimen>
+    <dimen name="widget_metric_category_text_width">50sp</dimen>
+    <dimen name="widget_metric_category_label_text_padding_start">2sp</dimen>
+    <dimen name="widget_metric_label_text_width">75sp</dimen>
+    <dimen name="widget_metric_label_text_size">10sp</dimen>
     <dimen name="widget_metric_label_text_padding_end">5sp</dimen>
     <dimen name="widget_metric_label_text_padding_start">5sp</dimen>
-    <dimen name="widget_last_update_text_size">9sp</dimen>
-    <dimen name="widget_metric_label_text_size">10sp</dimen>
+    <dimen name="widget_metric_delta_text_width">35sp</dimen>
     <dimen name="widget_metric_text_size">10sp</dimen>
     <dimen name="widget_text_padding">3sp</dimen>
 

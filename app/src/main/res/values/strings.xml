@@ -11,10 +11,11 @@
     <string name="fail_contact_gn_server">problem contacting api.glassnode.com…</string>
     <string name="bad_cg_server_response">bad response from coingecko.com</string>
     <!--<string name="bad_gn_server_response">bad response from api.glassnode.com</string>-->
+    <string name="category_market">Market</string>
     <string name="market_cap">Market Cap</string>
-    <string name="metric">Metric</string>
     <string name="value">Value</string>
     <string name="day_volume">24h Volume</string>
+    <string name="category_on_chain">On-Chain</string>
     <string name="addr_active">Addr. Active</string>
     <string name="delta_day">dΔ%</string>
     <string name="delta_week">wΔ%</string>

@@ -6,8 +6,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
-import android.widget.TableLayout
-import android.widget.TableRow
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -47,9 +46,9 @@ class MainActivity : AppCompatActivity() {
     private var prefMarketCapDeltaWeek: Float = 0f
     private var prefMarketCapDeltaMonth: Float = 0f
     private lateinit var prefAddrActive: MutableList<Float>
-    private var lastReqTime: Long = 0
+    private var lastCGReqTime: Long = 0
 
-    private lateinit var tlMain: TableLayout
+    private lateinit var llMain: LinearLayout
     private lateinit var tvLastCGUpdate: TextView
     private lateinit var tvUpdateIcon: TextView
     private lateinit var tvPriceLabel: TextView
@@ -86,7 +85,7 @@ class MainActivity : AppCompatActivity() {
         // update price on touch top table row
         tvUpdateIcon.setOnClickListener{
             //if last update less than 1m ago,
-            if (System.currentTimeMillis() - lastReqTime <= 60000) {
+            if (System.currentTimeMillis() - lastCGReqTime <= 60000) {
                 // blink update icon and time
                 val anim: Animation = AlphaAnimation(0.0f, 1.0f)
                 anim.duration = 50
@@ -99,7 +98,7 @@ class MainActivity : AppCompatActivity() {
                 queryPriceServer()
         }
 
-        tlMain = findViewById(R.id.main_table_layout)
+        llMain = findViewById(R.id.main_linear_layout)
         tvLastCGUpdate = findViewById(R.id.textview_header_last_update)
         tvPriceLabel = findViewById(R.id.textview_price)
         tvPrice = findViewById(R.id.textview_price_value)
@@ -197,36 +196,31 @@ class MainActivity : AppCompatActivity() {
             tvAddrActiveDeltaMonth.text = formatChangePercent(prefAddrActive[3])
 
             // change color of delta metrics
-            for (tableRow in tlMain.children) {
-                tableRow as TableRow
-                for (child in tableRow.children) {
+            for (row in llMain.children) {
+                row as LinearLayout
+                for (tv in row.children) {
+                    tv as TextView
 
-                    val childId = resources.getResourceName(child.id)
+                    val childId = resources.getResourceName(tv.id)
                     // not metric headers nor labels
                     if ("header" in childId || "label" in childId) continue
 
                     if ("week" in childId || "month" in childId) {
-                        // only textviews
-                        //if (child::class !is TextView) continue
-                        child as TextView
                         // positive deltas turn green
-                        if (child.text.toString().toFloat() > 0)
-                            child.setTextColor(getColor(R.color.green))
+                        if (tv.text.toString().toFloat() > 0)
+                            tv.setTextColor(getColor(R.color.green))
                         // positive deltas turn red, ignore zeros
-                        if (child.text.toString().toFloat() < 0)
-                            child.setTextColor(getColor(R.color.red))
+                        if (tv.text.toString().toFloat() < 0)
+                            tv.setTextColor(getColor(R.color.red))
                     }
                     // set corresponding metrics same color as day deltas
                     if ("day" in childId) {
-                        // only textviews
-                        //if (child::class !is TextView) continue
-                        child as TextView
                         // positive deltas green, neg red, zeros orange
-                        val color = if (child.text.toString().toFloat() > 0)
+                        val color = if (tv.text.toString().toFloat() > 0)
                                 getColor(R.color.green)
-                            else if (child.text.toString().toFloat() < 0)
+                            else if (tv.text.toString().toFloat() < 0)
                                 getColor(R.color.red) else getColor(R.color.orange)
-                        child.setTextColor(color)
+                        tv.setTextColor(color)
                         // also turn corresponding metrics same color as delta day
                         if ("price" in childId)
                             tvPrice.setTextColor(color)
@@ -263,6 +257,7 @@ class MainActivity : AppCompatActivity() {
             when (intent.action) {
                 BROADCAST_SHOW_TOAST -> {
                     intent.getStringExtra(MESSAGE)?.let { showToast(it) }
+                    return
                 }
                 BROADCAST_CG_PRICE_UPDATED -> {
                     prefPrice = intent.getStringExtra(CURR_PRICE).toString()
@@ -270,8 +265,7 @@ class MainActivity : AppCompatActivity() {
                     prefDayVolume = intent.getStringExtra(CURR_DAY_VOLUME).toString()
                     prefLastUpdate = intent.getStringExtra(CURR_LAST_UPDATE).toString()
 
-                    updateUI()
-                    lastReqTime = System.currentTimeMillis()
+                    lastCGReqTime = System.currentTimeMillis()
                 }
                 BROADCAST_CG_MARKET_CHARTS_UPDATED -> {
                     prefPriceDeltaDay = intent.getFloatExtra(PRICE_DELTA_DAY, 0f)
@@ -283,16 +277,15 @@ class MainActivity : AppCompatActivity() {
                     prefMarketCapDeltaDay = intent.getFloatExtra(MARKET_CAP_DELTA_DAY, 0f)
                     prefMarketCapDeltaWeek =intent.getFloatExtra(MARKET_CAP_DELTA_WEEK, 0f)
                     prefMarketCapDeltaMonth = intent.getFloatExtra(MARKET_CAP_DELTA_MONTH, 0f)
-                    updateUI()
                 }
                 BROADCAST_GN_METRICS_UPDATED -> {
                     val addAct = intent.getStringExtra(MTRC_STD_ADDR_ACT)?.let { getListFromJson(it) }
                     if (addAct != null)
                         prefAddrActive = addAct
-
-                    updateUI()
                 }
             }
+            savePrefs()
+            updateUI()
         }
     }
 
@@ -322,7 +315,7 @@ class MainActivity : AppCompatActivity() {
         if (addAct != null)
             prefAddrActive = getListFromJson(addAct)
         else prefAddrActive = mutableListOf(0f,0f,0f,0f)
-        //println("loaded sharedPrefs: ${sharedPrefs.all}")
+        println("loaded sharedPrefs: ${sharedPrefs.all}")
     }
 
     private fun savePrefs() {

@@ -1,218 +1,181 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_table_layout"
+    android:id="@+id/main_linear_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/black"
     tools:context=".BitcoinTickerFragment">
 
-    <TableRow
-        android:id="@+id/table_row_last_update_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10sp"
-        android:weightSum="7">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textview_header_category_market"
+            android:layout_width="80sp"
+            android:text="@string/category_market"
+            style="@style/MainMetricCategoryLabelText"/>
 
         <TextView
             android:id="@+id/textview_header_update_icon"
-            android:layout_column="1"
-            android:layout_weight="2"
+            android:layout_width="30sp"
             android:text="@string/sync_symbol"
-            style="@style/MainMetricLabelText"
-            android:textSize="28sp"
-            android:gravity="end"/>
+            android:textSize="26sp"
+            style="@style/MainMetricHeaderText" />
 
         <TextView
             android:id="@+id/textview_header_last_update"
-            android:layout_width="100sp"
-            android:layout_column="2"
-            android:layout_weight="2"
+            android:layout_width="@dimen/main_metric_label_width"
             android:text="@string/loading"
-            android:textSize="14sp"
-            style="@style/MainMetricLabelText"/>
+            android:textSize="11sp"
+            style="@style/MainMetricHeaderText"/>
 
         <TextView
             android:id="@+id/textview_header_delta_day"
-            android:layout_column="3"
-            android:layout_weight="1"
             android:text="@string/delta_day"
             style="@style/MainMetricHeaderText"/>
 
         <TextView
             android:id="@+id/textview_header_delta_week"
-            android:layout_column="4"
-            android:layout_weight="1"
             android:text="@string/delta_week"
             style="@style/MainMetricHeaderText"/>
 
         <TextView
             android:id="@+id/textview_header_delta_month"
-            android:layout_column="5"
-            android:layout_weight="1"
             android:text="@string/delta_month"
             style="@style/MainMetricHeaderText"/>
-    </TableRow>
 
-    <TableRow
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:weightSum="7">
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/textview_price"
-            android:layout_column="1"
-            android:layout_weight="2"
             android:text="@string/usd_btc"
             style="@style/MainMetricLabelText"/>
 
         <TextView
             android:id="@+id/textview_price_value"
-            android:layout_column="2"
-            android:layout_weight="2"
+            android:layout_width="@dimen/main_metric_label_width"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_price_delta_day_value"
-            android:layout_column="3"
-            android:layout_weight="1"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_price_delta_week_value"
-            android:layout_column="4"
-            android:layout_weight="1"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_price_delta_month_value"
-            android:layout_column="5"
-            android:layout_weight="1"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
-    </TableRow>
 
-    <TableRow
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:weightSum="7">
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/textview_market_cap"
-            android:layout_column="1"
-            android:layout_weight="2"
             android:text="@string/market_cap"
             style="@style/MainMetricLabelText"/>
         <TextView
             android:id="@+id/textview_market_cap_value"
-            android:layout_column="2"
-            android:layout_weight="2"
+            android:layout_width="@dimen/main_metric_label_width"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_market_cap_delta_day_value"
-            android:layout_column="3"
-            android:layout_weight="1"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_market_cap_delta_week_value"
-            android:layout_column="4"
-            android:layout_weight="1"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_market_cap_delta_month_value"
-            android:layout_column="5"
-            android:layout_weight="1"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
-    </TableRow>
 
-    <TableRow
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:weightSum="7">
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/textview_volume"
-            android:layout_column="1"
-            android:layout_weight="2"
             android:text="@string/day_volume"
             style="@style/MainMetricLabelText"/>
         <TextView
             android:id="@+id/textview_volume_value"
-            android:layout_column="2"
-            android:layout_weight="2"
+            android:layout_width="@dimen/main_metric_label_width"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_volume_delta_day_value"
-            android:layout_column="3"
-            android:layout_weight="1"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_volume_delta_week_value"
-            android:layout_column="4"
-            android:layout_weight="1"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_volume_delta_month_value"
-            android:layout_column="5"
-            android:layout_weight="1"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
-    </TableRow>
 
-    <TableRow
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:weightSum="7">
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textview_header_category_on_chain"
+            android:text="@string/category_on_chain"
+            style="@style/MainMetricCategoryLabelText"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/textview_addr_active"
-            android:layout_column="1"
-            android:layout_weight="2"
             android:text="@string/addr_active"
             style="@style/MainMetricLabelText"/>
         <TextView
             android:id="@+id/textview_addr_active_value"
-            android:layout_column="2"
-            android:layout_weight="2"
+            android:layout_width="@dimen/main_metric_label_width"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_addr_active_delta_day_value"
-            android:layout_column="3"
-            android:layout_weight="1"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_addr_active_delta_week_value"
-            android:layout_column="4"
-            android:layout_weight="1"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_addr_active_delta_month_value"
-            android:layout_column="5"
-            android:layout_weight="1"
             android:text="@string/loading"
             style="@style/MainMetricText"/>
-    </TableRow>
-
-</TableLayout>
+    </LinearLayout>
+</LinearLayout>
