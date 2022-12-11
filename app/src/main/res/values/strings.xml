@@ -23,6 +23,7 @@
     <string name="delta_week">wΔ%</string>
     <string name="delta_month">mΔ%</string>
     <string name="sync_symbol">&#8634;</string>
+    <string name="bitcoin_symbol">&#x20BF;</string>
     <string name="updating_metrics">updating metrics…</string>
 
     <!-- Settings -->
@@ -40,6 +41,9 @@
     <string name="reload_widget">reload widget</string>
     <string name="background_transparency">Background transparency</string>
     <string name="color">Color</string>
+    <string name="fee_median">Fees Median</string>
+    <string name="fee_mean">Fees Mean</string>
+    <string name="fee_total">Fees Total</string>
 
 
 </resources>

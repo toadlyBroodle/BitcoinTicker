@@ -57,11 +57,15 @@ private const val urlCGReqBtcMarketCharts = "https://api.coingecko.com/api/v3/co
 const val CATEGORY_NAME = "CATEGORY_NAME"
 const val CATEGORY_MARKET = "market"
 const val CATEGORY_ADDRESSES = "addresses"
+const val CATEGORY_FEES = "fees"
 const val CATEGORY_BLOCKCHAIN = "blockchain"
 const val CATEGORY_INDICATORS = "indicators"
 const val METRIC_NAME = "METRIC_NAME"
 const val METRIC_STD_ADDR_NEW = "new_non_zero_count"
 const val METRIC_STD_ADDR_ACT = "active_count"
+const val METRIC_STD_FEE_TOT = "volume_sum"
+const val METRIC_STD_FEE_MEAN = "volume_mean"
+const val METRIC_STD_FEE_MEDIAN = "volume_median"
 const val METRIC_STD_SOPR = "sopr"
 
 // Glass Node api metrics request url
@@ -241,6 +245,9 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 		// request active addresses
 		sendRequest(METRIC_STD_ADDR_ACT)
 		sendRequest(METRIC_STD_ADDR_NEW)
+		sendRequest(METRIC_STD_FEE_TOT)
+		sendRequest(METRIC_STD_FEE_MEAN)
+		sendRequest(METRIC_STD_FEE_MEDIAN)
 	}
 
 	private fun sendRequest(metric_name: String) {
@@ -248,6 +255,9 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 		when (metric_name) {
 			METRIC_STD_ADDR_ACT -> category = CATEGORY_ADDRESSES
 			METRIC_STD_ADDR_NEW -> category = CATEGORY_ADDRESSES
+			METRIC_STD_FEE_TOT -> category = CATEGORY_FEES
+			METRIC_STD_FEE_MEAN -> category = CATEGORY_FEES
+			METRIC_STD_FEE_MEDIAN -> category = CATEGORY_FEES
 		}
 
 		val urlActvAddr = urlGNReqMetric.replace(CATEGORY_NAME, category).replace(METRIC_NAME, metric_name)
@@ -307,7 +317,7 @@ fun parseCGJsonMarketCharts(json: String): DailyCGCharts {
 	return Gson().fromJson(json, typeToken)
 }
 
-data class GNMetricMap(val t: Int, val v: Int) {}
+data class GNMetricMap(val t: Int, val v: Float) {}
 fun parseGNJsonMetric(json: String): List<List<Number>>? {
 	try {
 		val typeToken = object : TypeToken<Array<GNMetricMap>>() {}.type
@@ -344,18 +354,29 @@ fun stringToInt (str: String?): Int {
 	return digits.toInt()
 }
 
-fun prettyBigNumber(str: String?): String? {
+fun prettyBigNumber(str: String?): String {
 	if (str.isNullOrBlank() || str == "null" || str == "-") return "-"
-	val number = str.toDouble()
+	val dbl = str.toDouble()
 	val suffix = charArrayOf(' ', 'k', 'M', 'B', 'T', 'P', 'E')
-	val numValue = number.toLong()
-	val value = floor(log10(numValue.toDouble())).toInt()
-	val base = value / 3
-	return if (value >= 3 && base < suffix.size) {
-		DecimalFormat("#0.00").format(
-			numValue / 10.0.pow((base * 3).toDouble())
+	val long = dbl.toLong()
+	val int = floor(log10(long.toDouble())).toInt()
+	val base = int / 3
+	return if (int >= 3 && base < suffix.size) {
+		DecimalFormat("##.##").format(
+			long / 10.0.pow((base * 3).toDouble())
 		) + suffix[base]
-	} else {
-		DecimalFormat("#,##0").format(numValue)
-	}
+	} else if (long in 100..1000) {
+		DecimalFormat("###.##").format(dbl)
+	} else if (long in 10..100) {
+		DecimalFormat("##.###").format(dbl)
+	} else if (long in 0..10) {
+		DecimalFormat("#.####").format(dbl)
+	} else dbl.toString()
 }
+
+fun btcToSats(float: Float?): String {
+	return if (float == null) "-"
+		else (float * 100000).toInt().toString()
+}
+
+

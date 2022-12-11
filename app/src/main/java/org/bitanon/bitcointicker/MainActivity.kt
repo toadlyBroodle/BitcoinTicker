@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefDayVolume: String
     private lateinit var prefMarketCap: String
     private lateinit var prefLastUpdate: String
+    private var lastCGReqTime: Long = 0
     private var prefPriceDeltaDay: Float = 0f
     private var prefPriceDeltaWeek: Float = 0f
     private var prefPriceDeltaMonth: Float = 0f
@@ -47,7 +48,9 @@ class MainActivity : AppCompatActivity() {
     private var prefMarketCapDeltaMonth: Float = 0f
     private var prefAddrNew: MutableList<Float>? = null
     private var prefAddrActive: MutableList<Float>? = null
-    private var lastCGReqTime: Long = 0
+    private var prefFeeTot: MutableList<Float>? = null
+    private var prefFeeMean: MutableList<Float>? = null
+    private var prefFeeMedian: MutableList<Float>? = null
 
     private lateinit var llMain: LinearLayout
     private lateinit var tvLastCGUpdate: TextView
@@ -73,6 +76,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvAddrActiveDeltaDay: TextView
     private lateinit var tvAddrActiveDeltaWeek: TextView
     private lateinit var tvAddrActiveDeltaMonth: TextView
+    private lateinit var tvFeeTot: TextView
+    private lateinit var tvFeeTotDeltaDay: TextView
+    private lateinit var tvFeeTotDeltaWeek: TextView
+    private lateinit var tvFeeTotDeltaMonth: TextView
+    private lateinit var tvFeeMean: TextView
+    private lateinit var tvFeeMeanDeltaDay: TextView
+    private lateinit var tvFeeMeanDeltaWeek: TextView
+    private lateinit var tvFeeMeanDeltaMonth: TextView
+    private lateinit var tvFeeMedian: TextView
+    private lateinit var tvFeeMedianDeltaDay: TextView
+    private lateinit var tvFeeMedianDeltaWeek: TextView
+    private lateinit var tvFeeMedianDeltaMonth: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,6 +142,18 @@ class MainActivity : AppCompatActivity() {
         tvAddrActiveDeltaDay = findViewById(R.id.textview_addr_active_delta_day_value)
         tvAddrActiveDeltaWeek = findViewById(R.id.textview_addr_active_delta_week_value)
         tvAddrActiveDeltaMonth = findViewById(R.id.textview_addr_active_delta_month_value)
+        tvFeeTot = findViewById(R.id.textview_fee_total_value)
+        tvFeeTotDeltaDay = findViewById(R.id.textview_fee_total_delta_day_value)
+        tvFeeTotDeltaWeek = findViewById(R.id.textview_fee_total_delta_week_value)
+        tvFeeTotDeltaMonth = findViewById(R.id.textview_fee_total_delta_month_value)
+        tvFeeMean = findViewById(R.id.textview_fee_mean_value)
+        tvFeeMeanDeltaDay = findViewById(R.id.textview_fee_mean_delta_day_value)
+        tvFeeMeanDeltaWeek = findViewById(R.id.textview_fee_mean_delta_week_value)
+        tvFeeMeanDeltaMonth = findViewById(R.id.textview_fee_mean_delta_month_value)
+        tvFeeMedian = findViewById(R.id.textview_fee_median_value)
+        tvFeeMedianDeltaDay = findViewById(R.id.textview_fee_median_delta_day_value)
+        tvFeeMedianDeltaWeek = findViewById(R.id.textview_fee_median_delta_week_value)
+        tvFeeMedianDeltaMonth = findViewById(R.id.textview_fee_median_delta_month_value)
      }
 
     override fun onResume() {
@@ -207,6 +234,19 @@ class MainActivity : AppCompatActivity() {
             tvAddrActiveDeltaDay.text = formatChangePercent(prefAddrActive?.get(1))
             tvAddrActiveDeltaWeek.text = formatChangePercent(prefAddrActive?.get(2))
             tvAddrActiveDeltaMonth.text = formatChangePercent(prefAddrActive?.get(3))
+            tvFeeTot.text = getString(R.string.bitcoin_symbol) +
+                    prettyBigNumber(prefFeeTot?.get(0).toString())
+            tvFeeTotDeltaDay.text = formatChangePercent(prefFeeTot?.get(1))
+            tvFeeTotDeltaWeek.text = formatChangePercent(prefFeeTot?.get(2))
+            tvFeeTotDeltaMonth.text = formatChangePercent(prefFeeTot?.get(3))
+            tvFeeMean.text = prettyBigNumber(btcToSats(prefFeeMean?.get(0))) + "s"
+            tvFeeMeanDeltaDay.text = formatChangePercent(prefFeeMean?.get(1))
+            tvFeeMeanDeltaWeek.text = formatChangePercent(prefFeeMean?.get(2))
+            tvFeeMeanDeltaMonth.text = formatChangePercent(prefFeeMean?.get(3))
+            tvFeeMedian.text = prettyBigNumber(btcToSats(prefFeeMedian?.get(0))) + "s"
+            tvFeeMedianDeltaDay.text = formatChangePercent(prefFeeMedian?.get(1))
+            tvFeeMedianDeltaWeek.text = formatChangePercent(prefFeeMedian?.get(2))
+            tvFeeMedianDeltaMonth.text = formatChangePercent(prefFeeMedian?.get(3))
 
             // change color of delta metrics
             for (row in llMain.children) {
@@ -241,6 +281,12 @@ class MainActivity : AppCompatActivity() {
                             tvAddrNew.setTextColor(color)
                         if ("addr_active" in tvId)
                             tvAddrActive.setTextColor(color)
+                        if ("fee_total" in tvId)
+                            tvFeeTot.setTextColor(color)
+                        if ("fee_mean" in tvId)
+                            tvFeeMean.setTextColor(color)
+                        if ("fee_median" in tvId)
+                            tvFeeMedian.setTextColor(color)
                     }
 
                     if ("week" in tvId || "month" in tvId) {
@@ -299,18 +345,25 @@ class MainActivity : AppCompatActivity() {
                     prefMarketCapDeltaMonth = intent.getFloatExtra(MARKET_CAP_DELTA_MONTH, 0f)
                 }
                 BROADCAST_GN_METRICS_UPDATED -> {
-                    val metricName = intent.getStringExtra(METRIC_NAME)
-                    when (metricName) {
+                    when (intent.getStringExtra(METRIC_NAME)) {
                         METRIC_STD_ADDR_NEW ->
                             prefAddrNew = intent.getStringExtra(METRIC_STD_ADDR_NEW)
                                 ?.let{ getListFromJson(it) }
                         METRIC_STD_ADDR_ACT ->
                             prefAddrActive = intent.getStringExtra(METRIC_STD_ADDR_ACT)
                                 ?.let { getListFromJson(it) }
+                        METRIC_STD_FEE_TOT ->
+                            prefFeeTot = intent.getStringExtra(METRIC_STD_FEE_TOT)
+                                ?.let { getListFromJson(it) }
+                        METRIC_STD_FEE_MEAN ->
+                            prefFeeMean = intent.getStringExtra(METRIC_STD_FEE_MEAN)
+                                ?.let { getListFromJson(it) }
+                        METRIC_STD_FEE_MEDIAN ->
+                            prefFeeMedian = intent.getStringExtra(METRIC_STD_FEE_MEDIAN)
+                                ?.let { getListFromJson(it) }
                     }
                 }
             }
-            savePrefs()
             updateUI()
         }
     }
@@ -341,6 +394,13 @@ class MainActivity : AppCompatActivity() {
         prefAddrNew = addrNew?.let { getListFromJson(it) }
         val addrAct = sharedPrefs.getString(METRIC_STD_ADDR_ACT, null)
         prefAddrActive = addrAct?.let { getListFromJson(it) }
+        val feeTot = sharedPrefs.getString(METRIC_STD_FEE_TOT, null)
+        prefFeeTot = feeTot?.let { getListFromJson(it) }
+        val feeMean = sharedPrefs.getString(METRIC_STD_FEE_MEAN, null)
+        prefFeeMean = feeMean?.let { getListFromJson(it) }
+        val feeMed = sharedPrefs.getString(METRIC_STD_FEE_MEDIAN, null)
+        prefFeeMedian = feeMed?.let { getListFromJson(it) }
+
         println("loaded sharedPrefs: ${sharedPrefs.all}")
     }
 
@@ -366,6 +426,9 @@ class MainActivity : AppCompatActivity() {
             putFloat(MARKET_CAP_DELTA_MONTH, prefMarketCapDeltaMonth)
             putString(METRIC_STD_ADDR_NEW, Gson().toJson(prefAddrNew))
             putString(METRIC_STD_ADDR_ACT, Gson().toJson(prefAddrActive))
+            putString(METRIC_STD_FEE_TOT, Gson().toJson(prefFeeTot))
+            putString(METRIC_STD_FEE_MEAN, Gson().toJson(prefFeeMean))
+            putString(METRIC_STD_FEE_MEDIAN, Gson().toJson(prefFeeMedian))
 
         }.commit()
         println("saved sharedPrefs: ${prefs.all}")
