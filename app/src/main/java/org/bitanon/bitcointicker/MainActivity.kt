@@ -18,9 +18,12 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.work.*
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import org.bitanon.bitcointicker.databinding.ActivityMainBinding
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 const val MAIN_PREFS = "main_prefs"
 
@@ -43,6 +46,7 @@ class MainActivity : AppCompatActivity() {
     private var prefMarketCapDeltaDay: Float = 0f
     private var prefMarketCapDeltaWeek: Float = 0f
     private var prefMarketCapDeltaMonth: Float = 0f
+    private lateinit var prefAddrActive: MutableList<Float?>
     private var lastReqTime: Long = 0
 
     private lateinit var tlMain: TableLayout
@@ -122,8 +126,9 @@ class MainActivity : AppCompatActivity() {
         // register broadcast receiver
         val filters = IntentFilter()
         filters.addAction(BROADCAST_SHOW_TOAST)
-        filters.addAction(BROADCAST_PRICE_UPDATED)
-        filters.addAction(BROADCAST_MARKET_CHARTS_UPDATED)
+        filters.addAction(BROADCAST_CG_PRICE_UPDATED)
+        filters.addAction(BROADCAST_CG_MARKET_CHARTS_UPDATED)
+        filters.addAction(BROADCAST_GN_METRICS_UPDATED)
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filters)
     }
 
@@ -249,7 +254,7 @@ class MainActivity : AppCompatActivity() {
                 BROADCAST_SHOW_TOAST -> {
                     intent.getStringExtra(MESSAGE)?.let { showToast(it) }
                 }
-                BROADCAST_PRICE_UPDATED -> {
+                BROADCAST_CG_PRICE_UPDATED -> {
                     prefPrice = intent.getStringExtra(CURR_PRICE).toString()
                     prefMarketCap = intent.getStringExtra(CURR_MARKET_CAP).toString()
                     prefDayVolume = intent.getStringExtra(CURR_DAY_VOLUME).toString()
@@ -258,7 +263,7 @@ class MainActivity : AppCompatActivity() {
                     updateUI()
                     lastReqTime = System.currentTimeMillis()
                 }
-                BROADCAST_MARKET_CHARTS_UPDATED -> {
+                BROADCAST_CG_MARKET_CHARTS_UPDATED -> {
                     prefPriceDeltaDay = intent.getFloatExtra(PRICE_DELTA_DAY, 0f)
                     prefPriceDeltaWeek = intent.getFloatExtra(PRICE_DELTA_WEEK, 0f)
                     prefPriceDeltaMonth = intent.getFloatExtra(PRICE_DELTA_MONTH, 0f)
@@ -270,6 +275,13 @@ class MainActivity : AppCompatActivity() {
                     prefMarketCapDeltaMonth = intent.getFloatExtra(MARKET_CAP_DELTA_MONTH, 0f)
                     savePrefs()
                     updateUI()
+                }
+                BROADCAST_GN_METRICS_UPDATED -> {
+                    val jsonStr = intent.getStringExtra(MTRC_STD_ADDR_ACT)
+                    val type = object : TypeToken<MutableList<Float?>>() {}.type
+                    prefAddrActive = Gson().fromJson(jsonStr, type)
+
+                    println(prefAddrActive)
                 }
             }
         }

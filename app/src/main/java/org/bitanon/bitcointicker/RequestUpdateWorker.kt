@@ -23,16 +23,21 @@ import kotlin.math.floor
 import kotlin.math.log10
 import kotlin.math.pow
 
+const val WIDGIT_ID = "WIDGET_ID"
+
+// local broadcast filters
 const val BROADCAST_SHOW_TOAST = "org.bitanon.bitcointicker.BROADCAST_SHOW_TOAST"
-const val BROADCAST_PRICE_UPDATED = "org.bitanon.bitcointicker.BROADCAST_PRICE_UPDATED"
-const val BROADCAST_MARKET_CHARTS_UPDATED = "org.bitanon.bitcointicker.BROADCAST_MARKET_CHARTS_UPDATED"
+const val BROADCAST_CG_PRICE_UPDATED = "org.bitanon.bitcointicker.BROADCAST_CG_PRICE_UPDATED"
+const val BROADCAST_CG_MARKET_CHARTS_UPDATED = "org.bitanon.bitcointicker.BROADCAST_CG_MARKET_CHARTS_UPDATED"
+const val BROADCAST_GN_METRICS_UPDATED = "org.bitanon.bitcointicker.BROADCAST_GN_METRICS_UPDATED"
+
+// Coin Gecko metrics
 const val CURRENCY = "PREF_CURRENCY"
 const val MESSAGE = "MESSAGE"
 const val CURR_PRICE = "CURR_PRICE"
 const val CURR_DAY_VOLUME = "CURR_DAY_VOLUME"
 const val CURR_MARKET_CAP = "CURR_MARKET_CAP"
 const val CURR_LAST_UPDATE = "CURR_LAST_UPDATE"
-const val WIDGIT_ID = "WIDGET_ID"
 const val PRICE_DELTA_DAY = "PRICE_DELTA_DAY"
 const val PRICE_DELTA_WEEK = "PRICE_DELTA_WEEK"
 const val PRICE_DELTA_MONTH = "PRICE_DELTA_MONTH"
@@ -42,11 +47,23 @@ const val VOLUME_DELTA_MONTH = "VOLUME_DELTA_MONTH"
 const val MARKET_CAP_DELTA_DAY = "MARKET_CAP_DELTA_DAY"
 const val MARKET_CAP_DELTA_WEEK = "MARKET_CAP_DELTA_WEEK"
 const val MARKET_CAP_DELTA_MONTH = "MARKET_CAP_DELTA_MONTH"
-
-private const val urlCGReqPing = "https://api.coingecko.com/api/v3/ping"
-private const val urlCGReqBtcSimplePrice = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true&precision=0"
-//private const val urlCGReqBtcCommunity = "https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&market_data=false&community_data=true&developer_data=true&sparkline=false"
+// Coin Gecko api url requests
+const val urlCGReqPing = "https://api.coingecko.com/api/v3/ping"
+const val urlCGReqBtcSimplePrice = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true&precision=0"
 private const val urlCGReqBtcMarketCharts = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=29&interval=daily"
+//private const val urlCGReqBtcCommunity = "https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&market_data=false&community_data=true&developer_data=true&sparkline=false"
+
+// Glass Node API categories and standard metrics
+const val CATEGORY = "CTGY"
+const val CTGY_ADDR = "addresses"
+const val CTGY_BLKCHN = "blockchain"
+const val CTGY_INDCTR = "indicators"
+const val METRIC = "MTRC"
+const val MTRC_STD_ADDR_ACT = "active_count"
+const val MTRC_STD_SOPR = "sopr"
+// Glass Node api url requests
+private const val GN_API_KEY = "2IAEmfitRCvwMC16c1Qtrr61XXE"
+private const val urlGNReqMetric= "https://api.glassnode.com/v1/metrics/$CATEGORY/$METRIC?a=btc&api_key=$GN_API_KEY"
 
 class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerParameters)
 	: CoroutineWorker(appContext, workerParams) {
@@ -95,6 +112,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 
 		if (prefCurr != null) {
 			pingCoinGeckoCom(prefCurr)
+			getReqGlassNodeMetrics()
 		}
 
 		return Result.success()
@@ -107,15 +125,15 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 
 		client.newCall(request).enqueue(object : Callback {
 			override fun onFailure(call: Call, e: IOException) {
-				println("ping failed: ${e.message}")
-				sendMainToast(appContext.getString(R.string.fail_contact_server))
+				println("coingecko.com ping failed: ${e.message}")
+				sendMainToast(appContext.getString(R.string.fail_contact_cg_server))
 			}
 			override fun onResponse(call: Call, response: Response) {
 				if (response.body()?.string()?.contains("(V3) To the Moon!") == true) {
-					println("ping echoed")
+					println("coingecko.com ping echoed")
 					getCoinGeckoCurrentPrice(prefCurrency)
 				}
-				else sendMainToast(appContext.getString(R.string.bad_server_response))
+				else sendMainToast(appContext.getString(R.string.bad_cg_server_response))
 			}
 		})
 	}
@@ -137,7 +155,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 			override fun onResponse(call: Call, response: Response) {
 				println("coingeck.com responded with simple price metrics")
 
-				val jsonObj = parseJsonCurrentMarkets(response.body()!!.string())
+				val jsonObj = parseCGJsonCurrentMarkets(response.body()!!.string())
 
 				val price = jsonObj.getString(prefCurrency.lowercase())
 				val volume = jsonObj.getString("${prefCurrency.lowercase()}_24h_vol")
@@ -145,7 +163,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 				val lastUpdate = jsonObj.getString("last_updated_at")
 
 				val intent = Intent().apply {
-					action = BROADCAST_PRICE_UPDATED
+					action = BROADCAST_CG_PRICE_UPDATED
 					putExtra(WIDGIT_ID, widgetId)
 					putExtra(CURR_PRICE, price)
 					putExtra(CURR_DAY_VOLUME, volume)
@@ -166,7 +184,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 		})
 	}
 
-	fun getCoinGeckoDailyMarketCharts(prefCurrency: String, markets: List<Float>) {
+	fun getCoinGeckoDailyMarketCharts(prefCurrency: String, currData: List<Float>) {
 
 		//build correct url based on currency preference
 		val cur = prefCurrency.lowercase()
@@ -183,16 +201,21 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 			override fun onResponse(call: Call, response: Response) {
 				println("coingeck.com responded with market charts")
 
-				val charts = parseJsonMarketCharts(response.body()!!.string())
+				val charts = parseCGJsonMarketCharts(response.body()!!.string())
+
+				// replace current day with most recently updated values
+				charts.prices[charts.prices.lastIndex][1] = currData[0]
+				charts.market_caps[charts.market_caps.lastIndex][1] = currData[1]
+				charts.total_volumes[charts.total_volumes.lastIndex][1] = currData[2]
 
 				// get deltas
-				val priceDeltas = Calculator.getDeltas(charts.prices, markets[0])
-				val volumeDeltas = Calculator.getDeltas(charts.total_volumes, markets[2])
-				val marketCapDeltas = Calculator.getDeltas(charts.market_caps, markets[1])
+				val priceDeltas = Calculator.getDeltas(charts.prices)
+				val marketCapDeltas = Calculator.getDeltas(charts.market_caps)
+				val volumeDeltas = Calculator.getDeltas(charts.total_volumes)
 				//println("priceDeltas-> daily: ${priceDeltas[0]}, weekly: ${priceDeltas[1]}, monthly: ${priceDeltas[2]}")
 
 				val intent = Intent().apply {
-					action = BROADCAST_MARKET_CHARTS_UPDATED
+					action = BROADCAST_CG_MARKET_CHARTS_UPDATED
 					putExtra(WIDGIT_ID, widgetId)
 					putExtra(PRICE_DELTA_DAY, priceDeltas[0])
 					putExtra(PRICE_DELTA_WEEK, priceDeltas[1])
@@ -211,6 +234,41 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 		})
 	}
 
+	fun getReqGlassNodeMetrics() {
+		// request active addresses
+		val urlActvAddr = urlGNReqMetric.replace(CATEGORY, CTGY_ADDR).replace(METRIC, MTRC_STD_ADDR_ACT)
+		val request = Request.Builder()
+			.url(urlActvAddr)
+			.build()
+
+		client.newCall(request).enqueue(object : Callback {
+			override fun onFailure(call: Call, e: IOException) {
+				println("api.glassnode.com request failed: ${e.message}")
+				sendMainToast(appContext.getString(R.string.fail_contact_gn_server))
+			}
+			override fun onResponse(call: Call, response: Response) {
+				println("api.glassnode.com responded with active addresses")
+
+				// parse glassnode json response
+				val listOfLists = response.body()?.let { parseGNJsonMetric(it.string()) }
+
+				// get deltas
+				val actAddrDeltas = listOfLists?.let { Calculator.getDeltas(it) }
+
+				val intent = Intent().apply {
+					action = BROADCAST_GN_METRICS_UPDATED
+					putExtra(WIDGIT_ID, widgetId)
+					// serialize deltas list and add to intent
+					putExtra(MTRC_STD_ADDR_ACT, Gson().toJson(actAddrDeltas))
+				}
+				LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
+
+				// close response body once done with it
+				response.body()!!.close()
+			}
+		})
+	}
+
 	private fun sendMainToast(message: String) {
 		val intent = Intent().apply {
 			action = BROADCAST_SHOW_TOAST
@@ -221,17 +279,35 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 	}
 }
 
-fun parseJsonCurrentMarkets(json: String): JSONObject {
-	// get JSONObject from JSON file
+fun parseCGJsonCurrentMarkets(json: String): JSONObject {
+	// get JSONObject from JSON string
 	val obj = JSONObject(json)
 	return obj.getJSONObject("bitcoin")
 }
 
-fun parseJsonMarketCharts(json: String): DailyCGCharts {
+data class DailyCGCharts(var prices: List<MutableList<Number>>,
+						 var market_caps: List<MutableList<Number>>,
+						 var total_volumes: List<MutableList<Number>>) {}
+fun parseCGJsonMarketCharts(json: String): DailyCGCharts {
 	val typeToken = object : TypeToken<DailyCGCharts>() {}.type
 	return Gson().fromJson(json, typeToken)
 }
 
+data class GNMetricMap(val t: Int, val v: Int) {}
+fun parseGNJsonMetric(json: String): List<List<Number>> {
+	val typeToken = object : TypeToken<Array<GNMetricMap>>() {}.type
+	val arrayOfMaps: Array<GNMetricMap> = Gson().fromJson(json, typeToken)
+	// convert glassnode data from <Array<GNMetricMap>> to List<List<Number>> format
+	val listOfListOfNum = mutableListOf<List<Number>>()
+	// fill list with last 30 days of data
+	for ((i, map) in arrayOfMaps.withIndex().reversed()) {
+		listOfListOfNum.add(listOf<Number>(map.t, map.v))
+		if (i <= arrayOfMaps.size - 30) break
+	} // return reverse ordered list
+	return listOfListOfNum.reversed()
+}
+
+// Formatting functions
 fun numberToCurrency(number: String?, prefCurrency: String): String {
 	if (number == "…") return "…"
 	val int = stringToInt(number)
@@ -264,7 +340,3 @@ fun prettyBigNumber(str: String): String? {
 		DecimalFormat("#,##0").format(numValue)
 	}
 }
-
-data class DailyCGCharts(var prices: List<List<Number>>,
-						 var market_caps: List<List<Number>>,
-						 var total_volumes: List<List<Number>>) {}

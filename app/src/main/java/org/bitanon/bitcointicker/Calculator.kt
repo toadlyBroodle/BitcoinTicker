@@ -2,19 +2,19 @@ package org.bitanon.bitcointicker
 
 class Calculator {
 	companion object {
-		// replace today's values with most current
-		fun getDeltas(chart: List<List<Number>>, curr: Float): MutableList<Float> {
+
+		fun getDeltas(chart: List<List<Number>>): MutableList<Float> {
 			val deltas = mutableListOf(0f, 0f, 0f) //daily, weekly, monthly changes
 
 			val vals = getValues(chart)
 			val lstInd = vals.lastIndex
 			val averages = getAverages(chart)
 			// calculate daily percent delta
-			deltas[0] = getPercDelta(curr, vals[lstInd - 1])
+			deltas[0] = getPercDelta(vals[lstInd], vals[lstInd - 1])
 			// calculate percent delta from weekly SMA
-			deltas[1] = getPercDelta(curr, averages[0])
+			deltas[1] = getPercDelta(vals[lstInd], averages[0])
 			// calculate percent delta from monthly SMA
-			deltas[2] = getPercDelta(curr, averages[1])
+			deltas[2] = getPercDelta(vals[lstInd], averages[1])
 			//println("calculated deltas -> daily: ${deltas[0]}, weekly: ${deltas[1]}, monthly: ${deltas[2]}")
 			return deltas
 		}
@@ -35,6 +35,7 @@ class Calculator {
 			return avgs
 		}
 
+		// strip first time indexes from day lists
 		fun getValues(chart: List<List<Number>>): List<Float> {
 			val vals = mutableListOf<Float>()
 			for (day in chart) {

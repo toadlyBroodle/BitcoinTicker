@@ -45,8 +45,8 @@ class AppWidget : AppWidgetProvider() {
     override fun onEnabled(context: Context) {
         // register price and widget button update receivers
         val filters = IntentFilter()
-        filters.addAction(BROADCAST_PRICE_UPDATED)
-        filters.addAction(BROADCAST_MARKET_CHARTS_UPDATED)
+        filters.addAction(BROADCAST_CG_PRICE_UPDATED)
+        filters.addAction(BROADCAST_CG_MARKET_CHARTS_UPDATED)
         filters.addAction(BROADCAST_WIDGET_UPDATE_BUTTON_CLICK)
         // TODO integrate BROADCAST_MARKET_CHARTS_UPDATED
         LocalBroadcastManager.getInstance(context.applicationContext).registerReceiver(br, filters)
@@ -84,7 +84,7 @@ class AppWidget : AppWidgetProvider() {
                         WorkManager.getInstance(context).enqueue(priceReq.build())
                     }
                 }
-                BROADCAST_PRICE_UPDATED -> {
+                BROADCAST_CG_PRICE_UPDATED -> {
                     val price = intent.getStringExtra(CURR_PRICE)
                     val dayVolume = intent.getStringExtra(CURR_DAY_VOLUME).toString()
                     val marketCap = intent.getStringExtra(CURR_MARKET_CAP).toString()
@@ -101,7 +101,7 @@ class AppWidget : AppWidgetProvider() {
                     println("saved widget$widgetId prefs:${prefs?.all}")
                     updateWidget(context, widgetId)
                 }
-                BROADCAST_MARKET_CHARTS_UPDATED -> {
+                BROADCAST_CG_MARKET_CHARTS_UPDATED -> {
                     val priceDeltaDay = intent.getFloatExtra(PRICE_DELTA_DAY, 0f)
                     val priceDeltaWeek = intent.getFloatExtra(PRICE_DELTA_WEEK, 0f)
                     val priceDeltaMonth = intent.getFloatExtra(PRICE_DELTA_MONTH, 0f)

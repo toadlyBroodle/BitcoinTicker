@@ -7,8 +7,10 @@
     <string name="usd">USD</string>
     <string name="usd_btc">USD/BTC</string>
     <string name="loading">…</string>
-    <string name="fail_contact_server">problem contacting server…</string>
-    <string name="bad_server_response">bad response from server</string>
+    <string name="fail_contact_cg_server">problem contacting coingecko.com…</string>
+    <string name="fail_contact_gn_server">problem contacting api.glassnode.com…</string>
+    <string name="bad_cg_server_response">bad response from coingecko.com</string>
+    <!--<string name="bad_gn_server_response">bad response from api.glassnode.com</string>-->
     <string name="market_cap">Market Cap</string>
     <string name="metric">Metric</string>
     <string name="value">Value</string>
