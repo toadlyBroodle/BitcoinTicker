@@ -217,15 +217,15 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 				val intent = Intent().apply {
 					action = BROADCAST_CG_MARKET_CHARTS_UPDATED
 					putExtra(WIDGIT_ID, widgetId)
-					putExtra(PRICE_DELTA_DAY, priceDeltas[0])
-					putExtra(PRICE_DELTA_WEEK, priceDeltas[1])
-					putExtra(PRICE_DELTA_MONTH, priceDeltas[2])
-					putExtra(VOLUME_DELTA_DAY, volumeDeltas[0])
-					putExtra(VOLUME_DELTA_WEEK, volumeDeltas[1])
-					putExtra(VOLUME_DELTA_MONTH, volumeDeltas[2])
-					putExtra(MARKET_CAP_DELTA_DAY, marketCapDeltas[0])
-					putExtra(MARKET_CAP_DELTA_WEEK, marketCapDeltas[1])
-					putExtra(MARKET_CAP_DELTA_MONTH, marketCapDeltas[2])
+					putExtra(PRICE_DELTA_DAY, priceDeltas[1])
+					putExtra(PRICE_DELTA_WEEK, priceDeltas[2])
+					putExtra(PRICE_DELTA_MONTH, priceDeltas[3])
+					putExtra(VOLUME_DELTA_DAY, volumeDeltas[1])
+					putExtra(VOLUME_DELTA_WEEK, volumeDeltas[2])
+					putExtra(VOLUME_DELTA_MONTH, volumeDeltas[3])
+					putExtra(MARKET_CAP_DELTA_DAY, marketCapDeltas[1])
+					putExtra(MARKET_CAP_DELTA_WEEK, marketCapDeltas[2])
+					putExtra(MARKET_CAP_DELTA_MONTH, marketCapDeltas[3])
 				}
 				LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
 				// close response body once done with it

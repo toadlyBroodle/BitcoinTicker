@@ -46,26 +46,29 @@ class MainActivity : AppCompatActivity() {
     private var prefMarketCapDeltaDay: Float = 0f
     private var prefMarketCapDeltaWeek: Float = 0f
     private var prefMarketCapDeltaMonth: Float = 0f
-    private lateinit var prefAddrActive: MutableList<Float?>
+    private lateinit var prefAddrActive: MutableList<Float>
     private var lastReqTime: Long = 0
 
     private lateinit var tlMain: TableLayout
-    private lateinit var tvLastPriceUpdate: TextView
-    private lateinit var tvPriceUnits: TextView
-    private lateinit var tvPrice: TextView
-    private lateinit var tvMarketCap: TextView
-    private lateinit var tvVolume: TextView
-    private lateinit var tvLastUpdate: TextView
+    private lateinit var tvLastCGUpdate: TextView
     private lateinit var tvUpdateIcon: TextView
+    private lateinit var tvPriceLabel: TextView
+    private lateinit var tvPrice: TextView
     private lateinit var tvPriceDeltaDay: TextView
     private lateinit var tvPriceDeltaWeek: TextView
     private lateinit var tvPriceDeltaMonth: TextView
+    private lateinit var tvVolume: TextView
     private lateinit var tvVolumeDeltaDay: TextView
     private lateinit var tvVolumeDeltaWeek: TextView
     private lateinit var tvVolumeDeltaMonth: TextView
+    private lateinit var tvMarketCap: TextView
     private lateinit var tvMarketCapDeltaDay: TextView
     private lateinit var tvMarketCapDeltaWeek: TextView
     private lateinit var tvMarketCapDeltaMonth: TextView
+    private lateinit var tvAddrActive: TextView
+    private lateinit var tvAddrActiveDeltaDay: TextView
+    private lateinit var tvAddrActiveDeltaWeek: TextView
+    private lateinit var tvAddrActiveDeltaMonth: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,7 +83,6 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         tvUpdateIcon = findViewById(R.id.textview_header_update_icon)
-        tvLastPriceUpdate = findViewById(R.id.textview_header_last_update)
         // update price on touch top table row
         tvUpdateIcon.setOnClickListener{
             //if last update less than 1m ago,
@@ -92,26 +94,31 @@ class MainActivity : AppCompatActivity() {
                 anim.repeatMode = Animation.REVERSE
                 anim.repeatCount = 1
                 tvUpdateIcon.startAnimation(anim)
-                tvLastUpdate.startAnimation(anim)
+                tvLastCGUpdate.startAnimation(anim)
             } else
                 queryPriceServer()
         }
 
         tlMain = findViewById(R.id.main_table_layout)
-        tvLastUpdate = findViewById(R.id.textview_header_last_update)
-        tvPriceUnits = findViewById(R.id.textview_price)
+        tvLastCGUpdate = findViewById(R.id.textview_header_last_update)
+        tvPriceLabel = findViewById(R.id.textview_price)
         tvPrice = findViewById(R.id.textview_price_value)
-        tvMarketCap = findViewById(R.id.textview_market_cap_value)
-        tvVolume = findViewById(R.id.textview_volume_value)
         tvPriceDeltaDay = findViewById(R.id.textview_price_delta_day_value)
         tvPriceDeltaWeek = findViewById(R.id.textview_price_delta_week_value)
         tvPriceDeltaMonth = findViewById(R.id.textview_price_delta_month_value)
+        tvVolume = findViewById(R.id.textview_volume_value)
         tvVolumeDeltaDay = findViewById(R.id.textview_volume_delta_day_value)
         tvVolumeDeltaWeek = findViewById(R.id.textview_volume_delta_week_value)
         tvVolumeDeltaMonth = findViewById(R.id.textview_volume_delta_month_value)
+        tvMarketCap = findViewById(R.id.textview_market_cap_value)
         tvMarketCapDeltaDay = findViewById(R.id.textview_market_cap_delta_day_value)
         tvMarketCapDeltaWeek = findViewById(R.id.textview_market_cap_delta_week_value)
         tvMarketCapDeltaMonth = findViewById(R.id.textview_market_cap_delta_month_value)
+
+        tvAddrActive = findViewById(R.id.textview_addr_active_value)
+        tvAddrActiveDeltaDay = findViewById(R.id.textview_addr_active_delta_day_value)
+        tvAddrActiveDeltaWeek = findViewById(R.id.textview_addr_active_delta_week_value)
+        tvAddrActiveDeltaMonth = findViewById(R.id.textview_addr_active_delta_month_value)
      }
 
     override fun onResume() {
@@ -170,21 +177,24 @@ class MainActivity : AppCompatActivity() {
     fun updateUI() {
         //update price
         runOnUiThread {
-            tvLastUpdate.text = getDateTime(prefLastUpdate)
-            tvPriceUnits.text = "$prefCurrency/BTC"
-
+            tvLastCGUpdate.text = getDateTime(prefLastUpdate)
+            tvPriceLabel.text = "$prefCurrency/BTC"
             tvPrice.text = numberToCurrency(prefPrice, prefCurrency)
-            tvVolume.text = prettyBigNumber(prefDayVolume)
-            tvMarketCap.text = prettyBigNumber(prefMarketCap)
             tvPriceDeltaDay.text = formatChangePercent(prefPriceDeltaDay)
             tvPriceDeltaWeek.text = formatChangePercent(prefPriceDeltaWeek)
             tvPriceDeltaMonth.text = formatChangePercent(prefPriceDeltaMonth)
+            tvVolume.text = prettyBigNumber(prefDayVolume)
             tvVolumeDeltaDay.text = formatChangePercent(prefVolumeDeltaDay)
             tvVolumeDeltaWeek.text = formatChangePercent(prefVolumeDeltaWeek)
             tvVolumeDeltaMonth.text = formatChangePercent(prefVolumeDeltaMonth)
+            tvMarketCap.text = prettyBigNumber(prefMarketCap)
             tvMarketCapDeltaDay.text = formatChangePercent(prefMarketCapDeltaDay)
             tvMarketCapDeltaWeek.text = formatChangePercent(prefMarketCapDeltaWeek)
             tvMarketCapDeltaMonth.text = formatChangePercent(prefMarketCapDeltaMonth)
+            tvAddrActive.text = prettyBigNumber(prefAddrActive[0].toString())
+            tvAddrActiveDeltaDay.text = formatChangePercent(prefAddrActive[1])
+            tvAddrActiveDeltaWeek.text = formatChangePercent(prefAddrActive[2])
+            tvAddrActiveDeltaMonth.text = formatChangePercent(prefAddrActive[3])
 
             // change color of delta metrics
             for (tableRow in tlMain.children) {
@@ -220,12 +230,12 @@ class MainActivity : AppCompatActivity() {
                         // also turn corresponding metrics same color as delta day
                         if ("price" in childId)
                             tvPrice.setTextColor(color)
-                        // also turn corresponding metrics same color as delta day
                         if ("market_cap" in childId)
                             tvMarketCap.setTextColor(color)
-                        // also turn corresponding metrics same color as delta day
                         if ("volume" in childId)
                             tvVolume.setTextColor(color)
+                        if ("addr_active" in childId)
+                            tvAddrActive.setTextColor(color)
                     }
                 }
             }
@@ -273,15 +283,14 @@ class MainActivity : AppCompatActivity() {
                     prefMarketCapDeltaDay = intent.getFloatExtra(MARKET_CAP_DELTA_DAY, 0f)
                     prefMarketCapDeltaWeek =intent.getFloatExtra(MARKET_CAP_DELTA_WEEK, 0f)
                     prefMarketCapDeltaMonth = intent.getFloatExtra(MARKET_CAP_DELTA_MONTH, 0f)
-                    savePrefs()
                     updateUI()
                 }
                 BROADCAST_GN_METRICS_UPDATED -> {
-                    val jsonStr = intent.getStringExtra(MTRC_STD_ADDR_ACT)
-                    val type = object : TypeToken<MutableList<Float?>>() {}.type
-                    prefAddrActive = Gson().fromJson(jsonStr, type)
+                    val addAct = intent.getStringExtra(MTRC_STD_ADDR_ACT)?.let { getListFromJson(it) }
+                    if (addAct != null)
+                        prefAddrActive = addAct
 
-                    println(prefAddrActive)
+                    updateUI()
                 }
             }
         }
@@ -308,6 +317,11 @@ class MainActivity : AppCompatActivity() {
         prefMarketCapDeltaDay = sharedPrefs.getFloat(MARKET_CAP_DELTA_DAY, 0f)
         prefMarketCapDeltaWeek = sharedPrefs.getFloat(MARKET_CAP_DELTA_WEEK , 0f)
         prefMarketCapDeltaMonth = sharedPrefs.getFloat(MARKET_CAP_DELTA_MONTH, 0f)
+
+        val addAct = sharedPrefs.getString(MTRC_STD_ADDR_ACT, null)
+        if (addAct != null)
+            prefAddrActive = getListFromJson(addAct)
+        else prefAddrActive = mutableListOf(0f,0f,0f,0f)
         //println("loaded sharedPrefs: ${sharedPrefs.all}")
     }
 
@@ -331,10 +345,16 @@ class MainActivity : AppCompatActivity() {
             putFloat(MARKET_CAP_DELTA_DAY, prefMarketCapDeltaDay)
             putFloat(MARKET_CAP_DELTA_WEEK, prefMarketCapDeltaWeek)
             putFloat(MARKET_CAP_DELTA_MONTH, prefMarketCapDeltaMonth)
+            putString(MTRC_STD_ADDR_ACT, Gson().toJson(prefAddrActive))
 
         }.commit()
         println("saved sharedPrefs: ${prefs.all}")
     }
+}
+
+fun getListFromJson(jsonStr: String): MutableList<Float> {
+    val type = object : TypeToken<MutableList<Float>>() {}.type
+    return Gson().fromJson(jsonStr, type)
 }
 
 fun formatChangePercent(dc: Float): CharSequence {

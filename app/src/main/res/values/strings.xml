@@ -15,10 +15,12 @@
     <string name="metric">Metric</string>
     <string name="value">Value</string>
     <string name="day_volume">24h Volume</string>
+    <string name="addr_active">Addr. Active</string>
     <string name="delta_day">dΔ%</string>
     <string name="delta_week">wΔ%</string>
     <string name="delta_month">mΔ%</string>
     <string name="sync_symbol">&#8634;</string>
+    <string name="updating_metrics">updating metrics…</string>
 
     <!-- Settings -->
     <string name="settings">Settings</string>
@@ -35,7 +37,6 @@
     <string name="reload_widget">reload widget</string>
     <string name="background_transparency">Background transparency</string>
     <string name="color">Color</string>
-    <string name="updating_metrics">updating metrics…</string>
 
 
 </resources>

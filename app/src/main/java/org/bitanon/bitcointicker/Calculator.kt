@@ -4,17 +4,19 @@ class Calculator {
 	companion object {
 
 		fun getDeltas(chart: List<List<Number>>): MutableList<Float> {
-			val deltas = mutableListOf(0f, 0f, 0f) //daily, weekly, monthly changes
+			val deltas = mutableListOf(0f, 0f, 0f, 0f) //value, daily, weekly, monthly changes
 
 			val vals = getValues(chart)
 			val lstInd = vals.lastIndex
 			val averages = getAverages(chart)
+
+			deltas[0] = vals[lstInd]
 			// calculate daily percent delta
-			deltas[0] = getPercDelta(vals[lstInd], vals[lstInd - 1])
+			deltas[1] = getPercDelta(vals[lstInd], vals[lstInd - 1])
 			// calculate percent delta from weekly SMA
-			deltas[1] = getPercDelta(vals[lstInd], averages[0])
+			deltas[2] = getPercDelta(vals[lstInd], averages[0])
 			// calculate percent delta from monthly SMA
-			deltas[2] = getPercDelta(vals[lstInd], averages[1])
+			deltas[3] = getPercDelta(vals[lstInd], averages[1])
 			//println("calculated deltas -> daily: ${deltas[0]}, weekly: ${deltas[1]}, monthly: ${deltas[2]}")
 			return deltas
 		}

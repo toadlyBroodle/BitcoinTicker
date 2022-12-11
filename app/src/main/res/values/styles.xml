@@ -23,7 +23,7 @@
 
     <style name="MainMetricLabelText" parent="TextAppearance.AppCompat">
         <item name="android:textColor">?android:colorPrimary</item>
-        <item name="android:textSize">@dimen/main_metric_header_text_size</item>
+        <item name="android:textSize">@dimen/main_metric_label_text_size</item>
         <item name="android:padding">@dimen/main_text_padding</item>
         <item name="android:paddingStart">@dimen/main_metric_label_padding_start</item>
         <item name="android:gravity">start</item>
@@ -31,6 +31,8 @@
     </style>
 
     <style name="MainMetricText" parent="TextAppearance.AppCompat">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:textColor">?android:colorPrimary</item>
         <item name="android:textSize">@dimen/main_metric_text_size</item>
         <item name="android:padding">@dimen/main_text_padding</item>
