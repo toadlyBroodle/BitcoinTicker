@@ -26,7 +26,7 @@
             android:id="@+id/widget_last_update_time"
             android:layout_width="@dimen/widget_metric_header_text_width"
             android:textSize="@dimen/widget_last_update_text_size"
-            android:text="@string/loading"
+            android:text="@string/dash"
             style="@style/WidgetMetricHeaderText"
             tools:ignore="SmallSp" />
 
@@ -62,25 +62,25 @@
         <TextView
             android:id="@+id/widget_textview_price_value"
             android:contentDescription="@string/usd_btc"
-            android:text="@string/loading"
+            android:text="@string/dash"
             style="@style/WidgetMetricText"/>
 
         <TextView
             android:id="@+id/widget_textview_price_delta_day_value"
             android:contentDescription="@string/delta_day"
-            android:text="@string/loading"
+            android:text="@string/dash"
             style="@style/WidgetMetricDeltaText"/>
 
         <TextView
             android:id="@+id/widget_textview_price_delta_week_value"
             android:contentDescription="@string/delta_week"
-            android:text="@string/loading"
+            android:text="@string/dash"
             style="@style/WidgetMetricDeltaText"/>
 
         <TextView
             android:id="@+id/widget_textview_price_delta_month_value"
             android:contentDescription="@string/delta_month"
-            android:text="@string/loading"
+            android:text="@string/dash"
             style="@style/WidgetMetricDeltaText"/>
 
     </LinearLayout>
@@ -98,25 +98,25 @@
         <TextView
             android:id="@+id/widget_textview_market_cap_value"
             android:contentDescription="@string/market_cap"
-            android:text="@string/loading"
+            android:text="@string/dash"
             style="@style/WidgetMetricText"/>
 
         <TextView
             android:id="@+id/widget_textview_market_cap_delta_day_value"
             android:contentDescription="@string/market_cap"
-            android:text="@string/loading"
+            android:text="@string/dash"
             style="@style/WidgetMetricDeltaText"/>
 
         <TextView
             android:id="@+id/widget_textview_market_cap_delta_week_value"
             android:contentDescription="@string/market_cap"
-            android:text="@string/loading"
+            android:text="@string/dash"
             style="@style/WidgetMetricDeltaText"/>
 
         <TextView
             android:id="@+id/widget_textview_market_cap_delta_month_value"
             android:contentDescription="@string/market_cap"
-            android:text="@string/loading"
+            android:text="@string/dash"
             style="@style/WidgetMetricDeltaText"/>
     </LinearLayout>
 
@@ -133,25 +133,25 @@
         <TextView
             android:id="@+id/widget_textview_volume_value"
             android:contentDescription="@string/day_volume"
-            android:text="@string/loading"
+            android:text="@string/dash"
             style="@style/WidgetMetricText"/>
 
         <TextView
             android:id="@+id/widget_textview_volume_delta_day_value"
             android:contentDescription="@string/delta_day"
-            android:text="@string/loading"
+            android:text="@string/dash"
             style="@style/WidgetMetricDeltaText"/>
 
         <TextView
             android:id="@+id/widget_textview_volume_delta_week_value"
             android:contentDescription="@string/delta_day"
-            android:text="@string/loading"
+            android:text="@string/dash"
             style="@style/WidgetMetricDeltaText"/>
 
         <TextView
             android:id="@+id/widget_textview_volume_delta_month_value"
             android:contentDescription="@string/delta_day"
-            android:text="@string/loading"
+            android:text="@string/dash"
             style="@style/WidgetMetricDeltaText"/>
     </LinearLayout>
 

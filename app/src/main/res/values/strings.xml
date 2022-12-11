@@ -6,7 +6,8 @@
 
     <string name="usd">USD</string>
     <string name="usd_btc">USD/BTC</string>
-    <string name="loading">…</string>
+    <string name="dash">-</string>
+    <string name="elipsis">…</string>
     <string name="fail_contact_cg_server">problem contacting coingecko.com…</string>
     <string name="fail_contact_gn_server">problem contacting api.glassnode.com…</string>
     <string name="bad_cg_server_response">bad response from coingecko.com</string>
@@ -16,6 +17,7 @@
     <string name="value">Value</string>
     <string name="day_volume">24h Volume</string>
     <string name="category_on_chain">On-Chain</string>
+    <string name="addr_new">Addr. New</string>
     <string name="addr_active">Addr. Active</string>
     <string name="delta_day">dΔ%</string>
     <string name="delta_week">wΔ%</string>

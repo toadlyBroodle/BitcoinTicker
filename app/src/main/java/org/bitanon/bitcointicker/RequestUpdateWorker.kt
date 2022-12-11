@@ -54,16 +54,19 @@ private const val urlCGReqBtcMarketCharts = "https://api.coingecko.com/api/v3/co
 //private const val urlCGReqBtcCommunity = "https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&market_data=false&community_data=true&developer_data=true&sparkline=false"
 
 // Glass Node API categories and standard metrics
-const val CATEGORY = "CTGY"
-const val CTGY_ADDR = "addresses"
-const val CTGY_BLKCHN = "blockchain"
-const val CTGY_INDCTR = "indicators"
-const val METRIC = "MTRC"
-const val MTRC_STD_ADDR_ACT = "active_count"
-const val MTRC_STD_SOPR = "sopr"
-// Glass Node api url requests
+const val CATEGORY_NAME = "CATEGORY_NAME"
+const val CATEGORY_MARKET = "market"
+const val CATEGORY_ADDRESSES = "addresses"
+const val CATEGORY_BLOCKCHAIN = "blockchain"
+const val CATEGORY_INDICATORS = "indicators"
+const val METRIC_NAME = "METRIC_NAME"
+const val METRIC_STD_ADDR_NEW = "new_non_zero_count"
+const val METRIC_STD_ADDR_ACT = "active_count"
+const val METRIC_STD_SOPR = "sopr"
+
+// Glass Node api metrics request url
 private const val GN_API_KEY = "2IAEmfitRCvwMC16c1Qtrr61XXE"
-private const val urlGNReqMetric= "https://api.glassnode.com/v1/metrics/$CATEGORY/$METRIC?a=btc&api_key=$GN_API_KEY"
+private const val urlGNReqMetric= "https://api.glassnode.com/v1/metrics/$CATEGORY_NAME/$METRIC_NAME?a=btc&api_key=$GN_API_KEY"
 
 class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerParameters)
 	: CoroutineWorker(appContext, workerParams) {
@@ -112,7 +115,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 
 		if (prefCurr != null) {
 			pingCoinGeckoCom(prefCurr)
-			getReqGlassNodeMetrics()
+			requestGlassNodeMetrics()
 		}
 
 		return Result.success()
@@ -138,7 +141,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 		})
 	}
 
-	fun getCoinGeckoCurrentPrice(prefCurrency: String) {
+	private fun getCoinGeckoCurrentPrice(prefCurrency: String) {
 
 		//build correct url based on currency preference
 		val cur = prefCurrency.lowercase()
@@ -184,7 +187,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 		})
 	}
 
-	fun getCoinGeckoDailyMarketCharts(prefCurrency: String, currData: List<Float>) {
+	private fun getCoinGeckoDailyMarketCharts(prefCurrency: String, currData: List<Float>) {
 
 		//build correct url based on currency preference
 		val cur = prefCurrency.lowercase()
@@ -234,32 +237,43 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 		})
 	}
 
-	fun getReqGlassNodeMetrics() {
+	private fun requestGlassNodeMetrics() {
 		// request active addresses
-		val urlActvAddr = urlGNReqMetric.replace(CATEGORY, CTGY_ADDR).replace(METRIC, MTRC_STD_ADDR_ACT)
-		val request = Request.Builder()
-			.url(urlActvAddr)
-			.build()
+		sendRequest(METRIC_STD_ADDR_ACT)
+		sendRequest(METRIC_STD_ADDR_NEW)
+	}
 
-		client.newCall(request).enqueue(object : Callback {
+	private fun sendRequest(metric_name: String) {
+		var category = ""
+		when (metric_name) {
+			METRIC_STD_ADDR_ACT -> category = CATEGORY_ADDRESSES
+			METRIC_STD_ADDR_NEW -> category = CATEGORY_ADDRESSES
+		}
+
+		val urlActvAddr = urlGNReqMetric.replace(CATEGORY_NAME, category).replace(METRIC_NAME, metric_name)
+
+		val req = Request.Builder().url(urlActvAddr).build()
+
+		client.newCall(req).enqueue(object : Callback {
 			override fun onFailure(call: Call, e: IOException) {
-				println("api.glassnode.com request failed: ${e.message}")
+				println("api.glassnode.com $metric_name request failed: ${e.message}")
 				sendMainToast(appContext.getString(R.string.fail_contact_gn_server))
 			}
 			override fun onResponse(call: Call, response: Response) {
-				println("api.glassnode.com responded with active addresses")
+				println("api.glassnode.com responded with $metric_name")
 
 				// parse glassnode json response
 				val listOfLists = response.body()?.let { parseGNJsonMetric(it.string()) }
 
 				// get deltas
-				val actAddrDeltas = listOfLists?.let { Calculator.getDeltas(it) }
+				val listDeltas = listOfLists?.let { Calculator.getDeltas(it) }
 
 				val intent = Intent().apply {
 					action = BROADCAST_GN_METRICS_UPDATED
 					putExtra(WIDGIT_ID, widgetId)
 					// serialize deltas list and add to intent
-					putExtra(MTRC_STD_ADDR_ACT, Gson().toJson(actAddrDeltas))
+					putExtra(METRIC_NAME, metric_name)
+					putExtra(metric_name, Gson().toJson(listDeltas))
 				}
 				LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
 
@@ -294,22 +308,27 @@ fun parseCGJsonMarketCharts(json: String): DailyCGCharts {
 }
 
 data class GNMetricMap(val t: Int, val v: Int) {}
-fun parseGNJsonMetric(json: String): List<List<Number>> {
-	val typeToken = object : TypeToken<Array<GNMetricMap>>() {}.type
-	val arrayOfMaps: Array<GNMetricMap> = Gson().fromJson(json, typeToken)
-	// convert glassnode data from <Array<GNMetricMap>> to List<List<Number>> format
-	val listOfListOfNum = mutableListOf<List<Number>>()
-	// fill list with last 30 days of data
-	for ((i, map) in arrayOfMaps.withIndex().reversed()) {
-		listOfListOfNum.add(listOf<Number>(map.t, map.v))
-		if (i <= arrayOfMaps.size - 30) break
-	} // return reverse ordered list
-	return listOfListOfNum.reversed()
+fun parseGNJsonMetric(json: String): List<List<Number>>? {
+	try {
+		val typeToken = object : TypeToken<Array<GNMetricMap>>() {}.type
+		val arrayOfMaps: Array<GNMetricMap> = Gson().fromJson(json, typeToken)
+		// convert glassnode data from <Array<GNMetricMap>> to List<List<Number>> format
+		val listOfListOfNum = mutableListOf<List<Number>>()
+		// fill list with last 30 days of data
+		for ((i, map) in arrayOfMaps.withIndex().reversed()) {
+			listOfListOfNum.add(listOf<Number>(map.t, map.v))
+			if (i <= arrayOfMaps.size - 30) break
+		} // return reverse ordered list
+		return listOfListOfNum.reversed()
+	} catch (e: Exception) {
+		println("Parsing api.glassnode.com json error: ${e.message}\n$json")
+		return null
+	}
 }
 
 // Formatting functions
 fun numberToCurrency(number: String?, prefCurrency: String): String {
-	if (number == "…") return "…"
+	if (number.isNullOrBlank() || number == "-") return "-"
 	val int = stringToInt(number)
 	val format: NumberFormat = NumberFormat.getCurrencyInstance()
 	format.maximumFractionDigits = 0
@@ -318,15 +337,15 @@ fun numberToCurrency(number: String?, prefCurrency: String): String {
 }
 
 fun stringToInt (str: String?): Int {
-	if (str == "-1") return -1
-	val digits = str?.filter { it.isDigit() }
+	if (str.isNullOrBlank() || str == "-1") return -1
+	val digits = str.filter { it.isDigit() }
 	//println("converted $currency to $digits")
-	if (digits.isNullOrBlank()) return -1
+	if (digits.isBlank()) return -1
 	return digits.toInt()
 }
 
-fun prettyBigNumber(str: String): String? {
-	if (str == "…") return "…"
+fun prettyBigNumber(str: String?): String? {
+	if (str.isNullOrBlank() || str == "null" || str == "-") return "-"
 	val number = str.toDouble()
 	val suffix = charArrayOf(' ', 'k', 'M', 'B', 'T', 'P', 'E')
 	val numValue = number.toLong()

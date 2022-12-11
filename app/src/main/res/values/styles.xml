@@ -18,6 +18,7 @@
         <item name="android:layout_width">@dimen/main_metric_header_width</item>
         <item name="android:textColor">@color/light_orange</item>
         <item name="android:textSize">@dimen/main_metric_header_text_size</item>
+        <item name="android:text">@string/dash</item>
         <item name="android:padding">@dimen/main_text_padding</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:maxLines">1</item>
@@ -50,6 +51,7 @@
         <item name="android:layout_width">@dimen/main_metric_header_width</item>
         <item name="android:textColor">?android:colorPrimary</item>
         <item name="android:textSize">@dimen/main_metric_text_size</item>
+        <item name="android:text">@string/dash</item>
         <item name="android:padding">@dimen/main_text_padding</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:maxLines">1</item>

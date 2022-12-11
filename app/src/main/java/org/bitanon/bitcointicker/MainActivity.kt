@@ -45,7 +45,8 @@ class MainActivity : AppCompatActivity() {
     private var prefMarketCapDeltaDay: Float = 0f
     private var prefMarketCapDeltaWeek: Float = 0f
     private var prefMarketCapDeltaMonth: Float = 0f
-    private lateinit var prefAddrActive: MutableList<Float>
+    private var prefAddrNew: MutableList<Float>? = null
+    private var prefAddrActive: MutableList<Float>? = null
     private var lastCGReqTime: Long = 0
 
     private lateinit var llMain: LinearLayout
@@ -64,6 +65,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvMarketCapDeltaDay: TextView
     private lateinit var tvMarketCapDeltaWeek: TextView
     private lateinit var tvMarketCapDeltaMonth: TextView
+    private lateinit var tvAddrNew: TextView
+    private lateinit var tvAddrNewDeltaDay: TextView
+    private lateinit var tvAddrNewDeltaWeek: TextView
+    private lateinit var tvAddrNewDeltaMonth: TextView
     private lateinit var tvAddrActive: TextView
     private lateinit var tvAddrActiveDeltaDay: TextView
     private lateinit var tvAddrActiveDeltaWeek: TextView
@@ -114,6 +119,10 @@ class MainActivity : AppCompatActivity() {
         tvMarketCapDeltaWeek = findViewById(R.id.textview_market_cap_delta_week_value)
         tvMarketCapDeltaMonth = findViewById(R.id.textview_market_cap_delta_month_value)
 
+        tvAddrNew = findViewById(R.id.textview_addr_new_value)
+        tvAddrNewDeltaDay = findViewById(R.id.textview_addr_new_delta_day_value)
+        tvAddrNewDeltaWeek = findViewById(R.id.textview_addr_new_delta_week_value)
+        tvAddrNewDeltaMonth = findViewById(R.id.textview_addr_new_delta_month_value)
         tvAddrActive = findViewById(R.id.textview_addr_active_value)
         tvAddrActiveDeltaDay = findViewById(R.id.textview_addr_active_delta_day_value)
         tvAddrActiveDeltaWeek = findViewById(R.id.textview_addr_active_delta_week_value)
@@ -190,10 +199,14 @@ class MainActivity : AppCompatActivity() {
             tvMarketCapDeltaDay.text = formatChangePercent(prefMarketCapDeltaDay)
             tvMarketCapDeltaWeek.text = formatChangePercent(prefMarketCapDeltaWeek)
             tvMarketCapDeltaMonth.text = formatChangePercent(prefMarketCapDeltaMonth)
-            tvAddrActive.text = prettyBigNumber(prefAddrActive[0].toString())
-            tvAddrActiveDeltaDay.text = formatChangePercent(prefAddrActive[1])
-            tvAddrActiveDeltaWeek.text = formatChangePercent(prefAddrActive[2])
-            tvAddrActiveDeltaMonth.text = formatChangePercent(prefAddrActive[3])
+            tvAddrNew.text = prettyBigNumber(prefAddrNew?.get(0).toString())
+            tvAddrNewDeltaDay.text = formatChangePercent(prefAddrNew?.get(1))
+            tvAddrNewDeltaWeek.text = formatChangePercent(prefAddrNew?.get(2))
+            tvAddrNewDeltaMonth.text = formatChangePercent(prefAddrNew?.get(3))
+            tvAddrActive.text = prettyBigNumber(prefAddrActive?.get(0).toString())
+            tvAddrActiveDeltaDay.text = formatChangePercent(prefAddrActive?.get(1))
+            tvAddrActiveDeltaWeek.text = formatChangePercent(prefAddrActive?.get(2))
+            tvAddrActiveDeltaMonth.text = formatChangePercent(prefAddrActive?.get(3))
 
             // change color of delta metrics
             for (row in llMain.children) {
@@ -201,20 +214,16 @@ class MainActivity : AppCompatActivity() {
                 for (tv in row.children) {
                     tv as TextView
 
-                    val childId = resources.getResourceName(tv.id)
-                    // not metric headers nor labels
-                    if ("header" in childId || "label" in childId) continue
+                    // don't color if value not yet set
+                    if (tv.text == getString(R.string.dash))
+                        continue
 
-                    if ("week" in childId || "month" in childId) {
-                        // positive deltas turn green
-                        if (tv.text.toString().toFloat() > 0)
-                            tv.setTextColor(getColor(R.color.green))
-                        // positive deltas turn red, ignore zeros
-                        if (tv.text.toString().toFloat() < 0)
-                            tv.setTextColor(getColor(R.color.red))
-                    }
+                    val tvId = resources.getResourceName(tv.id)
+                    // not metric headers nor labels
+                    if ("header" in tvId || "label" in tvId) continue
+
                     // set corresponding metrics same color as day deltas
-                    if ("day" in childId) {
+                    if ("day" in tvId) {
                         // positive deltas green, neg red, zeros orange
                         val color = if (tv.text.toString().toFloat() > 0)
                                 getColor(R.color.green)
@@ -222,14 +231,25 @@ class MainActivity : AppCompatActivity() {
                                 getColor(R.color.red) else getColor(R.color.orange)
                         tv.setTextColor(color)
                         // also turn corresponding metrics same color as delta day
-                        if ("price" in childId)
+                        if ("price" in tvId)
                             tvPrice.setTextColor(color)
-                        if ("market_cap" in childId)
+                        if ("market_cap" in tvId)
                             tvMarketCap.setTextColor(color)
-                        if ("volume" in childId)
+                        if ("volume" in tvId)
                             tvVolume.setTextColor(color)
-                        if ("addr_active" in childId)
+                        if ("addr_new" in tvId)
+                            tvAddrNew.setTextColor(color)
+                        if ("addr_active" in tvId)
                             tvAddrActive.setTextColor(color)
+                    }
+
+                    if ("week" in tvId || "month" in tvId) {
+                        // positive deltas turn green
+                        if (tv.text.toString().toFloat() > 0)
+                            tv.setTextColor(getColor(R.color.green))
+                        // positive deltas turn red, ignore zeros
+                        if (tv.text.toString().toFloat() < 0)
+                            tv.setTextColor(getColor(R.color.red))
                     }
                 }
             }
@@ -279,9 +299,15 @@ class MainActivity : AppCompatActivity() {
                     prefMarketCapDeltaMonth = intent.getFloatExtra(MARKET_CAP_DELTA_MONTH, 0f)
                 }
                 BROADCAST_GN_METRICS_UPDATED -> {
-                    val addAct = intent.getStringExtra(MTRC_STD_ADDR_ACT)?.let { getListFromJson(it) }
-                    if (addAct != null)
-                        prefAddrActive = addAct
+                    val metricName = intent.getStringExtra(METRIC_NAME)
+                    when (metricName) {
+                        METRIC_STD_ADDR_NEW ->
+                            prefAddrNew = intent.getStringExtra(METRIC_STD_ADDR_NEW)
+                                ?.let{ getListFromJson(it) }
+                        METRIC_STD_ADDR_ACT ->
+                            prefAddrActive = intent.getStringExtra(METRIC_STD_ADDR_ACT)
+                                ?.let { getListFromJson(it) }
+                    }
                 }
             }
             savePrefs()
@@ -297,10 +323,10 @@ class MainActivity : AppCompatActivity() {
     private fun loadPrefs() {
         val sharedPrefs = getSharedPreferences(MAIN_PREFS, 0)
         prefCurrency = sharedPrefs.getString(CURRENCY, "USD").toString()
-        prefPrice = sharedPrefs.getString(CURR_PRICE, getString(R.string.loading)).toString()
-        prefMarketCap = sharedPrefs.getString(CURR_MARKET_CAP, getString(R.string.loading)).toString()
-        prefDayVolume = sharedPrefs.getString(CURR_DAY_VOLUME, getString(R.string.loading)).toString()
-        prefLastUpdate = sharedPrefs.getString(CURR_LAST_UPDATE, getString(R.string.loading)).toString()
+        prefPrice = sharedPrefs.getString(CURR_PRICE, getString(R.string.dash)).toString()
+        prefMarketCap = sharedPrefs.getString(CURR_MARKET_CAP, getString(R.string.dash)).toString()
+        prefDayVolume = sharedPrefs.getString(CURR_DAY_VOLUME, getString(R.string.dash)).toString()
+        prefLastUpdate = sharedPrefs.getString(CURR_LAST_UPDATE, getString(R.string.dash)).toString()
         prefPriceDeltaDay = sharedPrefs.getFloat(PRICE_DELTA_DAY, 0f)
         prefPriceDeltaWeek = sharedPrefs.getFloat(PRICE_DELTA_WEEK, 0f)
         prefPriceDeltaMonth = sharedPrefs.getFloat(PRICE_DELTA_MONTH , 0f)
@@ -311,10 +337,10 @@ class MainActivity : AppCompatActivity() {
         prefMarketCapDeltaWeek = sharedPrefs.getFloat(MARKET_CAP_DELTA_WEEK , 0f)
         prefMarketCapDeltaMonth = sharedPrefs.getFloat(MARKET_CAP_DELTA_MONTH, 0f)
 
-        val addAct = sharedPrefs.getString(MTRC_STD_ADDR_ACT, null)
-        if (addAct != null)
-            prefAddrActive = getListFromJson(addAct)
-        else prefAddrActive = mutableListOf(0f,0f,0f,0f)
+        val addrNew = sharedPrefs.getString(METRIC_STD_ADDR_NEW, null)
+        prefAddrNew = addrNew?.let { getListFromJson(it) }
+        val addrAct = sharedPrefs.getString(METRIC_STD_ADDR_ACT, null)
+        prefAddrActive = addrAct?.let { getListFromJson(it) }
         println("loaded sharedPrefs: ${sharedPrefs.all}")
     }
 
@@ -338,33 +364,31 @@ class MainActivity : AppCompatActivity() {
             putFloat(MARKET_CAP_DELTA_DAY, prefMarketCapDeltaDay)
             putFloat(MARKET_CAP_DELTA_WEEK, prefMarketCapDeltaWeek)
             putFloat(MARKET_CAP_DELTA_MONTH, prefMarketCapDeltaMonth)
-            putString(MTRC_STD_ADDR_ACT, Gson().toJson(prefAddrActive))
+            putString(METRIC_STD_ADDR_NEW, Gson().toJson(prefAddrNew))
+            putString(METRIC_STD_ADDR_ACT, Gson().toJson(prefAddrActive))
 
         }.commit()
         println("saved sharedPrefs: ${prefs.all}")
     }
 }
 
-fun getListFromJson(jsonStr: String): MutableList<Float> {
+fun getListFromJson(jsonStr: String): MutableList<Float>? {
     val type = object : TypeToken<MutableList<Float>>() {}.type
     return Gson().fromJson(jsonStr, type)
 }
 
-fun formatChangePercent(dc: Float): CharSequence {
-    try {
-        return "%.2f".format(dc)
-    } catch (e: Exception) {
-        return "…"
-    }
+fun formatChangePercent(dc: Float?): CharSequence {
+    if (dc == null) return "-"
+    return "%.2f".format(dc)
 }
 
-fun getDateTime(s: String): String? {
-    if (s == "…") return "…"
+fun getDateTime(s: String?): String? {
+    if (s.isNullOrBlank() || s == "-") return "-"
     val sdf = SimpleDateFormat("HH:mm[dd/MM]")
     val netDate = try {
         Date(s.toLong() * 1000)
     } catch (e: Exception) {
-        return "…"
+        return "-"
     }
     return sdf.format(netDate)
 }

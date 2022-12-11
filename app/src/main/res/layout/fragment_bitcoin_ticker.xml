@@ -28,7 +28,6 @@
         <TextView
             android:id="@+id/textview_header_last_update"
             android:layout_width="@dimen/main_metric_label_width"
-            android:text="@string/loading"
             android:textSize="11sp"
             style="@style/MainMetricHeaderText"/>
 
@@ -60,22 +59,18 @@
         <TextView
             android:id="@+id/textview_price_value"
             android:layout_width="@dimen/main_metric_label_width"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_price_delta_day_value"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_price_delta_week_value"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_price_delta_month_value"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
     </LinearLayout>
@@ -90,22 +85,18 @@
         <TextView
             android:id="@+id/textview_market_cap_value"
             android:layout_width="@dimen/main_metric_label_width"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_market_cap_delta_day_value"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_market_cap_delta_week_value"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_market_cap_delta_month_value"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
     </LinearLayout>
@@ -120,22 +111,18 @@
         <TextView
             android:id="@+id/textview_volume_value"
             android:layout_width="@dimen/main_metric_label_width"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_volume_delta_day_value"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_volume_delta_week_value"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_volume_delta_month_value"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
     </LinearLayout>
@@ -154,28 +141,50 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:id="@+id/textview_addr_new"
+            android:text="@string/addr_new"
+            style="@style/MainMetricLabelText"/>
+
+        <TextView
+            android:id="@+id/textview_addr_new_value"
+            android:layout_width="@dimen/main_metric_label_width"
+            style="@style/MainMetricText"/>
+
+        <TextView
+            android:id="@+id/textview_addr_new_delta_day_value"
+            style="@style/MainMetricText"/>
+
+        <TextView
+            android:id="@+id/textview_addr_new_delta_week_value"
+            style="@style/MainMetricText"/>
+
+        <TextView
+            android:id="@+id/textview_addr_new_delta_month_value"
+            style="@style/MainMetricText"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
             android:id="@+id/textview_addr_active"
             android:text="@string/addr_active"
             style="@style/MainMetricLabelText"/>
         <TextView
             android:id="@+id/textview_addr_active_value"
             android:layout_width="@dimen/main_metric_label_width"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_addr_active_delta_day_value"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_addr_active_delta_week_value"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
 
         <TextView
             android:id="@+id/textview_addr_active_delta_month_value"
-            android:text="@string/loading"
             style="@style/MainMetricText"/>
     </LinearLayout>
 </LinearLayout>
