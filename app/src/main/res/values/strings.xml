@@ -44,6 +44,8 @@
     <string name="fee_median">Fees Median</string>
     <string name="fee_mean">Fees Mean</string>
     <string name="fee_total">Fees Total</string>
+    <string name="sopr">SOPR</string>
+    <string name="category_indicators">Indicators</string>
 
 
 </resources>

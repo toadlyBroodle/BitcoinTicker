@@ -20,6 +20,7 @@ import androidx.work.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.bitanon.bitcointicker.databinding.ActivityMainBinding
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -51,6 +52,7 @@ class MainActivity : AppCompatActivity() {
     private var prefFeeTot: MutableList<Float>? = null
     private var prefFeeMean: MutableList<Float>? = null
     private var prefFeeMedian: MutableList<Float>? = null
+    private var prefSopr: MutableList<Float>? = null
 
     private lateinit var llMain: LinearLayout
     private lateinit var tvLastCGUpdate: TextView
@@ -88,6 +90,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvFeeMedianDeltaDay: TextView
     private lateinit var tvFeeMedianDeltaWeek: TextView
     private lateinit var tvFeeMedianDeltaMonth: TextView
+    private lateinit var tvSopr: TextView
+    private lateinit var tvSoprDeltaDay: TextView
+    private lateinit var tvSoprDeltaWeek: TextView
+    private lateinit var tvSoprDeltaMonth: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -154,6 +160,10 @@ class MainActivity : AppCompatActivity() {
         tvFeeMedianDeltaDay = findViewById(R.id.textview_fee_median_delta_day_value)
         tvFeeMedianDeltaWeek = findViewById(R.id.textview_fee_median_delta_week_value)
         tvFeeMedianDeltaMonth = findViewById(R.id.textview_fee_median_delta_month_value)
+        tvSopr = findViewById(R.id.textview_sopr_value)
+        tvSoprDeltaDay = findViewById(R.id.textview_sopr_delta_day_value)
+        tvSoprDeltaWeek = findViewById(R.id.textview_sopr_delta_week_value)
+        tvSoprDeltaMonth = findViewById(R.id.textview_sopr_delta_month_value)
      }
 
     override fun onResume() {
@@ -247,6 +257,10 @@ class MainActivity : AppCompatActivity() {
             tvFeeMedianDeltaDay.text = formatChangePercent(prefFeeMedian?.get(1))
             tvFeeMedianDeltaWeek.text = formatChangePercent(prefFeeMedian?.get(2))
             tvFeeMedianDeltaMonth.text = formatChangePercent(prefFeeMedian?.get(3))
+            tvSopr.text = formatRatio(prefSopr?.get(0))
+            tvSoprDeltaDay.text = formatChangePercent(prefSopr?.get(1))
+            tvSoprDeltaWeek.text = formatChangePercent(prefSopr?.get(2))
+            tvSoprDeltaMonth.text = formatChangePercent(prefSopr?.get(3))
 
             // change color of delta metrics
             for (row in llMain.children) {
@@ -287,6 +301,8 @@ class MainActivity : AppCompatActivity() {
                             tvFeeMean.setTextColor(color)
                         if ("fee_median" in tvId)
                             tvFeeMedian.setTextColor(color)
+                        if ("sopr" in tvId)
+                            tvSopr.setTextColor(color)
                     }
 
                     if ("week" in tvId || "month" in tvId) {
@@ -361,6 +377,9 @@ class MainActivity : AppCompatActivity() {
                         METRIC_STD_FEE_MEDIAN ->
                             prefFeeMedian = intent.getStringExtra(METRIC_STD_FEE_MEDIAN)
                                 ?.let { getListFromJson(it) }
+                        METRIC_STD_SOPR ->
+                            prefSopr = intent.getStringExtra(METRIC_STD_SOPR)
+                                ?.let { getListFromJson(it) }
                     }
                 }
             }
@@ -400,6 +419,8 @@ class MainActivity : AppCompatActivity() {
         prefFeeMean = feeMean?.let { getListFromJson(it) }
         val feeMed = sharedPrefs.getString(METRIC_STD_FEE_MEDIAN, null)
         prefFeeMedian = feeMed?.let { getListFromJson(it) }
+        val sopr = sharedPrefs.getString(METRIC_STD_SOPR, null)
+        prefSopr = sopr?.let { getListFromJson(it) }
 
         println("loaded sharedPrefs: ${sharedPrefs.all}")
     }
@@ -429,6 +450,7 @@ class MainActivity : AppCompatActivity() {
             putString(METRIC_STD_FEE_TOT, Gson().toJson(prefFeeTot))
             putString(METRIC_STD_FEE_MEAN, Gson().toJson(prefFeeMean))
             putString(METRIC_STD_FEE_MEDIAN, Gson().toJson(prefFeeMedian))
+            putString(METRIC_STD_SOPR, Gson().toJson(prefSopr))
 
         }.commit()
         println("saved sharedPrefs: ${prefs.all}")
@@ -443,6 +465,11 @@ fun getListFromJson(jsonStr: String): MutableList<Float>? {
 fun formatChangePercent(dc: Float?): CharSequence {
     if (dc == null) return "-"
     return "%.2f".format(dc)
+}
+
+fun formatRatio(float: Float?): String {
+    if (float == null) return "-"
+    return DecimalFormat("##.##").format(float)
 }
 
 fun getDateTime(s: String?): String? {

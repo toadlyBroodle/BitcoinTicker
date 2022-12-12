@@ -248,6 +248,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 		sendRequest(METRIC_STD_FEE_TOT)
 		sendRequest(METRIC_STD_FEE_MEAN)
 		sendRequest(METRIC_STD_FEE_MEDIAN)
+		sendRequest(METRIC_STD_SOPR)
 	}
 
 	private fun sendRequest(metric_name: String) {
@@ -258,6 +259,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 			METRIC_STD_FEE_TOT -> category = CATEGORY_FEES
 			METRIC_STD_FEE_MEAN -> category = CATEGORY_FEES
 			METRIC_STD_FEE_MEDIAN -> category = CATEGORY_FEES
+			METRIC_STD_SOPR -> category = CATEGORY_INDICATORS
 		}
 
 		val urlActvAddr = urlGNReqMetric.replace(CATEGORY_NAME, category).replace(METRIC_NAME, metric_name)
