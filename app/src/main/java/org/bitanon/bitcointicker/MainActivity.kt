@@ -219,105 +219,6 @@ class MainActivity : AppCompatActivity() {
                 || super.onSupportNavigateUp()
     }
 
-    fun updateUI() {
-        //update price
-        runOnUiThread {
-            tvLastCGUpdate.text = getDateTime(prefLastUpdate)
-            tvPriceLabel.text = "$prefCurrency/BTC"
-            tvPrice.text = numberToCurrency(prefPrice, prefCurrency)
-            tvPriceDeltaDay.text = formatChangePercent(prefPriceDeltaDay)
-            tvPriceDeltaWeek.text = formatChangePercent(prefPriceDeltaWeek)
-            tvPriceDeltaMonth.text = formatChangePercent(prefPriceDeltaMonth)
-            tvVolume.text = prettyBigNumber(prefDayVolume)
-            tvVolumeDeltaDay.text = formatChangePercent(prefVolumeDeltaDay)
-            tvVolumeDeltaWeek.text = formatChangePercent(prefVolumeDeltaWeek)
-            tvVolumeDeltaMonth.text = formatChangePercent(prefVolumeDeltaMonth)
-            tvMarketCap.text = prettyBigNumber(prefMarketCap)
-            tvMarketCapDeltaDay.text = formatChangePercent(prefMarketCapDeltaDay)
-            tvMarketCapDeltaWeek.text = formatChangePercent(prefMarketCapDeltaWeek)
-            tvMarketCapDeltaMonth.text = formatChangePercent(prefMarketCapDeltaMonth)
-            tvAddrNew.text = prettyBigNumber(prefAddrNew?.get(0).toString())
-            tvAddrNewDeltaDay.text = formatChangePercent(prefAddrNew?.get(1))
-            tvAddrNewDeltaWeek.text = formatChangePercent(prefAddrNew?.get(2))
-            tvAddrNewDeltaMonth.text = formatChangePercent(prefAddrNew?.get(3))
-            tvAddrActive.text = prettyBigNumber(prefAddrActive?.get(0).toString())
-            tvAddrActiveDeltaDay.text = formatChangePercent(prefAddrActive?.get(1))
-            tvAddrActiveDeltaWeek.text = formatChangePercent(prefAddrActive?.get(2))
-            tvAddrActiveDeltaMonth.text = formatChangePercent(prefAddrActive?.get(3))
-            tvFeeTot.text = getString(R.string.bitcoin_symbol) +
-                    prettyBigNumber(prefFeeTot?.get(0).toString())
-            tvFeeTotDeltaDay.text = formatChangePercent(prefFeeTot?.get(1))
-            tvFeeTotDeltaWeek.text = formatChangePercent(prefFeeTot?.get(2))
-            tvFeeTotDeltaMonth.text = formatChangePercent(prefFeeTot?.get(3))
-            tvFeeMean.text = prettyBigNumber(btcToSats(prefFeeMean?.get(0))) + "s"
-            tvFeeMeanDeltaDay.text = formatChangePercent(prefFeeMean?.get(1))
-            tvFeeMeanDeltaWeek.text = formatChangePercent(prefFeeMean?.get(2))
-            tvFeeMeanDeltaMonth.text = formatChangePercent(prefFeeMean?.get(3))
-            tvFeeMedian.text = prettyBigNumber(btcToSats(prefFeeMedian?.get(0))) + "s"
-            tvFeeMedianDeltaDay.text = formatChangePercent(prefFeeMedian?.get(1))
-            tvFeeMedianDeltaWeek.text = formatChangePercent(prefFeeMedian?.get(2))
-            tvFeeMedianDeltaMonth.text = formatChangePercent(prefFeeMedian?.get(3))
-            tvSopr.text = formatRatio(prefSopr?.get(0))
-            tvSoprDeltaDay.text = formatChangePercent(prefSopr?.get(1))
-            tvSoprDeltaWeek.text = formatChangePercent(prefSopr?.get(2))
-            tvSoprDeltaMonth.text = formatChangePercent(prefSopr?.get(3))
-
-            // change color of delta metrics
-            for (row in llMain.children) {
-                row as LinearLayout
-                for (tv in row.children) {
-                    tv as TextView
-
-                    // don't color if value not yet set
-                    if (tv.text == getString(R.string.dash))
-                        continue
-
-                    val tvId = resources.getResourceName(tv.id)
-                    // not metric headers nor labels
-                    if ("header" in tvId || "label" in tvId) continue
-
-                    // set corresponding metrics same color as day deltas
-                    if ("day" in tvId) {
-                        // positive deltas green, neg red, zeros orange
-                        val color = if (tv.text.toString().toFloat() > 0)
-                                getColor(R.color.green)
-                            else if (tv.text.toString().toFloat() < 0)
-                                getColor(R.color.red) else getColor(R.color.orange)
-                        tv.setTextColor(color)
-                        // also turn corresponding metrics same color as delta day
-                        if ("price" in tvId)
-                            tvPrice.setTextColor(color)
-                        if ("market_cap" in tvId)
-                            tvMarketCap.setTextColor(color)
-                        if ("volume" in tvId)
-                            tvVolume.setTextColor(color)
-                        if ("addr_new" in tvId)
-                            tvAddrNew.setTextColor(color)
-                        if ("addr_active" in tvId)
-                            tvAddrActive.setTextColor(color)
-                        if ("fee_total" in tvId)
-                            tvFeeTot.setTextColor(color)
-                        if ("fee_mean" in tvId)
-                            tvFeeMean.setTextColor(color)
-                        if ("fee_median" in tvId)
-                            tvFeeMedian.setTextColor(color)
-                        if ("sopr" in tvId)
-                            tvSopr.setTextColor(color)
-                    }
-
-                    if ("week" in tvId || "month" in tvId) {
-                        // positive deltas turn green
-                        if (tv.text.toString().toFloat() > 0)
-                            tv.setTextColor(getColor(R.color.green))
-                        // positive deltas turn red, ignore zeros
-                        if (tv.text.toString().toFloat() < 0)
-                            tv.setTextColor(getColor(R.color.red))
-                    }
-                }
-            }
-        }
-    }
-
     private fun queryPriceServer() {
         // construct recurring price query
         val priceReq = OneTimeWorkRequestBuilder<RequestUpdateWorker>()
@@ -455,21 +356,112 @@ class MainActivity : AppCompatActivity() {
         }.commit()
         println("saved sharedPrefs: ${prefs.all}")
     }
+
+    fun updateUI() {
+        //update price
+        runOnUiThread {
+            tvLastCGUpdate.text = getDateTime(prefLastUpdate)
+            tvPriceLabel.text = "$prefCurrency/BTC"
+            tvPrice.text = numberToCurrency(prefPrice, prefCurrency)
+            tvPriceDeltaDay.text = formatChangePercent(prefPriceDeltaDay)
+            tvPriceDeltaWeek.text = formatChangePercent(prefPriceDeltaWeek)
+            tvPriceDeltaMonth.text = formatChangePercent(prefPriceDeltaMonth)
+            tvVolume.text = prettyBigNumber(prefDayVolume)
+            tvVolumeDeltaDay.text = formatChangePercent(prefVolumeDeltaDay)
+            tvVolumeDeltaWeek.text = formatChangePercent(prefVolumeDeltaWeek)
+            tvVolumeDeltaMonth.text = formatChangePercent(prefVolumeDeltaMonth)
+            tvMarketCap.text = prettyBigNumber(prefMarketCap)
+            tvMarketCapDeltaDay.text = formatChangePercent(prefMarketCapDeltaDay)
+            tvMarketCapDeltaWeek.text = formatChangePercent(prefMarketCapDeltaWeek)
+            tvMarketCapDeltaMonth.text = formatChangePercent(prefMarketCapDeltaMonth)
+            tvAddrNew.text = prettyBigNumber(prefAddrNew?.get(0).toString())
+            tvAddrNewDeltaDay.text = formatChangePercent(prefAddrNew?.get(1))
+            tvAddrNewDeltaWeek.text = formatChangePercent(prefAddrNew?.get(2))
+            tvAddrNewDeltaMonth.text = formatChangePercent(prefAddrNew?.get(3))
+            tvAddrActive.text = prettyBigNumber(prefAddrActive?.get(0).toString())
+            tvAddrActiveDeltaDay.text = formatChangePercent(prefAddrActive?.get(1))
+            tvAddrActiveDeltaWeek.text = formatChangePercent(prefAddrActive?.get(2))
+            tvAddrActiveDeltaMonth.text = formatChangePercent(prefAddrActive?.get(3))
+            tvFeeTot.text = getString(R.string.bitcoin_symbol) +
+                    prettyBigNumber(prefFeeTot?.get(0).toString())
+            tvFeeTotDeltaDay.text = formatChangePercent(prefFeeTot?.get(1))
+            tvFeeTotDeltaWeek.text = formatChangePercent(prefFeeTot?.get(2))
+            tvFeeTotDeltaMonth.text = formatChangePercent(prefFeeTot?.get(3))
+            tvFeeMean.text = prettyBigNumber(btcToSats(prefFeeMean?.get(0))) + "s"
+            tvFeeMeanDeltaDay.text = formatChangePercent(prefFeeMean?.get(1))
+            tvFeeMeanDeltaWeek.text = formatChangePercent(prefFeeMean?.get(2))
+            tvFeeMeanDeltaMonth.text = formatChangePercent(prefFeeMean?.get(3))
+            tvFeeMedian.text = prettyBigNumber(btcToSats(prefFeeMedian?.get(0))) + "s"
+            tvFeeMedianDeltaDay.text = formatChangePercent(prefFeeMedian?.get(1))
+            tvFeeMedianDeltaWeek.text = formatChangePercent(prefFeeMedian?.get(2))
+            tvFeeMedianDeltaMonth.text = formatChangePercent(prefFeeMedian?.get(3))
+            tvSopr.text = formatRatio(prefSopr?.get(0))
+            tvSoprDeltaDay.text = formatChangePercent(prefSopr?.get(1))
+            tvSoprDeltaWeek.text = formatChangePercent(prefSopr?.get(2))
+            tvSoprDeltaMonth.text = formatChangePercent(prefSopr?.get(3))
+
+            // change color of delta metrics
+            for (row in llMain.children) {
+                row as LinearLayout
+                for (tv in row.children) {
+                    tv as TextView
+
+                    // don't color if value not yet set
+                    if (tv.text == getString(R.string.dash))
+                        continue
+
+                    val tvId = resources.getResourceName(tv.id)
+                    // not metric headers nor labels
+                    if ("header" in tvId || "label" in tvId) continue
+
+                    // set corresponding metrics same color as day deltas
+                    if ("day" in tvId) {
+                        // positive deltas green, neg red, zeros orange
+                        val color = if (tv.text.toString().toFloat() > 0)
+                            getColor(R.color.green)
+                        else if (tv.text.toString().toFloat() < 0)
+                            getColor(R.color.red) else getColor(R.color.orange)
+                        tv.setTextColor(color)
+                        // also turn corresponding metrics same color as delta day
+                        if ("price" in tvId)
+                            tvPrice.setTextColor(color)
+                        if ("market_cap" in tvId)
+                            tvMarketCap.setTextColor(color)
+                        if ("volume" in tvId)
+                            tvVolume.setTextColor(color)
+                        if ("addr_new" in tvId)
+                            tvAddrNew.setTextColor(color)
+                        if ("addr_active" in tvId)
+                            tvAddrActive.setTextColor(color)
+                        if ("fee_total" in tvId)
+                            tvFeeTot.setTextColor(color)
+                        if ("fee_mean" in tvId)
+                            tvFeeMean.setTextColor(color)
+                        if ("fee_median" in tvId)
+                            tvFeeMedian.setTextColor(color)
+                        if ("sopr" in tvId)
+                            tvSopr.setTextColor(color)
+                    }
+
+                    if ("week" in tvId || "month" in tvId) {
+                        // positive deltas turn green
+                        if (tv.text.toString().toFloat() > 0)
+                            tv.setTextColor(getColor(R.color.green))
+                        // positive deltas turn red, ignore zeros
+                        if (tv.text.toString().toFloat() < 0)
+                            tv.setTextColor(getColor(R.color.red))
+                    }
+                }
+            }
+        }
+    }
 }
+
+
 
 fun getListFromJson(jsonStr: String): MutableList<Float>? {
     val type = object : TypeToken<MutableList<Float>>() {}.type
     return Gson().fromJson(jsonStr, type)
-}
-
-fun formatChangePercent(dc: Float?): CharSequence {
-    if (dc == null) return "-"
-    return "%.2f".format(dc)
-}
-
-fun formatRatio(float: Float?): String {
-    if (float == null) return "-"
-    return DecimalFormat("##.##").format(float)
 }
 
 fun getDateTime(s: String?): String? {
@@ -481,4 +473,14 @@ fun getDateTime(s: String?): String? {
         return "-"
     }
     return sdf.format(netDate)
+}
+
+fun formatChangePercent(dc: Float?): CharSequence {
+    if (dc == null) return "-"
+    return "%.2f".format(dc)
+}
+
+fun formatRatio(float: Float?): String {
+    if (float == null) return "-"
+    return DecimalFormat("##.##").format(float)
 }
