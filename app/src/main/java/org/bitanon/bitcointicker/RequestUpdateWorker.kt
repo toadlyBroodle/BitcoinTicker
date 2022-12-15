@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.annotation.Keep
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.CoroutineWorker
@@ -208,7 +209,13 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 			override fun onResponse(call: Call, response: Response) {
 				println("coingeck.com responded with market charts")
 
-				val charts = parseCGJsonMarketCharts(response.body()!!.string())
+				val charts = response.body()?.let { parseCGJsonMarketCharts(it.string()) }
+
+				//println(charts.toString())
+				if (charts == null) {
+					println("coingecko's response market charts are null")
+					return
+				}
 
 				// replace current day with most recently updated values
 				charts.prices[charts.prices.lastIndex][1] = currData[0]
@@ -311,6 +318,7 @@ fun parseCGJsonCurrentMarkets(json: String): JSONObject {
 	return obj.getJSONObject("bitcoin")
 }
 
+@Keep // Do not obfuscate! Variable names are needed for parsers
 data class DailyCGCharts(var prices: List<MutableList<Number>>,
 						 var market_caps: List<MutableList<Number>>,
 						 var total_volumes: List<MutableList<Number>>) {}
@@ -319,6 +327,7 @@ fun parseCGJsonMarketCharts(json: String): DailyCGCharts {
 	return Gson().fromJson(json, typeToken)
 }
 
+@Keep // Do not obfuscate! Variable names are needed for parsers
 data class GNMetricMap(val t: Int, val v: Float) {}
 fun parseGNJsonMetric(json: String): List<List<Number>>? {
 	try {
