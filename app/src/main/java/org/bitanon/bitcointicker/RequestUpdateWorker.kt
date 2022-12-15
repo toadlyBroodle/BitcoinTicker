@@ -61,6 +61,8 @@ const val CATEGORY_ADDRESSES = "addresses"
 const val CATEGORY_FEES = "fees"
 const val CATEGORY_BLOCKCHAIN = "blockchain"
 const val CATEGORY_INDICATORS = "indicators"
+const val CATEGORY_INSTITUTIONS = "institutions"
+
 const val METRIC_NAME = "METRIC_NAME"
 const val METRIC_STD_ADDR_NEW = "new_non_zero_count"
 const val METRIC_STD_ADDR_ACT = "active_count"
@@ -68,6 +70,8 @@ const val METRIC_STD_FEE_TOT = "volume_sum"
 const val METRIC_STD_FEE_MEAN = "volume_mean"
 const val METRIC_STD_FEE_MEDIAN = "volume_median"
 const val METRIC_STD_SOPR = "sopr"
+const val METRIC_STD_PI_CYCLE_TOP = "pi_cycle_top"
+const val METRIC_STD_BTCC_HOLD = "purpose_etf_holdings_sum"
 
 // Glass Node api metrics request url
 private const val GN_API_KEY = "2IAEmfitRCvwMC16c1Qtrr61XXE"
@@ -89,12 +93,13 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 			val channel = NotificationChannel(
 				NOTIFICATION_CHANNEL_ID,
 				NOTIFICATION_CHANNEL_NAME,
-				NotificationManager.IMPORTANCE_HIGH
+				NotificationManager.IMPORTANCE_LOW
 			)
 			notificationManager.createNotificationChannel(channel)
 		}
 		val notification = NotificationCompat.Builder(appContext, NOTIFICATION_CHANNEL_ID)
-			.setContentIntent(PendingIntent.getActivity(appContext, 0, Intent(appContext, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE))
+			.setContentIntent(PendingIntent.getActivity(appContext, 0,
+				Intent(appContext, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE))
 			.setSmallIcon(R.mipmap.ic_launcher)
 			.setOngoing(true)
 			.setAutoCancel(true)
@@ -256,6 +261,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 		sendRequest(METRIC_STD_FEE_MEAN)
 		sendRequest(METRIC_STD_FEE_MEDIAN)
 		sendRequest(METRIC_STD_SOPR)
+		sendRequest(METRIC_STD_BTCC_HOLD)
 	}
 
 	private fun sendRequest(metric_name: String) {
@@ -267,6 +273,8 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 			METRIC_STD_FEE_MEAN -> category = CATEGORY_FEES
 			METRIC_STD_FEE_MEDIAN -> category = CATEGORY_FEES
 			METRIC_STD_SOPR -> category = CATEGORY_INDICATORS
+			METRIC_STD_PI_CYCLE_TOP -> category = CATEGORY_INDICATORS
+			METRIC_STD_BTCC_HOLD -> category = CATEGORY_INSTITUTIONS
 		}
 
 		val urlActvAddr = urlGNReqMetric.replace(CATEGORY_NAME, category).replace(METRIC_NAME, metric_name)

@@ -53,6 +53,7 @@ class MainActivity : AppCompatActivity() {
     private var prefFeeMean: MutableList<Float>? = null
     private var prefFeeMedian: MutableList<Float>? = null
     private var prefSopr: MutableList<Float>? = null
+    private var prefBtccHold: MutableList<Float>? = null
 
     private lateinit var llMain: LinearLayout
     private lateinit var tvLastCGUpdate: TextView
@@ -94,6 +95,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvSoprDeltaDay: TextView
     private lateinit var tvSoprDeltaWeek: TextView
     private lateinit var tvSoprDeltaMonth: TextView
+    private lateinit var tvBtccHold: TextView
+    private lateinit var tvBtccHoldDeltaDay: TextView
+    private lateinit var tvBtccHoldDeltaWeek: TextView
+    private lateinit var tvBtccHoldDeltaMonth: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -164,6 +169,10 @@ class MainActivity : AppCompatActivity() {
         tvSoprDeltaDay = findViewById(R.id.textview_sopr_delta_day_value)
         tvSoprDeltaWeek = findViewById(R.id.textview_sopr_delta_week_value)
         tvSoprDeltaMonth = findViewById(R.id.textview_sopr_delta_month_value)
+        tvBtccHold = findViewById(R.id.textview_btcc_hold_value)
+        tvBtccHoldDeltaDay = findViewById(R.id.textview_btcc_hold_delta_day_value)
+        tvBtccHoldDeltaWeek = findViewById(R.id.textview_btcc_hold_delta_week_value)
+        tvBtccHoldDeltaMonth = findViewById(R.id.textview_btcc_hold_delta_month_value)
      }
 
     override fun onResume() {
@@ -281,6 +290,9 @@ class MainActivity : AppCompatActivity() {
                         METRIC_STD_SOPR ->
                             prefSopr = intent.getStringExtra(METRIC_STD_SOPR)
                                 ?.let { getListFromJson(it) }
+                        METRIC_STD_BTCC_HOLD ->
+                            prefBtccHold = intent.getStringExtra(METRIC_STD_BTCC_HOLD)
+                                ?.let { getListFromJson(it) }
                     }
                 }
             }
@@ -322,6 +334,8 @@ class MainActivity : AppCompatActivity() {
         prefFeeMedian = feeMed?.let { getListFromJson(it) }
         val sopr = sharedPrefs.getString(METRIC_STD_SOPR, null)
         prefSopr = sopr?.let { getListFromJson(it) }
+        val btccHold = sharedPrefs.getString(METRIC_STD_BTCC_HOLD, null)
+        prefBtccHold = btccHold?.let { getListFromJson(it) }
 
         println("loaded sharedPrefs: ${sharedPrefs.all}")
     }
@@ -352,6 +366,7 @@ class MainActivity : AppCompatActivity() {
             putString(METRIC_STD_FEE_MEAN, Gson().toJson(prefFeeMean))
             putString(METRIC_STD_FEE_MEDIAN, Gson().toJson(prefFeeMedian))
             putString(METRIC_STD_SOPR, Gson().toJson(prefSopr))
+            putString(METRIC_STD_BTCC_HOLD, Gson().toJson(prefBtccHold))
 
         }.commit()
         println("saved sharedPrefs: ${prefs.all}")
@@ -399,6 +414,11 @@ class MainActivity : AppCompatActivity() {
             tvSoprDeltaDay.text = formatChangePercent(prefSopr?.get(1))
             tvSoprDeltaWeek.text = formatChangePercent(prefSopr?.get(2))
             tvSoprDeltaMonth.text = formatChangePercent(prefSopr?.get(3))
+            tvBtccHold.text = getString(R.string.bitcoin_symbol) +
+                    prettyBigNumber(prefBtccHold?.get(0).toString())
+            tvBtccHoldDeltaDay.text = formatChangePercent(prefBtccHold?.get(1))
+            tvBtccHoldDeltaWeek.text = formatChangePercent(prefBtccHold?.get(2))
+            tvBtccHoldDeltaMonth.text = formatChangePercent(prefBtccHold?.get(3))
 
             // change color of delta metrics
             for (row in llMain.children) {
@@ -441,6 +461,8 @@ class MainActivity : AppCompatActivity() {
                             tvFeeMedian.setTextColor(color)
                         if ("sopr" in tvId)
                             tvSopr.setTextColor(color)
+                        if ("btcc_hold" in tvId)
+                            tvBtccHold.setTextColor(color)
                     }
 
                     if ("week" in tvId || "month" in tvId) {

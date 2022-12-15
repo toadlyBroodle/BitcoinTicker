@@ -18,6 +18,7 @@
     <string name="category_market">Market</string>
     <string name="category_on_chain">On-Chain</string>
     <string name="category_indicators">Indicators</string>
+    <string name="category_institutions">Institutions</string>
     <string name="market_cap">Market Cap</string>
     <string name="value">Value</string>
     <string name="day_volume">24h Volume</string>
@@ -27,6 +28,7 @@
     <string name="fee_mean">Fees Mean</string>
     <string name="fee_total">Fees Total</string>
     <string name="sopr">SOPR</string>
+    <string name="btcc_hold">BTCC Hlds</string>
     <string name="delta_day">dΔ%</string>
     <string name="delta_week">wΔ%</string>
     <string name="delta_month">mΔ%</string>
