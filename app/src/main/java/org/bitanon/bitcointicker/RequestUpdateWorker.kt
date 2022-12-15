@@ -56,10 +56,10 @@ private const val urlCGReqBtcMarketCharts = "https://api.coingecko.com/api/v3/co
 
 // Glass Node API categories and standard metrics
 const val CATEGORY_NAME = "CATEGORY_NAME"
-const val CATEGORY_MARKET = "market"
+//const val CATEGORY_MARKET = "market"
 const val CATEGORY_ADDRESSES = "addresses"
 const val CATEGORY_FEES = "fees"
-const val CATEGORY_BLOCKCHAIN = "blockchain"
+//const val CATEGORY_BLOCKCHAIN = "blockchain"
 const val CATEGORY_INDICATORS = "indicators"
 const val CATEGORY_INSTITUTIONS = "institutions"
 

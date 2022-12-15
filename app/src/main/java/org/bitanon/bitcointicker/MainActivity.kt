@@ -24,6 +24,13 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
+/*
+====TODOs====
+-change settings to fragment
+-add metrics info fragment
+-add glassnode user API key input to settings
+-fix failed load widget on first attempt
+*/
 
 const val MAIN_PREFS = "main_prefs"
 
