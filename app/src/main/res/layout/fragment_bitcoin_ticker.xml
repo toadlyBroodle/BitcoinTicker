@@ -282,6 +282,32 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:id="@+id/textview_hodl_1yr"
+            android:text="@string/hodl_1yr"
+            style="@style/MainMetricLabelText"/>
+        <TextView
+            android:id="@+id/textview_hodl_1yr_value"
+            android:layout_width="@dimen/main_metric_label_width"
+            style="@style/MainMetricText"/>
+
+        <TextView
+            android:id="@+id/textview_hodl_1yr_delta_day_value"
+            style="@style/MainMetricText"/>
+
+        <TextView
+            android:id="@+id/textview_hodl_1yr_delta_week_value"
+            style="@style/MainMetricText"/>
+
+        <TextView
+            android:id="@+id/textview_hodl_1yr_delta_month_value"
+            style="@style/MainMetricText"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
             android:id="@+id/textview_sopr"
             android:text="@string/sopr"
             style="@style/MainMetricLabelText"/>

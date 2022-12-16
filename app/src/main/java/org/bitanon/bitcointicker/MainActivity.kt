@@ -26,10 +26,14 @@ import java.util.*
 
 /*
 ====TODOs====
+Shorterm:
 -change settings to fragment
 -add metrics info fragment
 -add glassnode user API key input to settings
 -fix failed load widget on first attempt
+-nest main in vert/hor scroll windows
+Longterm:
+-add metric charts fragment
 */
 
 const val MAIN_PREFS = "main_prefs"
@@ -59,6 +63,7 @@ class MainActivity : AppCompatActivity() {
     private var prefFeeTot: MutableList<Float>? = null
     private var prefFeeMean: MutableList<Float>? = null
     private var prefFeeMedian: MutableList<Float>? = null
+    private var prefHodl1Yr: MutableList<Float>? = null
     private var prefSopr: MutableList<Float>? = null
     private var prefBtccHold: MutableList<Float>? = null
 
@@ -98,6 +103,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvFeeMedianDeltaDay: TextView
     private lateinit var tvFeeMedianDeltaWeek: TextView
     private lateinit var tvFeeMedianDeltaMonth: TextView
+    private lateinit var tvHodl1Yr: TextView
+    private lateinit var tvHodl1YrDeltaDay: TextView
+    private lateinit var tvHodl1YrDeltaWeek: TextView
+    private lateinit var tvHodl1YrDeltaMonth: TextView
     private lateinit var tvSopr: TextView
     private lateinit var tvSoprDeltaDay: TextView
     private lateinit var tvSoprDeltaWeek: TextView
@@ -172,6 +181,10 @@ class MainActivity : AppCompatActivity() {
         tvFeeMedianDeltaDay = findViewById(R.id.textview_fee_median_delta_day_value)
         tvFeeMedianDeltaWeek = findViewById(R.id.textview_fee_median_delta_week_value)
         tvFeeMedianDeltaMonth = findViewById(R.id.textview_fee_median_delta_month_value)
+        tvHodl1Yr = findViewById(R.id.textview_hodl_1yr_value)
+        tvHodl1YrDeltaDay = findViewById(R.id.textview_hodl_1yr_delta_day_value)
+        tvHodl1YrDeltaWeek = findViewById(R.id.textview_hodl_1yr_delta_week_value)
+        tvHodl1YrDeltaMonth = findViewById(R.id.textview_hodl_1yr_delta_month_value)
         tvSopr = findViewById(R.id.textview_sopr_value)
         tvSoprDeltaDay = findViewById(R.id.textview_sopr_delta_day_value)
         tvSoprDeltaWeek = findViewById(R.id.textview_sopr_delta_week_value)
@@ -294,6 +307,9 @@ class MainActivity : AppCompatActivity() {
                         METRIC_STD_FEE_MEDIAN ->
                             prefFeeMedian = intent.getStringExtra(METRIC_STD_FEE_MEDIAN)
                                 ?.let { getListFromJson(it) }
+                        METRIC_STD_HODL_1YR ->
+                            prefHodl1Yr = intent.getStringExtra(METRIC_STD_HODL_1YR)
+                                ?.let { getListFromJson(it) }
                         METRIC_STD_SOPR ->
                             prefSopr = intent.getStringExtra(METRIC_STD_SOPR)
                                 ?.let { getListFromJson(it) }
@@ -339,6 +355,8 @@ class MainActivity : AppCompatActivity() {
         prefFeeMean = feeMean?.let { getListFromJson(it) }
         val feeMed = sharedPrefs.getString(METRIC_STD_FEE_MEDIAN, null)
         prefFeeMedian = feeMed?.let { getListFromJson(it) }
+        val hodl_1yr = sharedPrefs.getString(METRIC_STD_HODL_1YR, null)
+        prefHodl1Yr = hodl_1yr?.let { getListFromJson(it) }
         val sopr = sharedPrefs.getString(METRIC_STD_SOPR, null)
         prefSopr = sopr?.let { getListFromJson(it) }
         val btccHold = sharedPrefs.getString(METRIC_STD_BTCC_HOLD, null)
@@ -372,6 +390,7 @@ class MainActivity : AppCompatActivity() {
             putString(METRIC_STD_FEE_TOT, Gson().toJson(prefFeeTot))
             putString(METRIC_STD_FEE_MEAN, Gson().toJson(prefFeeMean))
             putString(METRIC_STD_FEE_MEDIAN, Gson().toJson(prefFeeMedian))
+            putString(METRIC_STD_HODL_1YR, Gson().toJson(prefHodl1Yr))
             putString(METRIC_STD_SOPR, Gson().toJson(prefSopr))
             putString(METRIC_STD_BTCC_HOLD, Gson().toJson(prefBtccHold))
 
@@ -385,47 +404,51 @@ class MainActivity : AppCompatActivity() {
             tvLastCGUpdate.text = getDateTime(prefLastUpdate)
             tvPriceLabel.text = "$prefCurrency/BTC"
             tvPrice.text = numberToCurrency(prefPrice, prefCurrency)
-            tvPriceDeltaDay.text = formatChangePercent(prefPriceDeltaDay)
-            tvPriceDeltaWeek.text = formatChangePercent(prefPriceDeltaWeek)
-            tvPriceDeltaMonth.text = formatChangePercent(prefPriceDeltaMonth)
+            tvPriceDeltaDay.text = formatAsChangePercent(prefPriceDeltaDay)
+            tvPriceDeltaWeek.text = formatAsChangePercent(prefPriceDeltaWeek)
+            tvPriceDeltaMonth.text = formatAsChangePercent(prefPriceDeltaMonth)
             tvVolume.text = prettyBigNumber(prefDayVolume)
-            tvVolumeDeltaDay.text = formatChangePercent(prefVolumeDeltaDay)
-            tvVolumeDeltaWeek.text = formatChangePercent(prefVolumeDeltaWeek)
-            tvVolumeDeltaMonth.text = formatChangePercent(prefVolumeDeltaMonth)
+            tvVolumeDeltaDay.text = formatAsChangePercent(prefVolumeDeltaDay)
+            tvVolumeDeltaWeek.text = formatAsChangePercent(prefVolumeDeltaWeek)
+            tvVolumeDeltaMonth.text = formatAsChangePercent(prefVolumeDeltaMonth)
             tvMarketCap.text = prettyBigNumber(prefMarketCap)
-            tvMarketCapDeltaDay.text = formatChangePercent(prefMarketCapDeltaDay)
-            tvMarketCapDeltaWeek.text = formatChangePercent(prefMarketCapDeltaWeek)
-            tvMarketCapDeltaMonth.text = formatChangePercent(prefMarketCapDeltaMonth)
+            tvMarketCapDeltaDay.text = formatAsChangePercent(prefMarketCapDeltaDay)
+            tvMarketCapDeltaWeek.text = formatAsChangePercent(prefMarketCapDeltaWeek)
+            tvMarketCapDeltaMonth.text = formatAsChangePercent(prefMarketCapDeltaMonth)
             tvAddrNew.text = prettyBigNumber(prefAddrNew?.get(0).toString())
-            tvAddrNewDeltaDay.text = formatChangePercent(prefAddrNew?.get(1))
-            tvAddrNewDeltaWeek.text = formatChangePercent(prefAddrNew?.get(2))
-            tvAddrNewDeltaMonth.text = formatChangePercent(prefAddrNew?.get(3))
+            tvAddrNewDeltaDay.text = formatAsChangePercent(prefAddrNew?.get(1))
+            tvAddrNewDeltaWeek.text = formatAsChangePercent(prefAddrNew?.get(2))
+            tvAddrNewDeltaMonth.text = formatAsChangePercent(prefAddrNew?.get(3))
             tvAddrActive.text = prettyBigNumber(prefAddrActive?.get(0).toString())
-            tvAddrActiveDeltaDay.text = formatChangePercent(prefAddrActive?.get(1))
-            tvAddrActiveDeltaWeek.text = formatChangePercent(prefAddrActive?.get(2))
-            tvAddrActiveDeltaMonth.text = formatChangePercent(prefAddrActive?.get(3))
+            tvAddrActiveDeltaDay.text = formatAsChangePercent(prefAddrActive?.get(1))
+            tvAddrActiveDeltaWeek.text = formatAsChangePercent(prefAddrActive?.get(2))
+            tvAddrActiveDeltaMonth.text = formatAsChangePercent(prefAddrActive?.get(3))
             tvFeeTot.text = getString(R.string.bitcoin_symbol) +
                     prettyBigNumber(prefFeeTot?.get(0).toString())
-            tvFeeTotDeltaDay.text = formatChangePercent(prefFeeTot?.get(1))
-            tvFeeTotDeltaWeek.text = formatChangePercent(prefFeeTot?.get(2))
-            tvFeeTotDeltaMonth.text = formatChangePercent(prefFeeTot?.get(3))
+            tvFeeTotDeltaDay.text = formatAsChangePercent(prefFeeTot?.get(1))
+            tvFeeTotDeltaWeek.text = formatAsChangePercent(prefFeeTot?.get(2))
+            tvFeeTotDeltaMonth.text = formatAsChangePercent(prefFeeTot?.get(3))
             tvFeeMean.text = prettyBigNumber(btcToSats(prefFeeMean?.get(0))) + "s"
-            tvFeeMeanDeltaDay.text = formatChangePercent(prefFeeMean?.get(1))
-            tvFeeMeanDeltaWeek.text = formatChangePercent(prefFeeMean?.get(2))
-            tvFeeMeanDeltaMonth.text = formatChangePercent(prefFeeMean?.get(3))
+            tvFeeMeanDeltaDay.text = formatAsChangePercent(prefFeeMean?.get(1))
+            tvFeeMeanDeltaWeek.text = formatAsChangePercent(prefFeeMean?.get(2))
+            tvFeeMeanDeltaMonth.text = formatAsChangePercent(prefFeeMean?.get(3))
             tvFeeMedian.text = prettyBigNumber(btcToSats(prefFeeMedian?.get(0))) + "s"
-            tvFeeMedianDeltaDay.text = formatChangePercent(prefFeeMedian?.get(1))
-            tvFeeMedianDeltaWeek.text = formatChangePercent(prefFeeMedian?.get(2))
-            tvFeeMedianDeltaMonth.text = formatChangePercent(prefFeeMedian?.get(3))
-            tvSopr.text = formatRatio(prefSopr?.get(0))
-            tvSoprDeltaDay.text = formatChangePercent(prefSopr?.get(1))
-            tvSoprDeltaWeek.text = formatChangePercent(prefSopr?.get(2))
-            tvSoprDeltaMonth.text = formatChangePercent(prefSopr?.get(3))
+            tvFeeMedianDeltaDay.text = formatAsChangePercent(prefFeeMedian?.get(1))
+            tvFeeMedianDeltaWeek.text = formatAsChangePercent(prefFeeMedian?.get(2))
+            tvFeeMedianDeltaMonth.text = formatAsChangePercent(prefFeeMedian?.get(3))
+            tvHodl1Yr.text = formatAsPercent(prefHodl1Yr?.get(0))
+            tvHodl1YrDeltaDay.text = formatAsChangePercent(prefHodl1Yr?.get(1))
+            tvHodl1YrDeltaWeek.text = formatAsChangePercent(prefHodl1Yr?.get(2))
+            tvHodl1YrDeltaMonth.text = formatAsChangePercent(prefHodl1Yr?.get(3))
+            tvSopr.text = formatAsRatio(prefSopr?.get(0))
+            tvSoprDeltaDay.text = formatAsChangePercent(prefSopr?.get(1))
+            tvSoprDeltaWeek.text = formatAsChangePercent(prefSopr?.get(2))
+            tvSoprDeltaMonth.text = formatAsChangePercent(prefSopr?.get(3))
             tvBtccHold.text = getString(R.string.bitcoin_symbol) +
                     prettyBigNumber(prefBtccHold?.get(0).toString())
-            tvBtccHoldDeltaDay.text = formatChangePercent(prefBtccHold?.get(1))
-            tvBtccHoldDeltaWeek.text = formatChangePercent(prefBtccHold?.get(2))
-            tvBtccHoldDeltaMonth.text = formatChangePercent(prefBtccHold?.get(3))
+            tvBtccHoldDeltaDay.text = formatAsChangePercent(prefBtccHold?.get(1))
+            tvBtccHoldDeltaWeek.text = formatAsChangePercent(prefBtccHold?.get(2))
+            tvBtccHoldDeltaMonth.text = formatAsChangePercent(prefBtccHold?.get(3))
 
             // change color of delta metrics
             for (row in llMain.children) {
@@ -466,6 +489,8 @@ class MainActivity : AppCompatActivity() {
                             tvFeeMean.setTextColor(color)
                         if ("fee_median" in tvId)
                             tvFeeMedian.setTextColor(color)
+                        if ("hodl_1yr" in tvId)
+                            tvHodl1Yr.setTextColor(color)
                         if ("sopr" in tvId)
                             tvSopr.setTextColor(color)
                         if ("btcc_hold" in tvId)
@@ -504,12 +529,17 @@ fun getDateTime(s: String?): String? {
     return sdf.format(netDate)
 }
 
-fun formatChangePercent(dc: Float?): CharSequence {
+fun formatAsPercent(dc: Float?): CharSequence {
+    if (dc == null) return "-"
+    return "%.1f".format(dc * 100) + "%"
+}
+
+fun formatAsChangePercent(dc: Float?): CharSequence {
     if (dc == null) return "-"
     return "%.2f".format(dc)
 }
 
-fun formatRatio(float: Float?): String {
+fun formatAsRatio(float: Float?): String {
     if (float == null) return "-"
     return DecimalFormat("##.##").format(float)
 }

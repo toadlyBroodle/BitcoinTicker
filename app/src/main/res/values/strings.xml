@@ -27,6 +27,7 @@
     <string name="fee_median">Fees Median</string>
     <string name="fee_mean">Fees Mean</string>
     <string name="fee_total">Fees Total</string>
+    <string name="hodl_1yr">Hodl 1Year</string>
     <string name="sopr">SOPR</string>
     <string name="btcc_hold">BTCC Hlds</string>
     <string name="delta_day">dΔ%</string>
@@ -48,6 +49,7 @@
     <string name="reload_widget">reload widget</string>
     <string name="background_transparency">Background transparency</string>
     <string name="color">Color</string>
+
 
 
 </resources>

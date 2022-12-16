@@ -62,6 +62,7 @@ const val CATEGORY_FEES = "fees"
 //const val CATEGORY_BLOCKCHAIN = "blockchain"
 const val CATEGORY_INDICATORS = "indicators"
 const val CATEGORY_INSTITUTIONS = "institutions"
+const val CATEGORY_SUPPLY = "supply"
 
 const val METRIC_NAME = "METRIC_NAME"
 const val METRIC_STD_ADDR_NEW = "new_non_zero_count"
@@ -69,6 +70,7 @@ const val METRIC_STD_ADDR_ACT = "active_count"
 const val METRIC_STD_FEE_TOT = "volume_sum"
 const val METRIC_STD_FEE_MEAN = "volume_mean"
 const val METRIC_STD_FEE_MEDIAN = "volume_median"
+const val METRIC_STD_HODL_1YR = "active_more_1y_percent"
 const val METRIC_STD_SOPR = "sopr"
 const val METRIC_STD_PI_CYCLE_TOP = "pi_cycle_top"
 const val METRIC_STD_BTCC_HOLD = "purpose_etf_holdings_sum"
@@ -262,6 +264,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 		sendRequest(METRIC_STD_FEE_MEDIAN)
 		sendRequest(METRIC_STD_SOPR)
 		sendRequest(METRIC_STD_BTCC_HOLD)
+		sendRequest(METRIC_STD_HODL_1YR)
 	}
 
 	private fun sendRequest(metric_name: String) {
@@ -275,6 +278,7 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 			METRIC_STD_SOPR -> category = CATEGORY_INDICATORS
 			METRIC_STD_PI_CYCLE_TOP -> category = CATEGORY_INDICATORS
 			METRIC_STD_BTCC_HOLD -> category = CATEGORY_INSTITUTIONS
+			METRIC_STD_HODL_1YR -> category = CATEGORY_SUPPLY
 		}
 
 		val urlActvAddr = urlGNReqMetric.replace(CATEGORY_NAME, category).replace(METRIC_NAME, metric_name)
