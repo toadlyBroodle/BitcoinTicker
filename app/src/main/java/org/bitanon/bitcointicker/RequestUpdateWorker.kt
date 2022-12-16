@@ -149,6 +149,10 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 					getCoinGeckoCurrentPrice(prefCurrency)
 				}
 				else sendMainToast(appContext.getString(R.string.bad_cg_server_response))
+
+				// close response body once done with it
+				if (response.body() != null)
+					response.body()!!.close()
 			}
 		})
 	}
@@ -187,7 +191,8 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 				}
 				LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
 				// close response body once done with it
-				response.body()!!.close()
+				if (response.body() != null)
+					response.body()!!.close()
 
 				val currData = mutableListOf(0f,0f,0f)
 				currData[0] = price.toFloat()
@@ -309,7 +314,8 @@ class RequestUpdateWorker(private val appContext: Context, workerParams: WorkerP
 				LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
 
 				// close response body once done with it
-				response.body()!!.close()
+				if (response.body() != null)
+					response.body()!!.close()
 			}
 		})
 	}

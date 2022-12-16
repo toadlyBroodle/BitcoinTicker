@@ -27,13 +27,12 @@ import java.util.*
 /*
 ====TODOs====
 Shorterm:
+-change metric views to listviews
 -change settings to fragment
--add metrics info fragment
 -add glassnode user API key input to settings
--fix failed load widget on first attempt
 -nest main in vert/hor scroll windows
-Longterm:
--add metric charts fragment
+-add metrics info/chart fragment
+-fix failed load widget on first attempt for older android vers
 */
 
 const val MAIN_PREFS = "main_prefs"
@@ -536,7 +535,7 @@ fun formatAsPercent(dc: Float?): CharSequence {
 
 fun formatAsChangePercent(dc: Float?): CharSequence {
     if (dc == null) return "-"
-    return "%.2f".format(dc)
+    return "%.1f".format(dc)
 }
 
 fun formatAsRatio(float: Float?): String {
